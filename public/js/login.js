@@ -13,6 +13,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form = document.querySelector(".login");
     form.addEventListener("submit", (e) => login(e));
+
+    const signupButton = document.getElementById("signup");
+    signupButton.addEventListener("click", signup)
+
+    console.log("signupButton: ", signupButton);
+
+    if (signupButton) {
+        signupButton.addEventListener("click", signup);
+    } else {
+        console.error("❌ signupButton not found in DOM");
+    }
 });
 
 
@@ -44,5 +55,10 @@ login = async (e) => {
         } else {
             alert(loginResponse.message);
         }
-    } catch (error) {console.error(error)};
+    } catch (error) { console.error(error) };
 };
+
+signup = () => {
+    console.log("click signup!");
+    window.location.href = "/signup";
+}

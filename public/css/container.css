@@ -1,5 +1,5 @@
 #container {
-  max-width: 800px;   /* 중앙 영역의 최대 폭 */
+  max-width: 700px;   /* 중앙 영역의 최대 폭 */
   margin: 0 auto;     /* 좌우 자동 여백 → 가운데 정렬 */
   padding: 40px 20px; /* 위아래, 좌우 패딩 */
   box-sizing: border-box;

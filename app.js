@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const path = require('path');
 
 // public 폴더 정적 서빙
-app.use(express.static('public'))
+app.use(express.static('public'));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // .env 값을 브라우저에서 바로 가져올 수 없어서 config.js 파일을 웹 서버가 실행될 때 만듦
 app.get('/config.js', (req, res) => {
@@ -14,8 +16,12 @@ app.get('/config.js', (req, res) => {
 });
 
 // 클라이언트에서 http 요청 메소드 중 get을 이용해서 host:port로 요청 보내면 실행되는 라우트
-app.get('/', (req, res)=>{
+app.get('/login', (req, res)=>{
     res.sendFile(__dirname + "/public/html/login.html")
+})
+
+app.get('/signup', (req,res)=>{
+    res.sendFile(__dirname + "/public/html/signup.html")
 })
 
 // app.listen() 함수를 사용해서 서버 실행

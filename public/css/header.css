@@ -1,5 +1,41 @@
-#header {
-  height: 104px;
-  text-align: center;
+header {
+  position: relative;
+  text-align: center; /* 가로 중앙 정렬 */
   margin-top: 20px;
+  height: 104px;
+}
+
+h1 {
+  margin: 0;
+  line-height: 104px; /* 세로 중앙 정렬 */
+}
+
+input#back {
+  display: none;
+  position: absolute;
+  left: calc(50% - 250px); /* 글자 기준 왼쪽으로 일정 거리 떨어지게 */
+  top: 50%;
+  transform: translateY(-50%); /* 세로 중앙 정렬 */
+  background: url(../../assets/image/back.png) no-repeat center center;
+  background-size: contain;
+  border: none;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+#back.show {
+  display: block !important;
+}
+
+input#back:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+header hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 0;
 }
