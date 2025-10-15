@@ -9,7 +9,7 @@ const validationState = {
 
 
 // css까지 끝난 후 js 실행하기 위해 window.addEventListener("load") 사용
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
     fetch("/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -17,6 +17,14 @@ window.addEventListener("load", () => {
         })
         .then(data => {
             document.getElementById("header").innerHTML = data;
+
+            // 프로필 사진 숨김, 뒤로가기 버튼 보임
+            requestAnimationFrame(() => {
+                const profile = document.querySelector(".profile");
+
+                profile.classList.add("hide");
+            });
+
             document.getElementById("back").addEventListener("click", login)
         })
         .catch(error => console.error(error));
