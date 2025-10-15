@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tn-als/nyne-cloud-community-frontend#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.1.0"
   }
 }

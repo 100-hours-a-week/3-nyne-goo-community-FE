@@ -23,7 +23,8 @@ login = async (e) => {
     const password = document.getElementById("password").value;
 
     try {
-        const response = await fetch('http://localhost:8080/auth', {
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/auth`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
