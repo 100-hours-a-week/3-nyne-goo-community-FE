@@ -1,0 +1,44 @@
+.title {
+  font-weight: bold;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin: 0 auto; /* 가운데 정렬 */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column; /* label을 input 위로 */
+  margin-bottom: 16px;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  background-color: #8e9aff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+}
+
+#signup{
+    text-align: center;
+}
