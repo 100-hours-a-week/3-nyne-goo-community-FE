@@ -8,6 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(data => {
             document.getElementById("header").innerHTML = data;
+
+            // 프로필 사진 숨김
+            requestAnimationFrame(() => {
+                const backButton = document.getElementById("back")
+                const profile = document.querySelector(".profile");
+
+                backButton.classList.add("hide");
+                profile.classList.add("hide");
+            });
         })
         .catch(error => console.error(error));
 
@@ -22,10 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (signupButton) {
         signupButton.addEventListener("click", signup);
     } else {
-        console.error("❌ signupButton not found in DOM");
+        console.error("signupButton not found in DOM");
     }
 });
-
 
 
 login = async (e) => {
@@ -51,7 +59,7 @@ login = async (e) => {
         console.log(loginResponse);
         if (response.ok) {
             localStorage.setItem('accessToken', loginResponse.data.accessToken);
-            alert('로그인 성공');
+            window.location.href = "/home"
         } else {
             alert(loginResponse.message);
         }
