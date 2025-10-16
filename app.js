@@ -16,20 +16,24 @@ app.get('/config.js', (req, res) => {
 });
 
 // 클라이언트에서 http 요청 메소드 중 get을 이용해서 host:port로 요청 보내면 실행되는 라우트
-app.get('/login', (req, res)=>{
-    res.sendFile(__dirname + "/public/html/login.html")
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + "/public/page/login/login.html")
 })
 
-app.get('/signup', (req,res)=>{
-    res.sendFile(__dirname + "/public/html/signup.html")
+app.get('/signup', (req, res) => {
+    res.sendFile(__dirname + "/public/page/signup/signup.html")
 })
 
-app.get('/home', (req, res)=>{
-    res.sendFile(__dirname + "/public/html/home.html")
+app.get('/home', (req, res) => {
+    res.sendFile(__dirname + "/public/page/home/home.html")
+})
+
+app.get('/write', (req, res) => {
+    res.sendFile(__dirname + "/public/page/write_post/write_post.html")
 })
 
 // app.listen() 함수를 사용해서 서버 실행
 // 클라이언트는 'host:port'로 노드 서버에 요청 보낼 수 있음
-app.listen(process.env.PORT, ()=>{
+app.listen(process.env.PORT, () => {
     console.log(`start server http://localhost:${process.env.PORT}`);
 })

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>아무말 대잔치</title>
-    <link rel="stylesheet" href="../css/container.css">
-    <link rel="stylesheet" href="../css/signup.css">
+    <link rel="stylesheet" href="/common/css/container.css">
+    <link rel="stylesheet" href="/page/signup/signup.css">
 </head>
 
 <body>
@@ -18,39 +18,39 @@
                 <div class="profile-section">
                     <p class="label">프로필 사진</p>
                     <div class="profile-upload">
-                        <label for="add-profile" class="profile-circle">
+                        <label for="addProfile" class="profile-circle">
                             <img src="" id="profile" />
                             <span>+</span>
                         </label>
-                        <input type="file" id="add-profile" accept="image/*" hidden>
+                        <input type="file" id="addProfile" accept="image/*" hidden>
                     </div>
                 </div>
 
                 <!-- 회원가입 폼 -->
-                <form id="signup-form">
+                <form id="signupForm">
                     <!-- 이메일 -->
                     <div class="form-group">
                         <label for="email">이메일<span class="required">*</span></label>
                         <div class="input-check-group">
                             <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
-                            <button type="button" class="check-btn" id="check-email">중복확인</button>
+                            <button type="button" class="check-btn" id="checkEmail">중복확인</button>
                         </div>
-                        <p class="error-text" id="email-error"></p>
+                        <p class="error-text" id="emailError"></p>
                     </div>
 
                     <!-- 비밀번호 -->
                     <div class="form-group">
                         <label for="password">비밀번호<span class="required">*</span></label>
                         <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
-                        <p class="error-text" id="password-error"></p>
+                        <p class="error-text" id="passwordError"></p>
                     </div>
 
                     <!-- 비밀번호 확인 -->
                     <div class="form-group">
-                        <label for="password-confirm">비밀번호 확인<span class="required">*</span></label>
-                        <input type="password" id="password-confirm" name="password-confirm"
+                        <label for="passwordConfirm">비밀번호 확인<span class="required">*</span></label>
+                        <input type="password" id="passwordConfirm" name="password-confirm"
                             placeholder="비밀번호를 한 번 더 입력하세요" required>
-                        <p class="error-text" id="password-confirm-error"></p>
+                        <p class="error-text" id="passwordConfirmError"></p>
                     </div>
 
                     <!-- 닉네임 -->
@@ -58,23 +58,24 @@
                         <label for="nickname">닉네임<span class="required">*</span></label>
                         <div class="input-check-group">
                             <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" required>
-                            <button type="button" class="check-btn" id="check-nickname">중복확인</button>
+                            <button type="button" class="check-btn" id="checkNickname">중복확인</button>
                         </div>
-                        <p class="error-text" id="nickname-error"></p>
+                        <p class="error-text" id="nicknameError"></p>
                     </div>
-
-                    <button type="submit" id="signup-btn">회원가입</button>
+                    <div class="button-box">
+                        <button type="submit" id="signupBtn">회원가입</button>
+                    </div>
                 </form>
 
                 <!-- 로그인하러 가기 -->
-                <div id="go-login">
+                <div id="goLoginBtn">
                     <p>로그인하러 가기</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script type="text/javascript" src="../js/signup.js"></script>
+    <script type="text/javascript" src="/page/signup/signup.js"></script>
     <script src="/config.js"></script>
 </body>
 
