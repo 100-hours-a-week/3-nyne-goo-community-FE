@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>아무말 대잔치</title>
-    <link rel="stylesheet" href="../css/login.css">
-    <link rel="stylesheet" href="../css/container.css">
+    <link rel="stylesheet" href="/common/css/container.css">
+    <link rel="stylesheet" href="/page/login/login.css">
 </head>
 
 <body>
@@ -12,7 +12,7 @@
         <div id="header"></div>
         <div id="container">
             <div class="title">
-                <h3>로그인</h3>
+                <h2>로그인</h2>
             </div>
 
             <div id="login">
@@ -26,16 +26,18 @@
                         <label for="password">비밀번호</label>
                         <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
                     </div>
-
-                    <button id="login" type="submit">로그인</button>
+                    <div class="button-box">
+                        <button id="loginBtn" type="submit">로그인</button>
+                    </div>
                 </form>
             </div>
 
-            <button type="button" id="signup">회원가입</button>
-
+            <div class="button-box">
+                <button type="button" id="signupBtn">회원가입</button>
+            </div>
         </div>
     </div>
-    <script type="text/javascript" src="../js/login.js"></script>
+    <script type="text/javascript" src="/page/login/login.js"></script>
     <script src="/config.js"></script>
 </body>
 

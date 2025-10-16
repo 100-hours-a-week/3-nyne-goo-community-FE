@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>아무 말 대잔치 - 게시글 작성</title>
+    <link rel="stylesheet" href="/common/css/container.css">
+    <link rel="stylesheet" href="/page/write_post/write_post.css">
+</head>
+
+<body>
+    <div id="wrap">
+        <div id="header"></div>
+
+        <div id="container">
+            <div class="write-top">
+                <h2>게시글 작성</h2>
+            </div>
+
+            <!-- 게시글 작성 -->
+            <div class="write-post">
+                <form id="writeForm">
+                    <!-- 제목 -->
+                    <div class="form-group">
+                        <label for="title">제목<span class="required">*</span></label>
+                        <input type="text" id="title" name="title" maxlength="26" placeholder="제목을 입력해주세요. (최대 26글자)" required>
+                        <p class="error-text" id="titleError"></p>
+                    </div>
+
+                    <!-- 내용 -->
+                    <div class="form-group">
+                        <label for="content">내용<span class="required">*</span></label>
+                        <textarea id="content" name="content" rows="8" maxlength="2000" placeholder="내용을 입력하세요"
+                            required></textarea>
+                        <p id="count">0 / </p>
+                        <p class="error-text" id="contentError"></p>
+                    </div>
+
+                    <!-- 이미지 -->
+                    <div class="form-group">
+                        <label for="images">이미지 (최대 3장)</label>
+                        <input type="file" id="images" name="images" multiple>
+                        <div class="file-list"></div>
+                    </div>
+
+                    <div class="button-box">
+                        <button type="submit" id="completeBtn">완료</button>
+                    </div>
+            </div>
+
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script src="/page/write_post/write_post.js"></script>
+</body>
+
+</html>

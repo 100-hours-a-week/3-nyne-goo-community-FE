@@ -29,7 +29,7 @@ input {
   font-size: 14px;
 }
 
-button#login {
+button#loginBtn {
   padding: 10px;
   border: none;
   background-color: #8e9aff;
@@ -39,7 +39,7 @@ button#login {
   width: 100%;
 }
 
-button#signup {
+button#signupBtn {
   display: block;          
   margin: 20px auto 0;     /* 가로 중앙 정렬 */
   background: none;        
