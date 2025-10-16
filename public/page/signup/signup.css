@@ -133,7 +133,7 @@ input:focus {
 }
 
 
-/* helper text / error text */
+/* error text */
 .error-text {
     display: none;
     margin-top: 4px;
@@ -143,11 +143,10 @@ input:focus {
 
 .error-text.show {
     display: block;
-    /* ✅ JS로 이 클래스만 추가 */
 }
 
 /* 회원가입 버튼 */
-#signup-btn {
+#signupBtn {
     width: 100%;
     padding: 12px;
     border: none;
@@ -162,23 +161,23 @@ input:focus {
     cursor: not-allowed;
 }
 
-#signup-btn.active {
+#signupBtn.active {
     background-color: #8e9aff;
     color: white;
     cursor: pointer;
 }
 
-#signup-btn.active:hover {
+#signupBtn.active:hover {
     background-color: #7e8cf9;
 }
 
 /* 로그인 이동 */
-#go-login {
+#goLoginBtn {
     text-align: center;
     margin-top: 20px;
 }
 
-#go-login p {
+#goLoginBtn p {
     color: #555;
     cursor: pointer;
     text-decoration: underline;

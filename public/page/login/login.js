@@ -1,7 +1,8 @@
 console.log("login js loaded");
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch("/html/header.html")
+    // 헤더 파일 불러오기
+    fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
             return response.text();
@@ -9,21 +10,19 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
-            // 프로필 사진 숨김
-            requestAnimationFrame(() => {
-                const backButton = document.getElementById("back")
+            // 뒤로가기  버튼, 프로필 사진 숨김
+                const backButton = document.getElementById("backBtn")
                 const profile = document.querySelector(".profile");
 
                 backButton.classList.add("hide");
                 profile.classList.add("hide");
-            });
         })
         .catch(error => console.error(error));
 
     const form = document.querySelector(".login");
     form.addEventListener("submit", (e) => login(e));
 
-    const signupButton = document.getElementById("signup");
+    const signupButton = document.getElementById("signupBtn");
     signupButton.addEventListener("click", signup)
 
     console.log("signupButton: ", signupButton);

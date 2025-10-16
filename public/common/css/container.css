@@ -7,3 +7,22 @@
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", /* 글씨체: pretendard */
                Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+body {
+  background-color: #f9f9f9;
+}
+
+.button-box {
+  text-align: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 700px) {
+  .button-box {
+    flex-direction: column;
+  }
+
+  .button-box button {
+    width: 100%;
+  }
+}

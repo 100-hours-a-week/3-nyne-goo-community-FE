@@ -7,10 +7,12 @@ const validationState = {
     checkNickname: false,
 };
 
-
-// css까지 끝난 후 js 실행하기 위해 window.addEventListener("load") 사용
+// window.addEventListener("load") 사용했으나 속도면에서 느릴 수 있기 때문에
+// document.addEventListener("DOMContentLoaded")로 바꾸고
+// header.css 를 header.html안에 넣음
 document.addEventListener("DOMContentLoaded", () => {
-    fetch("/html/header.html")
+    // 헤더 파일 불러오기
+    fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
             return response.text();
@@ -18,38 +20,36 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
-            // 프로필 사진 숨김, 뒤로가기 버튼 보임
-            requestAnimationFrame(() => {
-                const profile = document.querySelector(".profile");
+            // 프로필 사진 숨김
+            const profile = document.querySelector(".profile");
+            profile.classList.add("hide");
 
-                profile.classList.add("hide");
-            });
-
-            document.getElementById("back").addEventListener("click", login)
+            document.getElementById("backBtn").addEventListener("click", login)
         })
         .catch(error => console.error(error));
 
     uploadProfile;
 
-    document.getElementById("check-email").addEventListener("click", checkEmail)
-    document.getElementById("check-nickname").addEventListener("click", checkNickname)
+    document.getElementById("checkEmail").addEventListener("click", checkEmail)
+    document.getElementById("checkNickname").addEventListener("click", checkNickname)
 
     document.getElementById("email").addEventListener("input", (e) => { validateEmail(e) });
     document.getElementById("password").addEventListener("input", (e) => { validatePassword(e) });
-    document.getElementById("password-confirm").addEventListener("input", (e) => { validatePasswordConfirm(e) });
+    document.getElementById("passwordConfirm").addEventListener("input", (e) => { validatePasswordConfirm(e) });
     document.getElementById("nickname").addEventListener("input", (e) => { validateNicknameConfirm(e) });
 
-    const form = document.querySelector("#signup-form");
+    const form = document.querySelector("#signupForm");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        signup(e)});
+        signup(e)
+    });
 
-    document.getElementById("go-login").addEventListener("click", login);
+    document.getElementById("goLoginBtn").addEventListener("click", login);
 });
 
 // 이미지 업로드
 uploadProfile = () => {
-    const fileDOM = document.querySelector('#add-profile');
+    const fileDOM = document.querySelector('#addProfile');
     const profile = document.querySelector('#profile');
     const plusIcon = document.querySelector('.profile-circle span'); // + 버튼
 
@@ -97,8 +97,8 @@ checkNickname = () => {
 // 이메일 유효성 검사
 validateEmail = (e) => {
     const email = e.target.value;
-    const emailError = document.getElementById("email-error");
-    const checkEmailButton = document.getElementById("check-email")
+    const emailError = document.getElementById("emailError");
+    const checkEmailButton = document.getElementById("checkEmail")
 
     const invalidChar = /[^a-zA-Z0-9@._]/.test(email);
     const containAt = email.includes("@");
@@ -122,7 +122,7 @@ validateEmail = (e) => {
 // 비밀번호 유효성 검사
 validatePassword = (e) => {
     const password = e.target.value;
-    const passwordError = document.getElementById("password-error");
+    const passwordError = document.getElementById("passwordError");
 
     const lengthValid = password.length >= 8 && password.length <= 20;      // 길이
 
@@ -149,7 +149,7 @@ validatePassword = (e) => {
 validatePasswordConfirm = (e) => {
     const password = document.getElementById("password").value;
     const passwordConfirm = e.target.value;
-    const passwordError = document.getElementById("password-confirm-error");
+    const passwordError = document.getElementById("passwordConfirmError");
 
     // 모든 조건 만족하는지
     const isValid = password === passwordConfirm
@@ -168,8 +168,8 @@ validatePasswordConfirm = (e) => {
 // 닉네임 유효성 검사
 validateNicknameConfirm = (e) => {
     const nickname = e.target.value;
-    const nicknameError = document.getElementById("nickname-error");
-    const checkNicknameButton = document.getElementById("check-nickname")
+    const nicknameError = document.getElementById("nicknameError");
+    const checkNicknameButton = document.getElementById("checkNickname")
 
     const lengthValid = nickname.length <= 10 && nickname.length > 0; // 1~10자
     const hasSpace = /\s/.test(nickname); // 공백문자 검사
@@ -191,7 +191,7 @@ validateNicknameConfirm = (e) => {
 }
 
 changeSignupButton = () => {
-    const signupButton = document.getElementById("signup-btn");
+    const signupButton = document.getElementById("signupBtn");
     const allValid = validationState.password && validationState.passwordConfirm && validationState.checkEmail && validationState.checkNickname
 
     if (allValid) {
@@ -204,7 +204,7 @@ changeSignupButton = () => {
 }
 
 login = () => {
-    window.location.href = "/login"
+    window.location.href = "/login";
 };
 
 signup = () => {
