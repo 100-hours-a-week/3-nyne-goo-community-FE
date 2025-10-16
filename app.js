@@ -24,6 +24,10 @@ app.get('/signup', (req,res)=>{
     res.sendFile(__dirname + "/public/html/signup.html")
 })
 
+app.get('/home', (req, res)=>{
+    res.sendFile(__dirname + "/public/html/home.html")
+})
+
 // app.listen() 함수를 사용해서 서버 실행
 // 클라이언트는 'host:port'로 노드 서버에 요청 보낼 수 있음
 app.listen(process.env.PORT, ()=>{
