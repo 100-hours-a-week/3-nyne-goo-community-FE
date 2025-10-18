@@ -365,7 +365,7 @@ signup = async (e) => {
 
         // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
         // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.ok) {
+        if (response.status===201) {
             window.location.href = "/login"
         } else {
             alert(signupResponse.message);

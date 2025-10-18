@@ -45,7 +45,9 @@ getList = async () => {
             for (const post of postList) {
                 // 서버에서 localdatetime으로 오기 때문에 날짜와 시간 사이의 "T"를 제거하고 초의 소수점 뒤를 날림
                 // updatedAt에 값이 있으면 수정된 시간을 보여주고 아니면 생성시간을 보여줌
-                let date = (post.updatedAt==null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
+                const date = (post.updatedAt == null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
+                const imageUrl = (post.author.profileImageUrl == null) ? "/assets/image/default_profile.png" : post.author.profileImageUrl
+                console.log("imageUrl: ", post.author.profileImageUrl);
 
                 // 제목, 좋아요&댓글&조회수, 날짜, 작성자 이미지&작성자 이름
                 posts +=
@@ -64,7 +66,7 @@ getList = async () => {
                 </div>
                 <hr class="post-divider">
                 <div class="post-footer">
-                    <img src="${post.author.profileImageUrl}" alt="작성자 이미지" class="author-img">
+                    <img src="${imageUrl}" alt="작성자 이미지" class="author-img">
                     <span class="author-name">${post.author.name}</span>
                 </div>
             </div>
@@ -79,7 +81,7 @@ getList = async () => {
                 postDiv.addEventListener("click", () => { goDetail() });
             })
         }
-        else{
+        else {
             alert(postListResponse.message);
         }
 
