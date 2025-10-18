@@ -26,22 +26,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
     const postId = new URLSearchParams(window.location.search).get("postId");
-    console.log("postId: "+postId);
     if (postId != null) editPost(Number(postId));
 
     // 제목과 내용에 적는 동시에 유효성 검사
-    document.getElementById("title").addEventListener("input", (e) => validateTitle(e));
-    document.getElementById("content").addEventListener("input", (e) => validateContent(e));
+    validateTitle();
+    validateContent();
 
     // 이미지 추가
     addFile()
 
     // 작성 완료
-    const form = document.querySelector("#writeForm");
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        writePost(e)
-    });
+    writeForm();
 
 });
 
@@ -65,8 +60,6 @@ editPost = (postId) => {
             validationState.content = true;
             activatePostButton();
 
-            console.log("title: "+post.title+", content: "+post.content);
-
             // 사진
             const fileListDiv = document.querySelector(".file-list");
             const imageList = post.imageUrlList;
@@ -74,8 +67,8 @@ editPost = (postId) => {
             for (let i = 0; i < imageList.length; i++) {
                 const image = imageList[i]
                 // fileArr에 파일 추가
-                fileArr.push({ 
-                    id: fileNo, 
+                fileArr.push({
+                    id: fileNo,
                     type: "exist",
                     url: image
                 });
@@ -95,45 +88,50 @@ editPost = (postId) => {
 }
 
 // 제목 길이 검사
-validateTitle = (e) => {
-    const titleLength = e.target.value.length;
-    const titleError = document.getElementById("titleError");
+validateTitle = () => {
+    document.getElementById("title").addEventListener("input", (e) => {
+        const titleLength = e.target.value.length;
+        const titleError = document.getElementById("titleError");
 
-    // 제목 길이가 0 이상이면 validationState.title을 true로 바꾸고 버튼 활성화 가능한지 확인
-    // 아니면 titleError 보임
-    if (titleLength > 0) {
-        titleError.classList.remove("show");
-        validationState.title = true;
-        activatePostButton()
-    } else {
-        titleError.textContent =
-            "제목을 입력해주세요.";
-        titleError.classList.add("show");
-        validationState.title = false;
-        activatePostButton()
-    }
+        // 제목 길이가 0 이상이면 validationState.title을 true로 바꾸고 버튼 활성화 가능한지 확인
+        // 아니면 titleError 보임
+        if (titleLength > 0) {
+            titleError.classList.remove("show");
+            validationState.title = true;
+            activatePostButton()
+        } else {
+            titleError.textContent =
+                "제목을 입력해주세요.";
+            titleError.classList.add("show");
+            validationState.title = false;
+            activatePostButton()
+        }
+    });
+
 }
 
 // 내용 길이 검사
-validateContent = (e) => {
-    const contentLength = e.target.value.length;
-    const contentError = document.getElementById("contentError");
+validateContent = () => {
+    document.getElementById("content").addEventListener("input", (e) => {
+        const contentLength = e.target.value.length;
+        const contentError = document.getElementById("contentError");
 
-    document.getElementById("count").textContent = `${contentLength} / 2000`
+        document.getElementById("count").textContent = `${contentLength} / 2000`
 
-    // 내용 길이가 0 이상이면 validationState.content을 true로 바꾸고 버튼 활성화 가능한지 확인
-    // 아니면 titleError 보임
-    if (contentLength > 0) {
-        contentError.classList.remove("show");
-        validationState.content = true;
-        activatePostButton()
-    } else {
-        contentError.textContent =
-            "내용을 작성해주세요.";
-        contentError.classList.add("show");
-        validationState.content = false;
-        activatePostButton()
-    }
+        // 내용 길이가 0 이상이면 validationState.content을 true로 바꾸고 버튼 활성화 가능한지 확인
+        // 아니면 titleError 보임
+        if (contentLength > 0) {
+            contentError.classList.remove("show");
+            validationState.content = true;
+            activatePostButton()
+        } else {
+            contentError.textContent =
+                "내용을 작성해주세요.";
+            contentError.classList.add("show");
+            validationState.content = false;
+            activatePostButton()
+        }
+    });
 }
 
 // 이미지 추가 (최대 3장)
@@ -158,10 +156,10 @@ addFile = () => {
             if (!fileValidation(file)) continue;
 
             // fileArr에 파일 추가
-            fileArr.push({ 
-                id: fileNo, 
+            fileArr.push({
+                id: fileNo,
                 type: "new",
-                file: file 
+                file: file
             });
 
             // 파일 리스트 추가
@@ -214,13 +212,46 @@ activatePostButton = () => {
         postButton.disabled = false;
         postButton.classList.add("active");
     } else {
-        console.log(`title: ${validationState.title}, content: ${validationState.content}`)
         postButton.disabled = true;
         postButton.classList.remove("active");
     }
 }
 
+writeForm = () => {
+    const form = document.querySelector("#writeForm");
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        writePost(e)
+    });
+}
+
 // 작성 완료 시 이전 화면으로 돌아감
-writePost = () => {
-    history.back();
+writePost = async() => {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+
+    for (const file of fileArr) {
+        formData.append("image", file.file);
+    }
+
+    try {
+        const token = localStorage.getItem('accessToken');
+
+        const BASE_URL = window.CONFIG.BASE_URL
+        const response = await fetch(`${BASE_URL}/posts`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+
+        if (response.status === 201) {
+            history.back();
+        } else {
+            alert(signupResponse.message);
+        }
+    } catch (error) { console.error(error) };
 }
