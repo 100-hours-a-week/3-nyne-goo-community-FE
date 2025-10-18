@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => console.error(error));
 
     document.getElementById("title").addEventListener("input", (e) => writeTitle(e));
-    document.getElementById("content").addEventListener("input", (e) => { writeContent(e) });
+    document.getElementById("content").addEventListener("input", (e) => writeContent(e));
 
     addFile()
     
@@ -57,7 +57,7 @@ writeContent = (e)=>{
      const contentLength = e.target.value.length;
      const contentError = document.getElementById("contentError");
 
-     count.textContent = `${contentLength} / 2000`
+     document.getElementById("count").textContent = `${contentLength} / 2000`
 
     if (contentLength > 0) {
         contentError.classList.remove("show");

@@ -30,19 +30,17 @@ getList = ()=>{
     })
     .then(data=>{
         const postList = data.data.postList;
+        console.log("postList: "+postList);
         
         let posts = "";
         for(const post of postList){ 
             console.log(post.title);
 
-            let date = post.createdDate.replace("T", " ");
-            if(post.updatedDate!=""){
-                date =`${post.updatedDate.replace("T", " ")} (수정)`;
-            }
+            let date = (post.updatedAt=="")?post.createdAt.replace("T", " "):(post.updatedAt.replace("T", " ") +" (수정)");
 
             posts +=
             `
-            <div class="post">
+            <div class="post" id="post${post.postId}">
                 <div class="post-header">
                     <h2 class="post-title">${post.title.slice(0, 26)}</h2>
                 </div>
@@ -57,7 +55,7 @@ getList = ()=>{
                 <hr class="post-divider">
                 <div class="post-footer">
                     <img src="${post.author.profileImageUrl}" alt="작성자 이미지" class="author-img">
-                    <span class="author-name">${post.author.nickname}</span>
+                    <span class="author-name">${post.author.name}</span>
                 </div>
             </div>
             `
@@ -65,9 +63,17 @@ getList = ()=>{
 
         const list = document.querySelector(".post-list");
         list.innerHTML = posts;
+
+        document.querySelectorAll(".post").forEach((postDiv) => {
+            postDiv.addEventListener("click", ()=>{goDetail()});
+        })
     })
 }
 
 writePost = ()=>{
     window.location.href="/write"
+}
+
+goDetail = ()=>{
+    window.location.href="/detail"
 }
