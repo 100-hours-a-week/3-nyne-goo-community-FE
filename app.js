@@ -32,6 +32,10 @@ app.get('/write', (req, res) => {
     res.sendFile(__dirname + "/public/page/write_post/write_post.html")
 })
 
+app.get('/detail', (req,res)=>{
+    res.sendFile(__dirname+"/public/page/post_detail/post_detail.html")
+})
+
 // app.listen() 함수를 사용해서 서버 실행
 // 클라이언트는 'host:port'로 노드 서버에 요청 보낼 수 있음
 app.listen(process.env.PORT, () => {
