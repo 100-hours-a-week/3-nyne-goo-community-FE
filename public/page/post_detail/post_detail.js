@@ -47,7 +47,8 @@ getDetail = () => {
             const date = document.getElementById("postDate");
             date.textContent = (post.updatedAt == "") ? post.createdAt.replace("T", " ") : (post.updatedAt.replace("T", " ") + " (수정)");
 
-            document.getElementById("postContent").innerHTML = post.content;
+            // \n 여러 개를 <br>로 바꿔서 줄바꿈표시
+            document.getElementById("postContent").innerHTML = post.content.replace(/\n/g, "<br>");
 
             // 좋아요, 조회수, 댓글 수
             document.getElementById("likeCount").textContent = post.likesCount;
@@ -82,16 +83,20 @@ getDetail = () => {
 
                 imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
             }
+
+            editPost(post.postId);
         })
 }
 
 // 게시글 수정, 삭제 리스너
-editPost = () => {
+editPost = (postId) => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
 
-    editBtn.addEventListener("click", () => editPost(postId));
+    editBtn.addEventListener("click", () => {
+        window.location.href = `/write?postId=${postId}`
+    });
     deleteBtn.addEventListener("click", () => deletePost(postId));
 }
 
