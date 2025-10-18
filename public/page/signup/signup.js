@@ -28,19 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error(error));
 
-    uploadProfile;
+    uploadProfile();
 
     controlEmail();
     controlPassword();
     controlNickname();
 
-    const form = document.querySelector("#signupForm");
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        signup(e)
-    });
-
-    document.getElementById("goLoginBtn").addEventListener("click", login);
+    signupForm();
+    login();
 });
 
 // 이미지 업로드
@@ -329,8 +324,17 @@ changeSignupButton = () => {
 }
 
 login = () => {
-    window.location.href = "/login";
+    document.getElementById("goLoginBtn").addEventListener("click", () => window.location.href = "/login");
+    
 };
+
+signupForm = ()=>{
+     const form = document.querySelector("#signupForm");
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        signup(e)
+    });
+}
 
 signup = async (e) => {
     e.preventDefault();
