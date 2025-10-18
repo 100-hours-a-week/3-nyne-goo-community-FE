@@ -54,6 +54,7 @@ login = async (e) => {
         // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
         // 아니라면 오류 메시지를 alert로 보여줌
         if (response.ok) {
+            // TODO: localStorage에 보관하면 보안에 매우 위험. 추후 수정
             localStorage.setItem('accessToken', loginResponse.data.accessToken);
             window.location.href = "/home"
         } else {
