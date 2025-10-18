@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error(error));
 
-    getDetail();
+    const postId = new URLSearchParams(window.location.search).get("postId");
+    getDetail(postId);
     getComments();
 
     // 댓글 작성
@@ -25,27 +26,31 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("submitComment").addEventListener("click", () => submitComplete());
 
     // 좋아요 클릭
-    clickLike();
+    clickLike(postId);
 });
 
 // 게시물 상세 내용
-getDetail = () => {
-    fetch("/data/postDetail.json")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.json();
+getDetail = async (postId) => {
+    try {
+        const token = window.localStorage.getItem("accessToken");
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-            const post = data.data.post;
 
+        const detailResponse = await response.json();
+
+        if (response.status === 200) {
+            const post = detailResponse.data;
             // 제목, 유저프로필, 유저이름
             document.getElementById("postTitle").textContent = post.title;
-            document.querySelector("#profile").src = post.author.profileImageUrl;
+            document.querySelector("#profile").src = (post.author.profileImageUrl == null) ? "/assets/image/default_profile.png" : post.author.profileImageUrl
             document.getElementById("postAuthorName").textContent = post.author.nickname;
 
             // 수정날짜 있으면 수정날짜 보여줌
             const date = document.getElementById("postDate");
-            date.textContent = (post.updatedAt == "") ? post.createdAt.replace("T", " ") : (post.updatedAt.replace("T", " ") + " (수정)");
+            date.textContent = (post.updatedAt == null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
 
             // \n 여러 개를 <br>로 바꿔서 줄바꿈표시
             document.getElementById("postContent").innerHTML = post.content.replace(/\n/g, "<br>");
@@ -57,14 +62,13 @@ getDetail = () => {
 
             // 좋아요 버튼 활성화 여부
             const likeBtn = document.getElementById("likeBtn")
-            if (post.isLike) {
+            if (post.like) {
                 likeBtn.classList.add("active");
                 document.getElementById("heartIcon").src = "/assets/image/ic_heart_red_64.png";
             }
 
             // 작성자가 자신이면 수정,삭제 버튼 보이게
             if (post.author.mine) {
-                console.log("it's mine!");
                 document.getElementById("postEdit").classList.add("show");
             }
 
@@ -84,8 +88,9 @@ getDetail = () => {
                 imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
             }
 
-            editPost(post.postId);
-        })
+            editPost(postId);
+        }
+    } catch (error) { console.error(error) }
 }
 
 // 게시글 수정, 삭제 리스너
@@ -116,8 +121,6 @@ getComments = () => {
             for (let i = 0; i < commentList.length; i++) {
                 const comment = commentList[i];
                 const date = (comment.updatedAt == "") ? comment.createdAt.replace("T", " ") : (comment.updatedAt.replace("T", " ") + " (수정)");
-
-                console.log("mine: " + comment.author.mine);
                 const commentHtml =
                     `
                 <div class="comment" id="comment${comment.commentId}">
@@ -199,8 +202,6 @@ rewriteComment = (commentId) => {
     editButtons.insertAdjacentHTML("afterend", buttonHtml);
     commentDiv.appendChild(textarea);
 
-    console.log("comment: " + commentDiv.innerHTML);
-
     // 수정 완료
     document.getElementById(`save${commentId}`).addEventListener("click", (e) => {
         saveEditedComment(commentDiv);
@@ -264,7 +265,7 @@ deleteComment = (commentDiv) => {
 }
 
 // 좋아요 클릭
-clickLike = () => {
+clickLike = (postId) => {
     const likeBtn = document.getElementById("likeBtn");
     const likeCount = document.getElementById("likeCount");
     const heartIcon = document.getElementById("heartIcon");
@@ -272,13 +273,27 @@ clickLike = () => {
     // toggle을 사용해서 좋아요 클릭 시 active 가 붙어있으면 제거, 없으면 추가함
     // active 상태에 따라 좋아요 이미지 아이콘 바꿈
     // 서버 연동 시 서버로부터 좋아요 수 가져와서 보여줌
-    likeBtn.addEventListener("click", () => {
-        const isActive = likeBtn.classList.toggle("active");
+    likeBtn.addEventListener("click", async () => {
+        try {
+            const isActive = likeBtn.classList.toggle("active");
+            const token = window.localStorage.getItem("accessToken");
+            const BASE_URL = window.CONFIG.BASE_URL
+            const response = await fetch(`${BASE_URL}/post/${postId}/likes`, {
+                method: `${isActive ? "POST" : "DELETE"}`,
+                headers: { 'Authorization': `Bearer ${token}` },
+            })
 
-        heartIcon.src = isActive
-            ? "/assets/image/ic_heart_red_64.png"
-            : "/assets/image/ic_heart_white_64.png";
+            const likeResponse = await response.json();
 
-        likeCount.textContent = parseInt(likeCount.textContent) + (isActive ? 1 : -1);
+            if (response.status === 200 || response.status === 201) {
+                heartIcon.src = isActive
+                    ? "/assets/image/ic_heart_red_64.png"
+                    : "/assets/image/ic_heart_white_64.png";
+
+                likeCount.textContent = likeResponse.data.likesCount;
+            } else {
+                alert(likeResponse.message);
+            }
+        } catch (error) { console.error(error) };
     });
 }

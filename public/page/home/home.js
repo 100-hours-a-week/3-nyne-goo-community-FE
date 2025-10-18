@@ -78,7 +78,7 @@ getList = async () => {
 
             // 각 게시글 클릭 시 해당 게시글 상세 페이지로 이동
             document.querySelectorAll(".post").forEach((postDiv) => {
-                postDiv.addEventListener("click", () => { goDetail() });
+                postDiv.addEventListener("click", () => { goDetail(postDiv.id.replace("post","")) });
             })
         }
         else {
@@ -89,8 +89,8 @@ getList = async () => {
 }
 
 // 게시글 상세페이지
-goDetail = () => {
-    window.location.href = "/detail"
+goDetail = (postId) => {
+    window.location.href = `/detail?postId=${postId}`
 }
 
 // 게시글 작성
