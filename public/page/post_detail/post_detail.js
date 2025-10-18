@@ -18,22 +18,23 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => console.error(error));
 
     const postId = new URLSearchParams(window.location.search).get("postId");
-    getDetail(postId);
-    getComments();
+    const token = window.localStorage.getItem("accessToken");
+    const BASE_URL = window.CONFIG.BASE_URL;
+
+    getDetail(postId, token, BASE_URL);
+    getComments(postId, token, BASE_URL);
 
     // 댓글 작성
-    document.getElementById("commentInput").addEventListener("input", (e) => writeComment(e));
-    document.getElementById("submitComment").addEventListener("click", () => submitComplete());
+    writeComment();
+    submitComplete(postId, token, BASE_URL);
 
     // 좋아요 클릭
     clickLike(postId);
 });
 
 // 게시물 상세 내용
-getDetail = async (postId) => {
+getDetail = async (postId, token, BASE_URL) => {
     try {
-        const token = window.localStorage.getItem("accessToken");
-        const BASE_URL = window.CONFIG.BASE_URL;
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
@@ -75,6 +76,7 @@ getDetail = async (postId) => {
             // 사진
             const imageListDiv = document.querySelector(".image-list");
             const imageList = post.imageUrlList;
+            console.log("imagelist:", imageList, " , length: ", imageList.length);
 
             for (let i = 0; i < imageList.length; i++) {
                 console.log(imageList[i]);
@@ -106,21 +108,26 @@ editPost = (postId) => {
 }
 
 // 댓글 리스트
-getComments = () => {
-    fetch("/data/comments.json")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.json();
+getComments = async (postId, token, BASE_URL) => {
+    try {
+        const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=0&size=10&sort=createdAt,ASC`, {
+            method: "GET",
+            headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-            const commentList = data.data.comments;
+
+        const commentsResponse = await response.json();
+
+        if (response.status === 200) {
+            const commentList = commentsResponse.data.content;
             const commentListDiv = document.querySelector(".comment-list");
 
             // comments에 html들 넣어서 한 번에 comment-list에 넣기
             let comments = "";
             for (let i = 0; i < commentList.length; i++) {
                 const comment = commentList[i];
-                const date = (comment.updatedAt == "") ? comment.createdAt.replace("T", " ") : (comment.updatedAt.replace("T", " ") + " (수정)");
+                console.log("mine?: ", comment.author.mine);
+
+                const date = (comment.updatedAt == null) ? comment.createdAt.replace("T", " ").split(".")[0] : (comment.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
                 const commentHtml =
                     `
                 <div class="comment" id="comment${comment.commentId}">
@@ -148,25 +155,28 @@ getComments = () => {
 
             commentListDiv.innerHTML = comments;
 
-            editComment();
-        });
+            editComment(token, BASE_URL);
+        } else {
+            alert(commentsResponse.message);
+        }
+    } catch (error) { console.error(error) }
 }
 
 // 댓글 수정, 삭제 리스너
-editComment = () => {
+editComment = (token, BASE_URL) => {
     const editButtons = document.querySelectorAll(".edit-comment-btns")
     editButtons.forEach((editDiv) => {
         const id = editDiv.id;
         const commentId = id.replace("comment", "").replace("Edit", "");
         // 수정
         editDiv.querySelector(".edit-btn").addEventListener("click", () => {
-            rewriteComment(commentId);
+            rewriteComment(commentId, token, BASE_URL);
         }
         )
         // 삭제
         editDiv.querySelector(".delete-btn").addEventListener("click", () => {
             if (id.startsWith("comment")) {
-                deleteComment(commentId)
+                deleteComment(commentId, token, BASE_URL)
             }
         })
     });
@@ -175,7 +185,7 @@ editComment = () => {
 
 // 댓글 수정
 // 해당 댓글이 있는 위치에 textarea가 보이고 거기서 수정할 수 있도록
-rewriteComment = (commentId) => {
+rewriteComment = (commentId, token, BASE_URL) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
     const currentContent = commentDiv.querySelector(".comment-content");
     const editButtons = commentDiv.querySelector(".edit-comment-btns");
@@ -204,7 +214,7 @@ rewriteComment = (commentId) => {
 
     // 수정 완료
     document.getElementById(`save${commentId}`).addEventListener("click", (e) => {
-        saveEditedComment(commentDiv);
+        saveEditedComment(commentId, token, BASE_URL, commentDiv);
     })
 
     // 수정 취소
@@ -214,17 +224,35 @@ rewriteComment = (commentId) => {
 }
 
 // 댓글 수정 완료
-saveEditedComment = (commentDiv) => {
-    const textarea = document.querySelector(".edit-textarea");
-    const newText = textarea.value.trim();
+saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
+    try {
+        const textarea = document.querySelector(".edit-textarea");
+        const content = textarea.value.trim();
 
-    // 아무 내용 안 쓰면 alert 발생
-    if (newText === "") return alert("내용을 입력하세요!");
+        const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
+            method: "PATCH",
+            headers: { 
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`,
+             },
+            body: JSON.stringify({ content })
+        })
 
-    // 수정된 내용이 comment-content에 들어감
-    commentDiv.querySelector(".comment-content").textContent = newText;
-    // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
-    cancelEdit(commentDiv);
+        const editCommentResponse = response.json();
+
+        if (response.status === 200) {
+            // 아무 내용 안 쓰면 alert 발생
+            if (content === "") return alert("내용을 입력하세요!");
+
+            // 수정된 내용이 comment-content에 들어감
+            commentDiv.querySelector(".comment-content").textContent = content;
+            // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
+            cancelEdit(commentDiv);
+        }else{
+            alert(editCommentResponse.message);
+        }
+    } catch (error) { console.error(error) }
+
 }
 
 // 댓글 수정 취소
@@ -237,31 +265,70 @@ cancelEdit = (commentDiv) => {
 }
 
 // 댓글 작성
-writeComment = (e) => {
-    const count = document.getElementById("count");
-    const currentLength = e.target.value.length;
+writeComment = () => {
+    document.getElementById("commentInput").addEventListener("input", (e) => {
 
-    count.textContent = currentLength + " / 500";
 
-    const submitBtn = document.getElementById("submitComment");
+        const count = document.getElementById("count");
+        const currentLength = e.target.value.length;
 
-    // 댓글 길이가 1이상이어야 완료 버튼 활성화됨
-    if (currentLength > 0) {
-        submitBtn.classList.add("active");
-    } else submitBtn.classList.remove("active");
+        count.textContent = currentLength + " / 500";
+
+        const submitBtn = document.getElementById("submitComment");
+
+        // 댓글 길이가 1이상이어야 완료 버튼 활성화됨
+        if (currentLength > 0) {
+            submitBtn.classList.add("active");
+        } else submitBtn.classList.remove("active");
+    });
+
 }
 
 // 댓글 작성 완료
-submitComplete = () => {
-    alert("댓글 작성 완료!");
-    document.getElementById("commentInput").value = ""
-    document.getElementById("count").textContent = "0 / 500";
+submitComplete = (postId, token, BASE_URL) => {
+    document.getElementById("submitComment").addEventListener("click", async () => {
+        try {
+            const content = document.getElementById("commentInput").value;
+            const response = await fetch(`${BASE_URL}/posts/${postId}/comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ content })
+            })
+
+            const writeCommentResponse = await response.json();
+
+            // 작성 완료 시 댓글 작성 칸 비우고 댓글 내역 불러옴
+            if (response.status === 201) {
+                document.getElementById("commentInput").value = ""
+                document.getElementById("count").textContent = "0 / 500";
+                getComments(postId, token, BASE_URL);
+            }
+
+        } catch (error) { console.error(error) }
+
+    });
+
 }
 
 // 서버 연동하게 되면 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
-deleteComment = (commentDiv) => {
-    alert("삭제 완료!");
+deleteComment = async(commentId, token, BASE_URL) => {
+    try{
+        const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
+            method: "DELETE",
+            headers: {'Authorization': `Bearer ${token}`}
+        })
+
+        if(response.status===200){
+            alert("댓글이 삭제되었습니다.");
+            window.location.reload();   // 전체 새로고침
+        }else{
+            alert(response.json().message);
+        }
+    }catch(error) {console.error(error)}
 }
 
 // 좋아요 클릭
