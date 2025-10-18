@@ -30,13 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     uploadProfile;
 
-    document.getElementById("checkEmail").addEventListener("click", checkEmail)
-    document.getElementById("checkNickname").addEventListener("click", checkNickname)
-
-    document.getElementById("email").addEventListener("input", (e) => { validateEmail(e) });
-    document.getElementById("password").addEventListener("input", (e) => { validatePassword(e) });
-    document.getElementById("passwordConfirm").addEventListener("input", (e) => { validatePasswordConfirm(e) });
-    document.getElementById("nickname").addEventListener("input", (e) => { validateNicknameConfirm(e) });
+    controlEmail();
+    controlPassword();
+    controlNickname();
 
     const form = document.querySelector("#signupForm");
     form.addEventListener("submit", (e) => {
@@ -66,38 +62,15 @@ uploadProfile = () => {
     });
 }
 
-// 이메일 중복 체크 통과 시 이메일 입력 비활성화
-checkEmail = () => {
-    // TODO: 서버통신할 부분
-    alert("이메일 사용 가능!");
-    validationState.checkEmail = true;
-
-    // 이메일 입력 비활성화
-    const emailInput = document.getElementById("email");
-    emailInput.readOnly = true;
-    emailInput.classList.add("readonly");
-
-    changeSignupButton();
-}
-
-// 닉네임 중복 체크 통과 시 닉네임 입력 비활성화
-checkNickname = () => {
-    // TODO: 서버통신할 부분
-    alert("닉네임 사용 가능!");
-    validationState.checkNickname = true;
-
-    // 닉네임 입력 비활성화
-    const nicknameInput = document.getElementById("nickname");
-    nicknameInput.readOnly = true;
-    nicknameInput.classList.add("readonly");
-
-    changeSignupButton();
+controlEmail = () => {
+    document.getElementById("email").addEventListener("input", (e) => { validateEmail(e) });
+    document.getElementById("checkEmail").addEventListener("click", checkEmail)
 }
 
 // 이메일 유효성 검사
 validateEmail = (e) => {
     const email = e.target.value;
-    const emailError = document.getElementById("emailError");
+    const emailMsg = document.getElementById("emailMsg");
     const checkEmailButton = document.getElementById("checkEmail")
 
     const invalidChar = /[^a-zA-Z0-9@._]/.test(email);
@@ -107,22 +80,111 @@ validateEmail = (e) => {
     const isValid = !invalidChar && containAt && containDot;
 
     if (isValid) {
-        emailError.classList.remove("show");
+        emailMsg.classList.remove("show", "error");
         checkEmailButton.disabled = false;
         checkEmailButton.classList.add("active");
     } else {
-        emailError.textContent =
+        emailMsg.textContent =
             "이메일은 영문과 @, . 만 사용이 가능합니다.";
-        emailError.classList.add("show");
+        emailMsg.classList.add("show", "error");
         checkEmailButton.disabled = true;
         checkEmailButton.classList.remove("active");
     }
 }
 
+// 이메일 중복 체크 통과 시 이메일 입력 비활성화
+checkEmail = async () => {
+    const emailInput = document.getElementById("email");
+
+    try {
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/users/availability`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                email: email.value
+            })
+        });
+
+        const emailMsg = document.getElementById("emailMsg");
+
+        // response 값
+        const checkEmailResponse = await response.json();
+
+        // statusCode = 200면 서버에 이메일 존재 유무에 따라 이메일 입력 비활성화
+        // 아니라면 오류 메시지를 alert로 보여줌
+        if (response.ok) {
+            controlInputMsg(checkEmailResponse.data.exist, "email", emailMsg, emailInput, null);
+        } else {
+            controlInputMsg(null, null, emailMsg, emailInput)
+        }
+    } catch (error) { console.error(error) };
+}
+
+controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
+    // message 있으면 오류로 표시
+    if (message != null) {
+        inputMsg.textContent = message;
+
+        inputBox.classList.remove("success");
+        inputBox.classList.add("error");
+        return;
+    }
+
+    // 이미 존재
+    if (exist) {
+        inputMsg.textContent = "이미 존재하는 이메일입니다."
+        inputMsg.classList.add("show", "error");
+
+        // 테두리 빨간색으로 변경
+        inputBox.classList.remove("success");
+        inputBox.classList.add("error");
+    }
+    // 사용 가능
+    else {
+        if (type == "email") {
+            validationState.checkEmail = true;
+            inputMsg.textContent = "사용 가능한 이메일입니다."
+        }
+        else if (type == "nickname") {
+            validationState.checkNickname = true;
+            inputMsg.textContent = "사용 가능한 닉네임입니다."
+        }
+
+        // 통과 시 inputBox 밑에 사용가능 함을 초록색으로 표시
+        inputMsg.style.color = "green";
+        inputMsg.classList.remove("error");
+        inputMsg.classList.add("show", "success");
+
+        // 입력 비활성화
+        inputBox.readOnly = true;
+
+        // 배경색 추가 및 테두리 초록색으로 변경
+        inputBox.classList.remove("error");
+        inputBox.classList.add("success", "readonly");
+
+        changeSignupButton();
+    }
+}
+
+controlPassword = () => {
+    document.getElementById("password").addEventListener("input", (e) => { validatePassword(e) });
+    document.getElementById("passwordConfirm").addEventListener("input", (e) => { validatePasswordConfirm(e) });
+
+    const togglePassword = document.getElementById("togglePassword");
+    const togglePasswordConfirm = document.getElementById("togglePasswordConfirm");
+    const passwordInput = document.getElementById("password");
+    const passwordConfirmInput = document.getElementById("passwordConfirm");
+
+    clickEye(togglePassword, passwordInput);
+    clickEye(togglePasswordConfirm, passwordConfirmInput);
+}
 // 비밀번호 유효성 검사
 validatePassword = (e) => {
     const password = e.target.value;
-    const passwordError = document.getElementById("passwordError");
+    const passwordError = document.getElementById("passwordMsg");
 
     const lengthValid = password.length >= 8 && password.length <= 20;      // 길이
 
@@ -141,15 +203,17 @@ validatePassword = (e) => {
     } else {
         passwordError.textContent =
             "비밀번호는 8자 이상, 20자 이하이며 대문자, 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.";
-        passwordError.classList.add("show");
+        passwordError.classList.add("show", "error");
     }
 }
 
 // 비밀번호 한번 더 확인
 validatePasswordConfirm = (e) => {
-    const password = document.getElementById("password").value;
-    const passwordConfirm = e.target.value;
-    const passwordError = document.getElementById("passwordConfirmError");
+    const passwordBox = document.getElementById("password");
+    const passwordConfirmBox = e.target
+    const password = passwordBox.value;
+    const passwordConfirm = passwordConfirmBox.value;
+    const passwordError = document.getElementById("passwordConfirmMsg");
 
     // 모든 조건 만족하는지
     const isValid = password === passwordConfirm
@@ -158,17 +222,49 @@ validatePasswordConfirm = (e) => {
 
     if (isValid) {
         passwordError.classList.remove("show");
+
+        passwordBox.classList.add("success")
+        passwordConfirmBox.classList.add("success")
+
+        passwordBox.classList.remove("error")
+        passwordConfirmBox.classList.remove("error")
     } else {
         passwordError.textContent =
             "비밀번호가 일치하지 않습니다.";
-        passwordError.classList.add("show");
+        passwordError.classList.add("show", "error");
+
+        passwordBox.classList.remove("success")
+        passwordConfirmBox.classList.remove("success")
+
+        passwordBox.classList.add("error")
+        passwordConfirmBox.classList.add("error")
     }
+}
+
+clickEye = (togglePw, pwInput) => {
+    togglePw.addEventListener("click", () => {
+        const isHidden = pwInput.type === "password";
+
+        // 비밀번호 감추기/보이기 토글
+        pwInput.type = isHidden ? "text" : "password";
+
+        // 아이콘 변경
+        togglePassword.src = isHidden
+            ? "/assets/image/ic_eye_opend_black_64.png"     // 눈 뜬 이미지
+            : "/assets/image/ic_eye_closed_black_64.png";  // 눈 감은 이미지
+    });
+}
+
+controlNickname = () => {
+    document.getElementById("nickname").addEventListener("input", (e) => { validateNicknameConfirm(e) });
+    document.getElementById("checkNickname").addEventListener("click", checkNickname)
+
 }
 
 // 닉네임 유효성 검사
 validateNicknameConfirm = (e) => {
     const nickname = e.target.value;
-    const nicknameError = document.getElementById("nicknameError");
+    const nicknameError = document.getElementById("nicknameMsg");
     const checkNicknameButton = document.getElementById("checkNickname")
 
     const lengthValid = nickname.length <= 10 && nickname.length > 0; // 1~10자
@@ -184,11 +280,40 @@ validateNicknameConfirm = (e) => {
     } else {
         nicknameError.textContent =
             "띄어쓰기 불가, 10자 이내로 작성해주세요.";
-        nicknameError.classList.add("show");
+        nicknameError.classList.add("show", "error");
         checkNicknameButton.disabled = false;
         checkNicknameButton.classList.remove("active");
     }
 }
+
+// 닉네임 중복 체크 통과 시 닉네임 입력 비활성화
+checkNickname = async () => {
+    const nicknameInput = document.getElementById("nickname");
+
+    try {
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/users/availability?nickname=${nicknameInput.value}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        });
+
+        const nicknameMsg = document.getElementById("nicknameMsg");
+
+        // response 값
+        const checkNicknameResponse = await response.json();
+
+        // statusCode = 200면 서버에 닉네임 존재 유무에 따라 닉네임 입력 비활성화
+        // 아니라면 오류 메시지를 alert로 보여줌
+        if (response.ok) {
+            controlInputMsg(checkNicknameResponse.data.exist, "nickname", nicknameMsg, nicknameInput, null)
+        } else {
+            controlInputMsg(null, null, nicknameMsg, nicknameInput, checkNicknameResponse.message)
+        }
+    } catch (error) { console.error(error) };
+}
+
 
 changeSignupButton = () => {
     const signupButton = document.getElementById("signupBtn");
@@ -207,6 +332,39 @@ login = () => {
     window.location.href = "/login";
 };
 
-signup = () => {
-    window.location.href = "/login";
+signup = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const nickname = document.getElementById("nickname").value;
+    const profile = document.getElementById("addProfile");
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("nickname", nickname);
+
+    if (profile.files.length > 0) {
+        formData.append("image", profile.files[0]);
+    }
+
+    try {
+        // BASE_URL/auth로 보냄
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/users`, {
+            method: 'POST',
+            body: formData
+        });
+
+        // response 값
+        const signupResponse = await response.json();
+
+        // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
+        // 아니라면 오류 메시지를 alert로 보여줌
+        if (response.ok) {
+            window.location.href = "/login"
+        } else {
+            alert(signupResponse.message);
+        }
+    } catch (error) { console.error(error) };
 }

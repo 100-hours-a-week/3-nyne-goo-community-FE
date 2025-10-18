@@ -19,28 +19,23 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error(error));
 
+    // 로그인 버튼 클릭 시
     const form = document.querySelector(".login");
     form.addEventListener("submit", (e) => login(e));
 
+    // 회원가입 글자 클릭 시
     const signupButton = document.getElementById("signupBtn");
     signupButton.addEventListener("click", signup)
-
-    console.log("signupButton: ", signupButton);
-
-    if (signupButton) {
-        signupButton.addEventListener("click", signup);
-    } else {
-        console.error("signupButton not found in DOM");
-    }
 });
 
-
+// 로그인 버튼 클릭 시 서버에 이메일, 비밀번호 보내고 토큰 가져옴
 login = async (e) => {
-    e.preventDefault();
+    e.preventDefault();     // 페이지 새로고침 막음
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
+        // BASE_URL/auth로 보냄
         const BASE_URL = window.CONFIG.BASE_URL;
         const response = await fetch(`${BASE_URL}/auth`, {
             method: 'POST',
@@ -53,9 +48,11 @@ login = async (e) => {
             })
         });
 
+        // response 값
         const loginResponse = await response.json();
 
-        console.log(loginResponse);
+        // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
+        // 아니라면 오류 메시지를 alert로 보여줌
         if (response.ok) {
             localStorage.setItem('accessToken', loginResponse.data.accessToken);
             window.location.href = "/home"
@@ -65,6 +62,7 @@ login = async (e) => {
     } catch (error) { console.error(error) };
 };
 
+// 회원가입
 signup = () => {
     console.log("click signup!");
     window.location.href = "/signup";
