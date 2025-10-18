@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("header").innerHTML = data;
 
             // 뒤로가기 버튼 숨김
-                const backButton = document.getElementById("backBtn")
-                backButton.classList.add("hide");
+            const backButton = document.getElementById("backBtn")
+            backButton.classList.add("hide");
         })
         .catch(error => console.error(error));
     
