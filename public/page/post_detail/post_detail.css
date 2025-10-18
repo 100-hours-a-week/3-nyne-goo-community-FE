@@ -79,10 +79,10 @@
 
 .image-carousel {
   width: 100%;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory; /* ✅ 스크롤 멈춤 효과 */
-  -webkit-overflow-scrolling: touch; /* ✅ iOS 부드러운 스크롤 */
-  margin-bottom: 20px;
+  overflow-x: auto;       /* 가로 스크롤 가능 */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;    /* 스크롤 시 줄바꿈 방지 */
 }
 
 .image-list {
@@ -91,11 +91,12 @@
 }
 
 .imagebox {
-  flex: 0 0 auto;            
-  scroll-snap-align: start;   
-  width: 100%;
+  flex: 0 0 auto;
+  width: 90%;             /* 전체 폭 중 90%만 차지하도록 변경 */
   max-width: 700px;
+  scroll-snap-align: start;
 }
+
 
 .imagebox img {
   width: 100%;

@@ -174,6 +174,7 @@ addFile = () => {
             fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
         }
 
+        console.log("fileArr: ", fileArr);
         // 입력한 값 초기화 -> 동일한 파일 재선택 가능
         e.target.value = "";
     });
@@ -235,7 +236,7 @@ writePost = async() => {
     formData.append("content", content);
 
     for (const file of fileArr) {
-        formData.append("image", file.file);
+        formData.append("images", file.file);
     }
 
     try {
