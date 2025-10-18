@@ -35,32 +35,41 @@
                             <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
                             <button type="button" class="check-btn" id="checkEmail">중복확인</button>
                         </div>
-                        <p class="error-text" id="emailError"></p>
+                        <p class="input-msg" id="emailMsg"></p>
                     </div>
 
                     <!-- 비밀번호 -->
                     <div class="form-group">
                         <label for="password">비밀번호<span class="required">*</span></label>
-                        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
-                        <p class="error-text" id="passwordError"></p>
+                        <div class="input-eye-group">
+                            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                            <img src="/assets/image/ic_eye_closed_black_64.png" class="toggle-eye" id="togglePassword"
+                                alt="비밀번호 보기">
+                        </div>
+                        <p class="input-msg" id="passwordMsg"></p>
                     </div>
 
                     <!-- 비밀번호 확인 -->
                     <div class="form-group">
                         <label for="passwordConfirm">비밀번호 확인<span class="required">*</span></label>
-                        <input type="password" id="passwordConfirm" name="password-confirm"
-                            placeholder="비밀번호를 한 번 더 입력하세요" required>
-                        <p class="error-text" id="passwordConfirmError"></p>
+                        <div class="input-eye-group">
+                            <input type="password" id="passwordConfirm" name="password-confirm"
+                                placeholder="비밀번호를 한 번 더 입력하세요" required>
+                            <img src="/assets/image/ic_eye_closed_black_64.png" class="toggle-eye" id="togglePasswordConfirm"
+                                alt="비밀번호 보기">
+                        </div>
+                        <p class="input-msg" id="passwordConfirmMsg"></p>
                     </div>
 
                     <!-- 닉네임 -->
                     <div class="form-group">
                         <label for="nickname">닉네임<span class="required">*</span></label>
                         <div class="input-check-group">
-                            <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" required>
+                            <input type="text" id="nickname" name="nickname" maxlength="10" placeholder="닉네임을 입력하세요"
+                                required>
                             <button type="button" class="check-btn" id="checkNickname">중복확인</button>
                         </div>
-                        <p class="error-text" id="nicknameError"></p>
+                        <p class="input-msg" id="nicknameMsg"></p>
                     </div>
                     <div class="button-box">
                         <button type="submit" id="signupBtn">회원가입</button>
