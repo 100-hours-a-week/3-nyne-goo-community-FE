@@ -41,6 +41,7 @@ loadHeader = () => {
 
             // 뒤로가기 버튼 클릭 시 홈으로 감
             document.getElementById("backBtn").addEventListener("click", () => {
+                sessionStorage.setItem("refreshHome", "true");
                 history.back();
             })
         })
