@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("header").innerHTML = data;
 
             // 뒤로가기  버튼, 프로필 사진 숨김
-                const backButton = document.getElementById("backBtn")
-                const profile = document.querySelector(".profile");
+            const backButton = document.getElementById("backBtn")
+            const profile = document.querySelector(".profile");
 
-                backButton.classList.add("hide");
-                profile.classList.add("hide");
+            backButton.classList.add("hide");
+            profile.classList.add("hide");
         })
         .catch(error => console.error(error));
 
@@ -55,7 +55,25 @@ login = async (e) => {
         // 아니라면 오류 메시지를 alert로 보여줌
         if (response.ok) {
             // TODO: localStorage에 보관하면 보안에 매우 위험. 추후 수정
-            localStorage.setItem('accessToken', loginResponse.data.accessToken);
+            const accessToken = loginResponse.data.accessToken
+            localStorage.setItem('accessToken', accessToken);
+
+            // 사용자 정보 받아옴
+            const userResponse = await fetch(`${BASE_URL}/users`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            const user = await userResponse.json();
+
+            const userData = {
+                profileImgUrl: user.data.profileImgUrl ?? "/assets/image/default_profile.png",
+                nickname: user.data.nickname,
+                email: user.data.email
+
+            };
+
+            // ✅ 사용자 정보 캐싱
+            window.localStorage.setItem("userInfo", JSON.stringify(userData));
+
             window.location.href = "/home"
         } else {
             alert(loginResponse.message);

@@ -202,10 +202,16 @@
 
 /* 댓글 리스트 */
 .comment-list {
+  opacity: 1;
   margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.comment-list.fade {
+  opacity: 0;
 }
 
 .comment {
