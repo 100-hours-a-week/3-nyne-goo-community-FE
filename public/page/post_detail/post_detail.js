@@ -75,28 +75,27 @@ getDetail = async (postId, token, BASE_URL) => {
 
             // 사진
             const imageListDiv = document.querySelector(".image-list");
-            const imageList = post.imageUrlList;
+            const imageList = post.imageList;
             console.log("imagelist:", imageList, " , length: ", imageList.length);
 
             for (let i = 0; i < imageList.length; i++) {
-                console.log(imageList[i]);
                 const imageHtml =
                     `
                     <div id="image${i}" class="imagebox">
-                        <img src = ${imageList[i]}>
+                        <img src = ${imageList[i].imageUrl}>
                     </div>
                     `;
 
                 imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
             }
 
-            editPost(postId);
+            editPost(postId, token, BASE_URL);
         }
     } catch (error) { console.error(error) }
 }
 
 // 게시글 수정, 삭제 리스너
-editPost = (postId) => {
+editPost = (postId, token, BASE_URL) => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
@@ -104,7 +103,29 @@ editPost = (postId) => {
     editBtn.addEventListener("click", () => {
         window.location.href = `/write?postId=${postId}`
     });
-    deleteBtn.addEventListener("click", () => deletePost(postId));
+    deleteBtn.addEventListener("click", () => 
+        showDeleteDialog(null, postId, token, BASE_URL)
+    );
+}
+
+showDeleteDialog = (commentId, postId, token, BASE_URL) => {
+    const dialog = document.getElementById("deleteDialog");
+    dialog.classList.remove("hidden");
+
+    const confirmBtn = document.getElementById("confirmDeleteBtn");
+    const cancelBtn = document.getElementById("cancelDeleteBtn");
+
+    // 삭제
+    confirmBtn.onclick = async () => {
+        dialog.classList.add("hidden");
+        if(postId==null) await deleteComment(commentId, token, BASE_URL);
+        else await deletePost(postId, token, BASE_URL);
+    };
+
+    // 취소
+    cancelBtn.onclick = () => {
+        dialog.classList.add("hidden");
+    };
 }
 
 // 댓글 리스트
@@ -146,7 +167,7 @@ getComments = async (postId, token, BASE_URL) => {
                             `: ""}
                         
                     </div>
-                    <p class="comment-content">${comment.content}</p>
+                    <p class="comment-content">${comment.content.replace(/\n/g, "<br>")}</p>
                 </div>
             `
 
@@ -176,7 +197,7 @@ editComment = (token, BASE_URL) => {
         // 삭제
         editDiv.querySelector(".delete-btn").addEventListener("click", () => {
             if (id.startsWith("comment")) {
-                deleteComment(commentId, token, BASE_URL)
+                showDeleteDialog(commentId, token, BASE_URL)
             }
         })
     });
@@ -197,7 +218,7 @@ rewriteComment = (commentId, token, BASE_URL) => {
 
     // textarea에는 원래 댓글 적혀있도록
     textarea.classList.add("edit-textarea");
-    textarea.value = currentContent.textContent.trim();
+    textarea.value = currentContent.innerHTML.trim().replace(/<br\s*\/?>/g, "\n");;
 
     // 수정완료, 취소 버튼
     const buttonHtml =
@@ -245,7 +266,7 @@ saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
             if (content === "") return alert("내용을 입력하세요!");
 
             // 수정된 내용이 comment-content에 들어감
-            commentDiv.querySelector(".comment-content").textContent = content;
+            commentDiv.querySelector(".comment-content").innerHTML = content.replace(/\n/g, "<br>");
             // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
             cancelEdit(commentDiv);
         }else{
@@ -313,7 +334,7 @@ submitComplete = (postId, token, BASE_URL) => {
 
 }
 
-// 서버 연동하게 되면 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
+// 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
 deleteComment = async(commentId, token, BASE_URL) => {
     try{
@@ -363,4 +384,22 @@ clickLike = (postId) => {
             }
         } catch (error) { console.error(error) };
     });
+}
+
+deletePost = async(postId, token, BASE_URL) => {
+    try{
+        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
+            method: "DELETE",
+            headers: { 'Authorization': `Bearer ${token}` },
+        })
+
+        const deletePostResponse = await response.json();
+
+        if(response.status===200){
+            alert("게시글이 삭제되었습니다.");
+            history.back();
+        }else{
+            console.error(deletePostResponse.message);
+        }
+    } catch(error){console.error(error)}
 }

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>아무말 대잔치</title>
-    <link rel="stylesheet" href="/common/css/container.css">
+    <link rel="stylesheet" href="/common/css/common.css">
+    <link rel="stylesheet" href="/common/css/dialog.css">
     <link rel="stylesheet" href="/page/post_detail/post_detail.css">
 </head>
 
@@ -74,6 +75,18 @@
 
     </div>
     </div>
+
+    <!-- 댓글 확인 모달 -->
+    <div id="deleteDialog" class="dialog hidden">
+        <div class="dialog-box">
+            <p class="dialog-message">정말 삭제하시겠습니까?</p>
+            <div class="dialog-buttons">
+                <button id="confirmDeleteBtn" class="confirm-btn">삭제</button>
+                <button id="cancelDeleteBtn" class="cancel-btn">취소</button>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript" src="/page/post_detail/post_detail.js"></script>
     <script src="/config.js"></script>
 </body>
