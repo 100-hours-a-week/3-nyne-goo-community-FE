@@ -26,30 +26,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
     const postId = new URLSearchParams(window.location.search).get("postId");
-    if (postId != null) editPost(Number(postId));
+    if (postId != null) {
+        editPost(Number(postId));
+        writeForm(Number(postId));
+    } else writeForm(null);
 
     // 제목과 내용에 적는 동시에 유효성 검사
     validateTitle();
     validateContent();
 
     // 이미지 추가
-    addFile()
-
-    // 작성 완료
-    writeForm();
-
+    addFile();
 });
 
 // 수정 페이지
-editPost = (postId) => {
-    // 서버통신 부분
-    fetch("/data/postDetail.json")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.json();
-        })
-        .then(data => {
-            const post = data.data.post;
+editPost = async (postId) => {
+    const token = window.localStorage.getItem("accessToken");
+    const BASE_URL = window.CONFIG.BASE_URL;
+
+    try {
+        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
+            method: "GET",
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const postDetailResponse = await response.json();
+
+        if (response.status === 200) {
+            const post = postDetailResponse.data;
 
             // 제목, 내용
             document.getElementById("title").value = post.title;
@@ -62,29 +66,37 @@ editPost = (postId) => {
 
             // 사진
             const fileListDiv = document.querySelector(".file-list");
-            const imageList = post.imageUrlList;
+            const imageList = post.imageList;
 
             for (let i = 0; i < imageList.length; i++) {
-                const image = imageList[i]
-                // fileArr에 파일 추가
+                const imageName = imageList[i].imageName;
+                const imageUrl = imageList[i].imageUrl;
+
+                // 이미지 url로 이미지 잠시 데이터에 저장한다음 file 객체 만들어서 저장
+                const imageResponse = await fetch(imageUrl);
+                const blob = await imageResponse.blob();
+
+                const file = new File([blob], imageName, { type: blob.type });
+
                 fileArr.push({
                     id: fileNo,
                     type: "exist",
-                    url: image
+                    file: file
                 });
 
                 // 파일 리스트 추가
                 const fileHtml =
                     `
                     <div id="file${fileNo}" class="filebox">
-                        <p class="name"> ${image.split("/").pop()}</p>
+                        <p class="name"> ${imageName}</p>
                         <button type="button" class="delete-btn" onclick="deleteFile(${fileNo++})">삭제</button>
                     </div>
                     `;
 
                 fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
             }
-        })
+        }
+    } catch (error) { console.error(error); }
 }
 
 // 제목 길이 검사
@@ -218,16 +230,17 @@ activatePostButton = () => {
     }
 }
 
-writeForm = () => {
+writeForm = (postId) => {
     const form = document.querySelector("#writeForm");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
-        writePost(e)
+        writePost(postId)
     });
 }
 
 // 작성 완료 시 이전 화면으로 돌아감
-writePost = async() => {
+writePost = async (postId) => {
+    console.log(postId);
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
@@ -241,18 +254,30 @@ writePost = async() => {
 
     try {
         const token = localStorage.getItem('accessToken');
-
         const BASE_URL = window.CONFIG.BASE_URL
-        const response = await fetch(`${BASE_URL}/posts`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-        });
+
+        let response = "";
+
+        if (postId == null) {
+            response = await fetch(`${BASE_URL}/posts`, {
+                method: "POST",
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+        } else {
+            response = await fetch(`${BASE_URL}/posts/${postId}`, {
+                method: "PATCH",
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+        }
+
+        const writePostResponse = await response.json();
 
         if (response.status === 201) {
             history.back();
         } else {
-            alert(signupResponse.message);
+            alert(writePostResponse.message);
         }
     } catch (error) { console.error(error) };
 }
