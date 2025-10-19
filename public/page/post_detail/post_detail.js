@@ -132,7 +132,7 @@ showDeleteDialog = (commentId, token, BASE_URL) => {
     // 삭제
     confirmBtn.onclick = async () => {
         dialog.classList.add("hidden");
-        if (commentId == null) await deletePost(postId, token, BASE_URL);
+        if (commentId == null) await deletePost(token, BASE_URL);
         else await deleteComment(commentId, token, BASE_URL);
     };
 
