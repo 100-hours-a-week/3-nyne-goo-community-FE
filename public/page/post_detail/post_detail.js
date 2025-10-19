@@ -1,5 +1,12 @@
 console.log("post_detail js loaded");
 
+let currentPage = 0;
+let isFetching = false;
+let hasMore = true;
+const size = 10;
+
+let postId = -1;
+
 document.addEventListener("DOMContentLoaded", () => {
     // 헤더 파일 불러오기
     fetch("/common/html/header.html")
@@ -10,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
+            const script = document.createElement("script");
+            script.src = "/common/js/header.js";
+            document.body.appendChild(script);
+
             // 뒤로가기 버튼 클릭 시 홈으로 감
             document.getElementById("backBtn").addEventListener("click", () => {
                 history.back();
@@ -17,23 +28,23 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error(error));
 
-    const postId = new URLSearchParams(window.location.search).get("postId");
+    postId = new URLSearchParams(window.location.search).get("postId");
     const token = window.localStorage.getItem("accessToken");
     const BASE_URL = window.CONFIG.BASE_URL;
 
-    getDetail(postId, token, BASE_URL);
-    getComments(postId, token, BASE_URL);
+    getDetail( token, BASE_URL);
+    getComments( token, BASE_URL);
 
     // 댓글 작성
     writeComment();
-    submitComplete(postId, token, BASE_URL);
+    submitComplete( token, BASE_URL);
 
     // 좋아요 클릭
-    clickLike(postId);
+    clickLike();
 });
 
 // 게시물 상세 내용
-getDetail = async (postId, token, BASE_URL) => {
+getDetail = async (token, BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: 'GET',
@@ -76,7 +87,6 @@ getDetail = async (postId, token, BASE_URL) => {
             // 사진
             const imageListDiv = document.querySelector(".image-list");
             const imageList = post.imageList;
-            console.log("imagelist:", imageList, " , length: ", imageList.length);
 
             for (let i = 0; i < imageList.length; i++) {
                 const imageHtml =
@@ -89,13 +99,13 @@ getDetail = async (postId, token, BASE_URL) => {
                 imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
             }
 
-            editPost(postId, token, BASE_URL);
+            editPost(token, BASE_URL);
         }
     } catch (error) { console.error(error) }
 }
 
 // 게시글 수정, 삭제 리스너
-editPost = (postId, token, BASE_URL) => {
+editPost = (token, BASE_URL) => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
@@ -104,11 +114,11 @@ editPost = (postId, token, BASE_URL) => {
         window.location.href = `/write?postId=${postId}`
     });
     deleteBtn.addEventListener("click", () => 
-        showDeleteDialog(null, postId, token, BASE_URL)
+        showDeleteDialog(null, token, BASE_URL)
     );
 }
 
-showDeleteDialog = (commentId, postId, token, BASE_URL) => {
+showDeleteDialog = (commentId, token, BASE_URL) => {
     const dialog = document.getElementById("deleteDialog");
     dialog.classList.remove("hidden");
 
@@ -118,8 +128,8 @@ showDeleteDialog = (commentId, postId, token, BASE_URL) => {
     // 삭제
     confirmBtn.onclick = async () => {
         dialog.classList.add("hidden");
-        if(postId==null) await deleteComment(commentId, token, BASE_URL);
-        else await deletePost(postId, token, BASE_URL);
+        if(commentId==null) await deletePost(postId, token, BASE_URL);
+        else await deleteComment(commentId, token, BASE_URL);
     };
 
     // 취소
@@ -129,9 +139,9 @@ showDeleteDialog = (commentId, postId, token, BASE_URL) => {
 }
 
 // 댓글 리스트
-getComments = async (postId, token, BASE_URL) => {
+getComments = async (token, BASE_URL) => {
     try {
-        const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=0&size=10&sort=createdAt,ASC`, {
+        const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=${currentPage++}&size=${size}&sort=createdAt,DESC`, {
             method: "GET",
             headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -140,13 +150,11 @@ getComments = async (postId, token, BASE_URL) => {
 
         if (response.status === 200) {
             const commentList = commentsResponse.data.content;
-            const commentListDiv = document.querySelector(".comment-list");
 
             // comments에 html들 넣어서 한 번에 comment-list에 넣기
             let comments = "";
             for (let i = 0; i < commentList.length; i++) {
                 const comment = commentList[i];
-                console.log("mine?: ", comment.author.mine);
 
                 const date = (comment.updatedAt == null) ? comment.createdAt.replace("T", " ").split(".")[0] : (comment.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
                 const commentHtml =
@@ -174,13 +182,39 @@ getComments = async (postId, token, BASE_URL) => {
                 comments += commentHtml;
             }
 
-            commentListDiv.innerHTML = comments;
+            const commentListDiv = document.querySelector(".comment-list");
+            commentListDiv.insertAdjacentHTML("beforeend", comments);
+
+            // 뒤에 더 있으면 intersection observer 연결
+            if (commentsResponse.data.last) hasMore = false;
+            else {
+                hasMore = true;
+
+                const commentsDiv = document.querySelectorAll(".comment");
+                const lastIndex = commentsDiv.length-2;
+                if(lastIndex > 0) onScroll(commentsDiv[lastIndex], token, BASE_URL);
+            }
 
             editComment(token, BASE_URL);
+            commentListDiv.classList.remove("fade");
         } else {
             alert(commentsResponse.message);
         }
     } catch (error) { console.error(error) }
+}
+
+onScroll = (comment, token, BASE_URL) => {
+    const observer = new IntersectionObserver((entries)=>{
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                if(!isFetching && hasMore) getComments(token, BASE_URL);
+
+                observer.unobserve(entry.target);
+            }
+        })
+    })
+
+    observer.observe(comment);
 }
 
 // 댓글 수정, 삭제 리스너
@@ -288,8 +322,6 @@ cancelEdit = (commentDiv) => {
 // 댓글 작성
 writeComment = () => {
     document.getElementById("commentInput").addEventListener("input", (e) => {
-
-
         const count = document.getElementById("count");
         const currentLength = e.target.value.length;
 
@@ -306,7 +338,7 @@ writeComment = () => {
 }
 
 // 댓글 작성 완료
-submitComplete = (postId, token, BASE_URL) => {
+submitComplete = (token, BASE_URL) => {
     document.getElementById("submitComment").addEventListener("click", async () => {
         try {
             const content = document.getElementById("commentInput").value;
@@ -321,11 +353,21 @@ submitComplete = (postId, token, BASE_URL) => {
 
             const writeCommentResponse = await response.json();
 
-            // 작성 완료 시 댓글 작성 칸 비우고 댓글 내역 불러옴
+            // 작성 완료 시 댓글 리스트 초기화 후 새로 불러옴
             if (response.status === 201) {
-                document.getElementById("commentInput").value = ""
+                document.getElementById("commentInput").value = "";
                 document.getElementById("count").textContent = "0 / 500";
-                getComments(postId, token, BASE_URL);
+
+                // 댓글 리스트 영역 초기화 후 깜빡임 효과
+                const commentListDiv = document.querySelector(".comment-list");
+                commentListDiv.classList.add("fade"); 
+                commentListDiv.innerHTML = "";
+
+                currentPage=0;
+                hasMore=true;
+                await getComments(token, BASE_URL);
+
+                commentListDiv.classList.remove("fade");
             }
 
         } catch (error) { console.error(error) }
@@ -353,7 +395,7 @@ deleteComment = async(commentId, token, BASE_URL) => {
 }
 
 // 좋아요 클릭
-clickLike = (postId) => {
+clickLike = () => {
     const likeBtn = document.getElementById("likeBtn");
     const likeCount = document.getElementById("likeCount");
     const heartIcon = document.getElementById("heartIcon");
@@ -386,7 +428,7 @@ clickLike = (postId) => {
     });
 }
 
-deletePost = async(postId, token, BASE_URL) => {
+deletePost = async(token, BASE_URL) => {
     try{
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: "DELETE",

@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
+            const script = document.createElement("script");
+            script.src = "/common/js/header.js";
+            document.body.appendChild(script);
+
             // 뒤로가기 버튼 숨김
             const backButton = document.getElementById("backBtn")
             backButton.classList.add("hide");
@@ -42,10 +46,7 @@ getList = async () => {
         // response 값
         const postListResponse = await response.json();
 
-        if (response.ok) {
-            if (postListResponse.data.last) hasMore = false;
-            else hasMore = true;
-
+        if (response.status===200) {
             const postList = postListResponse.data.content;
 
             // posts에 게시글들 html로 만들어서 post-lists에 한번에 넣기
@@ -90,8 +91,14 @@ getList = async () => {
                 postDiv.addEventListener("click", () => { goDetail(postDiv.id.replace("post", "")) });
             })
 
-            const lastIndex = postsDiv.length - 2; // 마지막에서 두 번째
-            if (lastIndex >= 0) onScroll(postsDiv[lastIndex]);
+            if (postListResponse.data.last) hasMore = false;
+            else {
+                hasMore = true;
+
+                const lastIndex = postsDiv.length - 2; // 마지막에서 두 번째
+                if (lastIndex > 0) onScroll(postsDiv[lastIndex]);
+            }
+            
 
             isFetching = false;
         }
