@@ -279,6 +279,7 @@ writePost = async (postId) => {
         const writePostResponse = await response.json();
 
         if (response.status === 201) {
+            window.sessionStorage.setItem("refreshHome", "true");
             history.back();
         } else {
             alert(writePostResponse.message);
