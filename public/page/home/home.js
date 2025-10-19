@@ -1,5 +1,9 @@
 console.log("home js loaded");
 
+let currentPage = 0;
+let isFetching = false;
+let hasMore = true;
+
 document.addEventListener("DOMContentLoaded", () => {
     // 헤더 파일 불러오기
     fetch("/common/html/header.html")
@@ -23,10 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // 게시글 리스트 불러오기
 getList = async () => {
     try {
+        isFetching = true;
         const token = localStorage.getItem('accessToken');
 
         const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/posts?page=0&size=10&sort=createdAt,ASC`, {
+        const response = await fetch(`${BASE_URL}/posts?page=${currentPage++}&size=10&sort=createdAt,ASC`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -38,6 +43,9 @@ getList = async () => {
         const postListResponse = await response.json();
 
         if (response.ok) {
+            if (postListResponse.data.last) hasMore = false;
+            else hasMore = true;
+
             const postList = postListResponse.data.content;
 
             // posts에 게시글들 html로 만들어서 post-lists에 한번에 넣기
@@ -52,40 +60,59 @@ getList = async () => {
                 // 제목, 좋아요&댓글&조회수, 날짜, 작성자 이미지&작성자 이름
                 posts +=
                     `
-            <div class="post" id="post${post.postId}">
-                <div class="post-header">
-                    <h2 class="post-title">${post.title.slice(0, 26)}</h2>
-                </div>
-                <div class="post-section">
-                    <div class="post-count">
-                        <span>좋아요 ${post.likesCount}</span>
-                        <span>댓글 ${post.commentsCount}</span>
-                        <span>조회수 ${post.viewsCount}</span>
+                    <div class="post" id="post${post.postId}">
+                    <div class="post-header">
+                        <h2 class="post-title">${post.title.slice(0, 26)}</h2>
                     </div>
-                    <span class="post-date">${date}</span>
-                </div>
-                <hr class="post-divider">
-                <div class="post-footer">
-                    <img src="${imageUrl}" alt="작성자 이미지" class="author-img">
-                    <span class="author-name">${post.author.name}</span>
-                </div>
-            </div>
-            `
+                    <div class="post-section">
+                        <div class="post-count">
+                            <span>좋아요 ${post.likesCount}</span>
+                            <span>댓글 ${post.commentsCount}</span>
+                            <span>조회수 ${post.viewsCount}</span>
+                        </div>
+                        <span class="post-date">${date}</span>
+                    </div>
+                    <hr class="post-divider">
+                    <div class="post-footer">
+                        <img src="${imageUrl}" alt="작성자 이미지" class="author-img">
+                        <span class="author-name">${post.author.name}</span>
+                    </div>
+                    </div>
+                    `
             }
 
             const list = document.querySelector(".post-list");
-            list.innerHTML = posts;
+            list.insertAdjacentHTML("beforeend", posts);
 
             // 각 게시글 클릭 시 해당 게시글 상세 페이지로 이동
-            document.querySelectorAll(".post").forEach((postDiv) => {
-                postDiv.addEventListener("click", () => { goDetail(postDiv.id.replace("post","")) });
+            const postsDiv = document.querySelectorAll(".post");
+            postsDiv.forEach((postDiv) => {
+                postDiv.addEventListener("click", () => { goDetail(postDiv.id.replace("post", "")) });
             })
+
+            const lastIndex = postsDiv.length - 2; // 마지막에서 두 번째
+            if (lastIndex >= 0) onScroll(postsDiv[lastIndex]);
+
+            isFetching = false;
         }
         else {
             alert(postListResponse.message);
         }
 
     } catch (error) { console.error(error) };
+}
+
+onScroll = (post) => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                if(!isFetching && hasMore) getList();
+
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    observer.observe(post);
 }
 
 // 게시글 상세페이지
