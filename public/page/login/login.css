@@ -29,6 +29,19 @@ input {
   font-size: 14px;
 }
 
+.error-message {
+  color: #e74c3c; /* 붉은색 */
+  font-size: 13px;
+  margin-top: 4px;
+  display: none; /* 기본은 숨김 */
+}
+
+input.error {
+  border-color: #e74c3c;
+  background-color: #fff6f6;
+}
+
+
 button#loginBtn {
   padding: 10px;
   border: none;

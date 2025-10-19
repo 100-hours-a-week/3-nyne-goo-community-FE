@@ -11,6 +11,12 @@ const validationState = {
 // document.addEventListener("DOMContentLoaded")로 바꾸고
 // header.css 를 header.html안에 넣음
 document.addEventListener("DOMContentLoaded", () => {
+    // 로그인 한 상태라면 이 이전 페이지로 이동
+    const token = sessionStorage.getItem("accessToken");
+    if (token) {
+        history.back();
+    }
+
     loadHeader();
     uploadProfile();
 
@@ -211,15 +217,28 @@ validatePasswordConfirm = (e) => {
     const passwordConfirmBox = e.target
     const password = passwordBox.value;
     const passwordConfirm = passwordConfirmBox.value;
-    const passwordError = document.getElementById("passwordConfirmMsg");
 
-    // 모든 조건 만족하는지
-    const isValid = password === passwordConfirm
-    validationState.passwordConfirm = isValid
-    changeSignupButton();
+    const passwordError = document.getElementById("passwordMsg");
+
+    // 비밀번호 유효성 맞지 않으면 비밀번호 재입력 칸도 빨갛게 표시
+    if (passwordError.classList.contains("show")) showPwError(false, null, passwordBox, passwordConfirmBox)
+    // 비밀번호 유효성 맞으면 일치 여부에 따라 표시
+    else {
+        console.log("비번 유효성은 맞음")
+        const isValid = password === passwordConfirm
+        validationState.passwordConfirm = isValid
+        changeSignupButton();
+
+        showPwError(isValid, "비밀번호가 일치하지 않습니다.", passwordBox, passwordConfirmBox)
+    }
+
+}
+
+showPwError = (isValid, errorContext, passwordBox, passwordConfirmBox) => {
+    const passwordConfirmError = document.getElementById("passwordConfirmMsg");
 
     if (isValid) {
-        passwordError.classList.remove("show");
+        passwordConfirmError.classList.remove("show");
 
         passwordBox.classList.add("success")
         passwordConfirmBox.classList.add("success")
@@ -227,27 +246,29 @@ validatePasswordConfirm = (e) => {
         passwordBox.classList.remove("error")
         passwordConfirmBox.classList.remove("error")
     } else {
-        passwordError.textContent =
-            "비밀번호가 일치하지 않습니다.";
-        passwordError.classList.add("show", "error");
-
         passwordBox.classList.remove("success")
         passwordConfirmBox.classList.remove("success")
 
         passwordBox.classList.add("error")
         passwordConfirmBox.classList.add("error")
+
+        if (errorContext != null) {
+            passwordConfirmError.textContent =
+                "비밀번호가 일치하지 않습니다.";
+            passwordConfirmError.classList.add("show", "error");
+        }
     }
 }
 
-clickEye = (togglePw, pwInput) => {
-    togglePw.addEventListener("click", () => {
-        const isHidden = pwInput.type === "password";
+clickEye = (toggle, Input) => {
+    toggle.addEventListener("click", () => {
+        const isHidden = Input.type === "password";
 
         // 비밀번호 감추기/보이기 토글
-        pwInput.type = isHidden ? "text" : "password";
+        Input.type = isHidden ? "text" : "password";
 
         // 아이콘 변경
-        togglePassword.src = isHidden
+        toggle.src = isHidden
             ? "/assets/image/ic_eye_opend_black_64.png"     // 눈 뜬 이미지
             : "/assets/image/ic_eye_closed_black_64.png";  // 눈 감은 이미지
     });

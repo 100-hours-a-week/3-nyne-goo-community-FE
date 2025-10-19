@@ -3,10 +3,10 @@ console.log("login js loaded");
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
 
-    // 로그인 한 상태라면 다시 home으로 이동
+    // 로그인 한 상태라면 이 이전 페이지로 이동
     const token = sessionStorage.getItem("accessToken");
     if (token) {
-        window.location.replace("/home");
+        history.back();
     }
 
     // 로그인 버튼 클릭 시
@@ -42,8 +42,48 @@ loadHeader = () => {
 // 로그인 버튼 클릭 시 서버에 이메일, 비밀번호 보내고 토큰 가져옴
 login = async (e) => {
     e.preventDefault();     // 페이지 새로고침 막음
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+    const loginError = document.getElementById("loginError");
+
+    // 에러 초기화
+    emailError.style.display = "none";
+    passwordError.style.display = "none";
+    loginError.style.display = "none";
+
+    emailInput.classList.remove("error");
+    passwordInput.classList.remove("error");
+
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+
+    // 이메일 비었는지
+    if (!email) {
+        showError(emailInput, emailError, "이메일을 입력하세요.");
+        return;
+    }
+
+    // 이메일 형식 확인
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError(emailInput, emailError, "올바른 이메일 형식을 입력하세요.");
+        return;
+    }
+
+    // 비밀번호 비었는지
+    if (!password) {
+        showError(passwordInput, passwordError, "비밀번호를 입력하세요.");
+        return;
+    }
+
+    // 비밀번호 최소 길이 확인
+    if (password.length < 6) {
+        showError(passwordInput, passwordError, "비밀번호는 최소 6자 이상이어야 합니다.");;
+        return;
+    }
 
     try {
         // BASE_URL/auth로 보냄
@@ -87,10 +127,17 @@ login = async (e) => {
             // 로그인 후 다시 로그인으로 돌아오지 못하게
             window.location.replace("/home");
         } else {
-            alert(loginResponse.message);
+            loginError.textContent = loginResponse.message;
+            loginError.style.display = "block";
         }
     } catch (error) { console.error(error) };
 };
+
+showError = (input, error, message) => {
+    error.textContent = message;
+    error.style.display = "block";
+    input.classList.add("error");
+}
 
 // 회원가입
 signup = () => {
