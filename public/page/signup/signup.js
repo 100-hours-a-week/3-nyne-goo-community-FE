@@ -11,7 +11,19 @@ const validationState = {
 // document.addEventListener("DOMContentLoaded")로 바꾸고
 // header.css 를 header.html안에 넣음
 document.addEventListener("DOMContentLoaded", () => {
-    // 헤더 파일 불러오기
+    loadHeader();
+    uploadProfile();
+
+    controlEmail();
+    controlPassword();
+    controlNickname();
+
+    signupForm();
+    login();
+});
+
+// 헤더 파일 불러오기
+loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -24,19 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const profile = document.querySelector(".profile");
             profile.classList.add("hide");
 
-            document.getElementById("backBtn").addEventListener("click", login)
+            document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
         .catch(error => console.error(error));
-
-    uploadProfile();
-
-    controlEmail();
-    controlPassword();
-    controlNickname();
-
-    signupForm();
-    login();
-});
+}
 
 // 이미지 업로드
 uploadProfile = () => {
@@ -324,12 +327,23 @@ changeSignupButton = () => {
 }
 
 login = () => {
-    document.getElementById("goLoginBtn").addEventListener("click", () => window.location.href = "/login");
-    
+    document.getElementById("goLoginBtn").addEventListener("click", () => {
+        // 이전 페이지 URL
+        const prev = document.referrer;
+
+        // 이전 페이지가 로그인 화면이면 뒤로가기 실행
+        if (prev && prev.includes("/login")) {
+            history.back();
+        }
+        // 직접 url로 들어온 경우라면 login 페이지로 교체
+        else {
+            window.location.replace("/login");
+        }
+    })
 };
 
-signupForm = ()=>{
-     const form = document.querySelector("#signupForm");
+signupForm = () => {
+    const form = document.querySelector("#signupForm");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
         signup(e)
@@ -365,7 +379,7 @@ signup = async (e) => {
 
         // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
         // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.status===201) {
+        if (response.status === 201) {
             window.location.href = "/login"
         } else {
             alert(signupResponse.message);

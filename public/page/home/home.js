@@ -5,7 +5,23 @@ let isFetching = false;
 let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 헤더 파일 불러오기
+    loadHeader();
+    getList();
+    writePost();
+
+    // 게시글 상세에서 홈으로 온 경우 게시글 리스트 새로고침 되도록
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            currentPage = 0;
+            hasMore = true;
+            document.querySelector(".post-list").innerHTML = "";
+            getList();
+        }
+    });
+});
+
+// 헤더 파일 불러오기
+loadHeader = ()=>{
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -23,16 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
             backButton.classList.add("hide");
         })
         .catch(error => console.error(error));
-
-    getList();
-    writePost();
-});
+}
 
 // 게시글 리스트 불러오기
 getList = async () => {
     try {
         isFetching = true;
-        const token = localStorage.getItem('accessToken');
+        const token = sessionStorage.getItem('accessToken');
 
         const BASE_URL = window.CONFIG.BASE_URL;
         const response = await fetch(`${BASE_URL}/posts?page=${currentPage++}&size=10&sort=createdAt,ASC`, {

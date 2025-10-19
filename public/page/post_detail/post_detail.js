@@ -8,7 +8,25 @@ const size = 10;
 let postId = -1;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 헤더 파일 불러오기
+    loadHeader()
+
+    postId = new URLSearchParams(window.location.search).get("postId");
+    const token = window.sessionStorage.getItem("accessToken");
+    const BASE_URL = window.CONFIG.BASE_URL;
+
+    getDetail(token, BASE_URL);
+    getComments(token, BASE_URL);
+
+    // 댓글 작성
+    writeComment();
+    submitComplete(token, BASE_URL);
+
+    // 좋아요 클릭
+    clickLike();
+});
+
+// 헤더 파일 불러오기
+loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -27,21 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         })
         .catch(error => console.error(error));
-
-    postId = new URLSearchParams(window.location.search).get("postId");
-    const token = window.localStorage.getItem("accessToken");
-    const BASE_URL = window.CONFIG.BASE_URL;
-
-    getDetail( token, BASE_URL);
-    getComments( token, BASE_URL);
-
-    // 댓글 작성
-    writeComment();
-    submitComplete( token, BASE_URL);
-
-    // 좋아요 클릭
-    clickLike();
-});
+}
 
 // 게시물 상세 내용
 getDetail = async (token, BASE_URL) => {
@@ -113,7 +117,7 @@ editPost = (token, BASE_URL) => {
     editBtn.addEventListener("click", () => {
         window.location.href = `/write?postId=${postId}`
     });
-    deleteBtn.addEventListener("click", () => 
+    deleteBtn.addEventListener("click", () =>
         showDeleteDialog(null, token, BASE_URL)
     );
 }
@@ -128,7 +132,7 @@ showDeleteDialog = (commentId, token, BASE_URL) => {
     // 삭제
     confirmBtn.onclick = async () => {
         dialog.classList.add("hidden");
-        if(commentId==null) await deletePost(postId, token, BASE_URL);
+        if (commentId == null) await deletePost(postId, token, BASE_URL);
         else await deleteComment(commentId, token, BASE_URL);
     };
 
@@ -191,8 +195,8 @@ getComments = async (token, BASE_URL) => {
                 hasMore = true;
 
                 const commentsDiv = document.querySelectorAll(".comment");
-                const lastIndex = commentsDiv.length-2;
-                if(lastIndex > 0) onScroll(commentsDiv[lastIndex], token, BASE_URL);
+                const lastIndex = commentsDiv.length - 2;
+                if (lastIndex > 0) onScroll(commentsDiv[lastIndex], token, BASE_URL);
             }
 
             editComment(token, BASE_URL);
@@ -204,10 +208,10 @@ getComments = async (token, BASE_URL) => {
 }
 
 onScroll = (comment, token, BASE_URL) => {
-    const observer = new IntersectionObserver((entries)=>{
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if(entry.isIntersecting){
-                if(!isFetching && hasMore) getComments(token, BASE_URL);
+            if (entry.isIntersecting) {
+                if (!isFetching && hasMore) getComments(token, BASE_URL);
 
                 observer.unobserve(entry.target);
             }
@@ -286,10 +290,10 @@ saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
 
         const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
             method: "PATCH",
-            headers: { 
+            headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`,
-             },
+            },
             body: JSON.stringify({ content })
         })
 
@@ -303,7 +307,7 @@ saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
             commentDiv.querySelector(".comment-content").innerHTML = content.replace(/\n/g, "<br>");
             // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
             cancelEdit(commentDiv);
-        }else{
+        } else {
             alert(editCommentResponse.message);
         }
     } catch (error) { console.error(error) }
@@ -360,11 +364,11 @@ submitComplete = (token, BASE_URL) => {
 
                 // 댓글 리스트 영역 초기화 후 깜빡임 효과
                 const commentListDiv = document.querySelector(".comment-list");
-                commentListDiv.classList.add("fade"); 
+                commentListDiv.classList.add("fade");
                 commentListDiv.innerHTML = "";
 
-                currentPage=0;
-                hasMore=true;
+                currentPage = 0;
+                hasMore = true;
                 await getComments(token, BASE_URL);
 
                 commentListDiv.classList.remove("fade");
@@ -378,20 +382,20 @@ submitComplete = (token, BASE_URL) => {
 
 // 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
-deleteComment = async(commentId, token, BASE_URL) => {
-    try{
+deleteComment = async (commentId, token, BASE_URL) => {
+    try {
         const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
             method: "DELETE",
-            headers: {'Authorization': `Bearer ${token}`}
+            headers: { 'Authorization': `Bearer ${token}` }
         })
 
-        if(response.status===200){
+        if (response.status === 200) {
             alert("댓글이 삭제되었습니다.");
             window.location.reload();   // 전체 새로고침
-        }else{
+        } else {
             alert(response.json().message);
         }
-    }catch(error) {console.error(error)}
+    } catch (error) { console.error(error) }
 }
 
 // 좋아요 클릭
@@ -406,7 +410,7 @@ clickLike = () => {
     likeBtn.addEventListener("click", async () => {
         try {
             const isActive = likeBtn.classList.toggle("active");
-            const token = window.localStorage.getItem("accessToken");
+            const token = window.sessionStorage.getItem("accessToken");
             const BASE_URL = window.CONFIG.BASE_URL
             const response = await fetch(`${BASE_URL}/post/${postId}/likes`, {
                 method: `${isActive ? "POST" : "DELETE"}`,
@@ -428,8 +432,8 @@ clickLike = () => {
     });
 }
 
-deletePost = async(token, BASE_URL) => {
-    try{
+deletePost = async (token, BASE_URL) => {
+    try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: "DELETE",
             headers: { 'Authorization': `Bearer ${token}` },
@@ -437,11 +441,11 @@ deletePost = async(token, BASE_URL) => {
 
         const deletePostResponse = await response.json();
 
-        if(response.status===200){
+        if (response.status === 200) {
             alert("게시글이 삭제되었습니다.");
             history.back();
-        }else{
+        } else {
             console.error(deletePostResponse.message);
         }
-    } catch(error){console.error(error)}
+    } catch (error) { console.error(error) }
 }
