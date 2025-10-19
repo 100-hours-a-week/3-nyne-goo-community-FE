@@ -1,7 +1,25 @@
 console.log("login js loaded");
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 헤더 파일 불러오기
+    loadHeader();
+
+    // 로그인 한 상태라면 다시 home으로 이동
+    const token = sessionStorage.getItem("accessToken");
+    if (token) {
+        window.location.replace("/home");
+    }
+
+    // 로그인 버튼 클릭 시
+    const form = document.querySelector(".login");
+    form.addEventListener("submit", (e) => login(e));
+
+    // 회원가입 글자 클릭 시
+    const signupButton = document.getElementById("signupBtn");
+    signupButton.addEventListener("click", signup)
+});
+
+// 헤더 파일 불러오기
+loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -18,15 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
             profile.classList.add("hide");
         })
         .catch(error => console.error(error));
+}
 
-    // 로그인 버튼 클릭 시
-    const form = document.querySelector(".login");
-    form.addEventListener("submit", (e) => login(e));
-
-    // 회원가입 글자 클릭 시
-    const signupButton = document.getElementById("signupBtn");
-    signupButton.addEventListener("click", signup)
-});
 
 // 로그인 버튼 클릭 시 서버에 이메일, 비밀번호 보내고 토큰 가져옴
 login = async (e) => {
@@ -54,9 +65,8 @@ login = async (e) => {
         // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
         // 아니라면 오류 메시지를 alert로 보여줌
         if (response.ok) {
-            // TODO: localStorage에 보관하면 보안에 매우 위험. 추후 수정
             const accessToken = loginResponse.data.accessToken
-            localStorage.setItem('accessToken', accessToken);
+            window.sessionStorage.setItem('accessToken', accessToken);
 
             // 사용자 정보 받아옴
             const userResponse = await fetch(`${BASE_URL}/users`, {
@@ -71,10 +81,11 @@ login = async (e) => {
 
             };
 
-            // ✅ 사용자 정보 캐싱
-            window.localStorage.setItem("userInfo", JSON.stringify(userData));
+            // 사용자 정보 캐싱
+            window.sessionStorage.setItem('userInfo', JSON.stringify(userData));
 
-            window.location.href = "/home"
+            // 로그인 후 다시 로그인으로 돌아오지 못하게
+            window.location.replace("/home");
         } else {
             alert(loginResponse.message);
         }

@@ -11,18 +11,7 @@ const validationState = {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 헤더 파일 불러오기
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            document.getElementById("backBtn").addEventListener("click", () => history.back());
-        })
-        .catch(error => console.error(error));
+    loadHeader();
 
     // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
     const postId = new URLSearchParams(window.location.search).get("postId");
@@ -39,9 +28,24 @@ document.addEventListener("DOMContentLoaded", () => {
     addFile();
 });
 
+// 헤더 파일 불러오기
+loadHeader = () => {
+    fetch("/common/html/header.html")
+        .then(response => {
+            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById("header").innerHTML = data;
+
+            document.getElementById("backBtn").addEventListener("click", () => history.back());
+        })
+        .catch(error => console.error(error));
+}
+
 // 수정 페이지
 editPost = async (postId) => {
-    const token = window.localStorage.getItem("accessToken");
+    const token = window.sessionStorage.getItem("accessToken");
     const BASE_URL = window.CONFIG.BASE_URL;
 
     try {
@@ -253,7 +257,7 @@ writePost = async (postId) => {
     }
 
     try {
-        const token = localStorage.getItem('accessToken');
+        const token = sessionStorage.getItem('accessToken');
         const BASE_URL = window.CONFIG.BASE_URL
 
         let response = "";
