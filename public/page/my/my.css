@@ -1,0 +1,163 @@
+.mypage-box {
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px 60px;
+    width: 420px;
+    text-align: center;
+}
+
+.mypage-box h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #222;
+}
+
+/* 프로필 이미지 */
+.profile-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.profile-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #ddd;
+}
+
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.change-btn {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+.change-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.info-display {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.info-row .label {
+  font-weight: 600;
+  color: #444;
+}
+
+.info-row .value {
+  color: #333;
+  font-size: 14px;
+}
+
+
+/* 폼 */
+.info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-group input[readonly] {
+    background-color: #f8f8f8;
+}
+
+/* 버튼들 */
+.btn-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.edit-btn,
+.delete-btn {
+    width: 48%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #b6a3ff;
+    color: #fff;
+}
+
+.delete-btn {
+    background-color: #f6f6f6;
+    color: #444;
+}
+
+.edit-btn:hover {
+    background-color: #9c8bff;
+}
+
+.delete-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.save-btn {
+    margin-top: 25px;
+    padding: 10px 0;
+    width: 100%;
+    background-color: #9c8bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background-color: #7b6de6;
+}
