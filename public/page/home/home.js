@@ -69,6 +69,7 @@ getList = async () => {
                 // updatedAt에 값이 있으면 수정된 시간을 보여주고 아니면 생성시간을 보여줌
                 const date = (post.updatedAt == null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
                 const imageUrl = (post.author.profileImageUrl == null) ? "/assets/image/default_profile.png" : post.author.profileImageUrl
+                console.log("imageurl: ", imageUrl);
 
                 // 제목, 좋아요&댓글&조회수, 날짜, 작성자 이미지&작성자 이름
                 posts +=

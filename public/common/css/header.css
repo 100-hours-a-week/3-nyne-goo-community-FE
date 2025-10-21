@@ -43,6 +43,7 @@ h1 {
 }
 
 .profile{
+  position: relative;
   display: block;
   visibility: visible;
 }
@@ -58,6 +59,46 @@ h1 {
   object-fit: cover;
 }
 
+.profile:hover{
+  cursor: pointer;
+}
+
+.profile img.menu{
+  border-radius: 0%;
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;   /* 메뉴 바로 아래 */
+  right: 0;    /* 아이콘 기준으로 오른쪽 정렬 */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  width: 150px;
+  display: none;
+  z-index: 1000;
+}
+
+.dropdown.show {
+  display: block;   
+}
+
+.dropdown li {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown li:hover {
+  background-color: #f4f4f4;
+}
+
 header hr {
   width: 100%;
   border: none;
@@ -67,3 +108,4 @@ header hr {
   bottom: 0; 
   left: 0;
 }
+

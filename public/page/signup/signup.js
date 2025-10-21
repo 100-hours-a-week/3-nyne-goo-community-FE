@@ -45,7 +45,7 @@ loadHeader = () => {
             document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
         .catch(error => console.error(error));
-}
+};
 
 // 이미지 업로드
 uploadProfile = () => {
@@ -347,7 +347,7 @@ changeSignupButton = () => {
     }
 }
 
-login = () => {
+ogin = () => {
     document.getElementById("goLoginBtn").addEventListener("click", () => {
         // 이전 페이지 URL
         const prev = document.referrer;
