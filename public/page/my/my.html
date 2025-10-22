@@ -20,7 +20,9 @@
                 <!-- 프로필 -->
                 <div class="profile-section">
                     <div class="profile-circle">
-                        <img src="/assets/image/default_profile.png" alt="프로필 이미지" id="profileImg">
+                        <img src="" alt="프로필 이미지" id="profileImg">
+                        <button id="changeProfileBtn" class="change-btn">변경</button>
+                        <input type="file" id="profileInput" accept="image/*" hidden>
                     </div>
                 </div>
 
@@ -36,6 +38,21 @@
                         <p class="value" id="nicknameValue"></p>
                     </div>
                 </div>
+
+                <div class="bottom-btns" id="bottomBtns">
+                    <button id="saveBtn" class="save-btn">저장</button>
+                    <button id="deleteBtn" class="delete-btn">회원탈퇴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteAlert" class="alert-overlay">
+        <div class="alert-box">
+            <p>정말 회원탈퇴 하시겠습니까?</p>
+            <div class="alert-buttons">
+                <button id="cancelBtn">취소</button>
+                <button id="confirmBtn">확인</button>
             </div>
         </div>
     </div>

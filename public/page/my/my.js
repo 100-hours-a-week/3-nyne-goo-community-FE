@@ -1,8 +1,9 @@
 console.log("my js loaded");
 
+const my = JSON.parse(sessionStorage.getItem("userInfo"));
+
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
-
     getMyInfo();
 });
 
@@ -37,11 +38,135 @@ loadHeader = () => {
 clickMenu = (e, dropdown) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
+
+    document.getElementById("goMy").addEventListener("click", () => clickEditInfo());
+}
+
+clickEditInfo = () => {
+    const nicknameValue = document.getElementById("nicknameValue");
+    const current = nicknameValue.textContent;
+
+    nicknameValue.innerHTML = `
+      <input type="text" id="nicknameInput" class="nickname-input" maxlength = "10", value="${current}" />
+    `;
+    document.getElementById("nicknameInput").focus();
+
+    document.getElementById("changeProfileBtn").classList.add("show");
+    const buttonBox = document.getElementById("bottomBtns").classList.add("show");
+
+
+    // 사진 변경
+    editProfile();
+
+    // 저장
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const newNicknameInput = document.getElementById("nicknameInput");
+        const newNickname = newNicknameInput ? newNicknameInput.value.trim() : document.getElementById("nicknameValue").textContent;
+        const profile = document.getElementById("profileInput");
+        const newProfileUrl = document.getElementById("profileImg").src;
+
+        const formData = new FormData();
+        formData.append("nickname", newNickname);
+
+        if (profile.files.length > 0) {
+            formData.append("image", profile.files[0]);
+        } else formData.append("image", null);
+
+        try {
+            const token = window.sessionStorage.getItem("accessToken");
+            const BASE_URL = window.CONFIG.BASE_URL;
+            const response = await fetch(`${BASE_URL}/users`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            })
+
+            const editInfoResponse = await response.json();
+            if (response.status === 200) {
+                const updatedInfo = {
+                    email: my.email,
+                    nickname: newNickname,
+                    profileImgUrl: newProfileUrl
+                };
+
+                sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+                window.location.reload();
+            }
+            else {
+                console.log(editInfoResponse.message);
+            }
+        } catch (error) { console.error(error) }
+
+    });
+
+    // 탈퇴
+    document.getElementById("deleteBtn").addEventListener("click", () => {
+        const deleteAlert = document.getElementById("deleteAlert").style.display = "flex";
+        document.getElementById("cancelBtn").addEventListener("click", () => {
+            deleteAlert.style.display = "none";
+        })
+
+        document.getElementById("confirmBtn").addEventListener("click", () => deleteUser());
+    })
+}
+
+editProfile = () => {
+    const profileInput = document.getElementById("profileInput");
+    const profileImg = document.getElementById("profileImg");
+
+    document.getElementById("changeProfileBtn").addEventListener("click", () => {
+        profileInput.click();
+    });
+
+    profileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            profileImg.src = ev.target.result; // 미리보기 반영
+        };
+        reader.readAsDataURL(file);
+    });
+
+}
+
+deleteUser = async () => {
+    try {
+        const token = sessionStorage.getItem("accessToken");
+        const BASE_URL = window.CONFIG.BASE_URL;
+        const response = await fetch(`${BASE_URL}/users`, {
+            method: "DELETE",
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+
+        const deleteUserResponse = await response.json();
+
+        if (response.status === 200) {
+            alert("회원 탈퇴가 완료되었습니다.");
+
+            // 클라이언트 저장소 초기화
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+
+            // 브라우저 히스토리 초기화
+            window.location.replace("/login");
+
+            // 히스토리 스택 방어 (뒤로가기 막기)
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = () => {
+                window.history.go(1);
+            };
+        } else {
+            console.log(deleteUserResponse.message);
+        }
+    } catch (error) { console.error(error); }
+
 }
 
 getMyInfo = () => {
-    const my = JSON.parse(sessionStorage.getItem("userInfo"));
-    console.log("my: ", my);
+    document.getElementById("profileImg").src = my.profileImgUrl
     document.getElementById("emailValue").textContent = my.email;
     document.getElementById("nicknameValue").textContent = my.nickname;
 }
+

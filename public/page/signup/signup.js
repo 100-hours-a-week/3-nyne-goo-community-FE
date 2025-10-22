@@ -347,7 +347,7 @@ changeSignupButton = () => {
     }
 }
 
-ogin = () => {
+login = () => {
     document.getElementById("goLoginBtn").addEventListener("click", () => {
         // 이전 페이지 URL
         const prev = document.referrer;
