@@ -40,7 +40,23 @@ clickMenu = (e, dropdown) => {
     document.getElementById("editInfo").addEventListener("click", () => clickEditInfo());
     document.getElementById("editPw").addEventListener("click", () => {
         console.log("click edit password")
-        window.location.href="/edit-password"});
+        window.location.href = "/edit-password"
+    });
+    document.getElementById("logout").addEventListener("click", async () => {
+        const BASE_URL = window.CONFIG.BASE_URL;
+        await fetch(`${BASE_URL}/auth`, {
+            method: 'DELETE',
+            credentials: 'include', // 쿠키를 서버에 보내야 서버가 삭제 가능
+        });
+
+        // 이후 클라이언트 쪽 데이터 정리
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // 로그인 화면으로 이동
+        window.location.replace('/login');
+
+    })
 }
 
 clickEditInfo = () => {
@@ -74,11 +90,10 @@ clickEditInfo = () => {
         } else formData.append("image", null);
 
         try {
-            const token = window.sessionStorage.getItem("accessToken");
             const BASE_URL = window.CONFIG.BASE_URL;
             const response = await fetch(`${BASE_URL}/users`, {
                 method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
                 body: formData
             })
 
@@ -134,11 +149,10 @@ editProfile = () => {
 
 deleteUser = async () => {
     try {
-        const token = sessionStorage.getItem("accessToken");
         const BASE_URL = window.CONFIG.BASE_URL;
         const response = await fetch(`${BASE_URL}/users`, {
             method: "DELETE",
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include',
         })
 
         const deleteUserResponse = await response.json();

@@ -11,15 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHeader()
 
     postId = new URLSearchParams(window.location.search).get("postId");
-    const token = window.sessionStorage.getItem("accessToken");
     const BASE_URL = window.CONFIG.BASE_URL;
 
-    getDetail(token, BASE_URL);
-    getComments(token, BASE_URL);
+    getDetail(BASE_URL);
+    getComments( BASE_URL);
 
     // 댓글 작성
     writeComment();
-    submitComplete(token, BASE_URL);
+    submitComplete(BASE_URL);
 
     // 좋아요 클릭
     clickLike();
@@ -49,11 +48,11 @@ loadHeader = () => {
 }
 
 // 게시물 상세 내용
-getDetail = async (token, BASE_URL) => {
+getDetail = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         })
 
         const detailResponse = await response.json();
@@ -104,13 +103,15 @@ getDetail = async (token, BASE_URL) => {
                 imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
             }
 
-            editPost(token, BASE_URL);
+            editPost(BASE_URL);
+        }else if(response.status===401 || response.status===403){
+            window.location.replace("/login");
         }
     } catch (error) { console.error(error) }
 }
 
 // 게시글 수정, 삭제 리스너
-editPost = (token, BASE_URL) => {
+editPost = (BASE_URL) => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
@@ -119,11 +120,11 @@ editPost = (token, BASE_URL) => {
         window.location.href = `/write?postId=${postId}`
     });
     deleteBtn.addEventListener("click", () =>
-        showDeleteDialog(null, token, BASE_URL)
+        showDeleteDialog(null, BASE_URL)
     );
 }
 
-showDeleteDialog = (commentId, token, BASE_URL) => {
+showDeleteDialog = (commentId, BASE_URL) => {
     const dialog = document.getElementById("deleteDialog");
     dialog.classList.remove("hidden");
 
@@ -133,8 +134,8 @@ showDeleteDialog = (commentId, token, BASE_URL) => {
     // 삭제
     confirmBtn.onclick = async () => {
         dialog.classList.add("hidden");
-        if (commentId == null) await deletePost(token, BASE_URL);
-        else await deleteComment(commentId, token, BASE_URL);
+        if (commentId == null) await deletePost(BASE_URL);
+        else await deleteComment(commentId, BASE_URL);
     };
 
     // 취소
@@ -144,11 +145,11 @@ showDeleteDialog = (commentId, token, BASE_URL) => {
 }
 
 // 댓글 리스트
-getComments = async (token, BASE_URL) => {
+getComments = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=${currentPage++}&size=${size}&sort=createdAt,DESC`, {
             method: "GET",
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         })
 
         const commentsResponse = await response.json();
@@ -162,11 +163,13 @@ getComments = async (token, BASE_URL) => {
                 const comment = commentList[i];
 
                 const date = (comment.updatedAt == null) ? comment.createdAt.replace("T", " ").split(".")[0] : (comment.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
+                const profileImageUrl = comment.author.profileImgUrl ?? "/assets/image/default_profile.png";
+
                 const commentHtml =
                     `
                 <div class="comment" id="comment${comment.commentId}">
                     <div class="comment-header">
-                        <img src="${comment.author.profileImageUrl}" class="comment-profile" />
+                        <img src="${profileImageUrl}" class="comment-profile" />
                         <div class="comment-info">
                             <p class="author-name", id="commentAuthor">${comment.author.name}</p>
                             <p class="date", id="commentDate">${date}</p>
@@ -197,22 +200,22 @@ getComments = async (token, BASE_URL) => {
 
                 const commentsDiv = document.querySelectorAll(".comment");
                 const lastIndex = commentsDiv.length - 2;
-                if (lastIndex > 0) onScroll(commentsDiv[lastIndex], token, BASE_URL);
+                if (lastIndex > 0) onScroll(commentsDiv[lastIndex], BASE_URL);
             }
 
-            editComment(token, BASE_URL);
+            editComment(BASE_URL);
             commentListDiv.classList.remove("fade");
-        } else {
-            alert(commentsResponse.message);
+        } else if(response.status===401 || response.status===403) {
+            window.location.replace("/login");
         }
     } catch (error) { console.error(error) }
 }
 
-onScroll = (comment, token, BASE_URL) => {
+onScroll = (comment, BASE_URL) => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                if (!isFetching && hasMore) getComments(token, BASE_URL);
+                if (!isFetching && hasMore) getComments(BASE_URL);
 
                 observer.unobserve(entry.target);
             }
@@ -223,20 +226,20 @@ onScroll = (comment, token, BASE_URL) => {
 }
 
 // 댓글 수정, 삭제 리스너
-editComment = (token, BASE_URL) => {
+editComment = (BASE_URL) => {
     const editButtons = document.querySelectorAll(".edit-comment-btns")
     editButtons.forEach((editDiv) => {
         const id = editDiv.id;
         const commentId = id.replace("comment", "").replace("Edit", "");
         // 수정
         editDiv.querySelector(".edit-btn").addEventListener("click", () => {
-            rewriteComment(commentId, token, BASE_URL);
+            rewriteComment(commentId, BASE_URL);
         }
         )
         // 삭제
         editDiv.querySelector(".delete-btn").addEventListener("click", () => {
             if (id.startsWith("comment")) {
-                showDeleteDialog(commentId, token, BASE_URL)
+                showDeleteDialog(commentId, BASE_URL)
             }
         })
     });
@@ -245,7 +248,7 @@ editComment = (token, BASE_URL) => {
 
 // 댓글 수정
 // 해당 댓글이 있는 위치에 textarea가 보이고 거기서 수정할 수 있도록
-rewriteComment = (commentId, token, BASE_URL) => {
+rewriteComment = (commentId, BASE_URL) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
     const currentContent = commentDiv.querySelector(".comment-content");
     const editButtons = commentDiv.querySelector(".edit-comment-btns");
@@ -274,7 +277,7 @@ rewriteComment = (commentId, token, BASE_URL) => {
 
     // 수정 완료
     document.getElementById(`save${commentId}`).addEventListener("click", (e) => {
-        saveEditedComment(commentId, token, BASE_URL, commentDiv);
+        saveEditedComment(commentId, BASE_URL, commentDiv);
     })
 
     // 수정 취소
@@ -284,7 +287,7 @@ rewriteComment = (commentId, token, BASE_URL) => {
 }
 
 // 댓글 수정 완료
-saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
+saveEditedComment = async (commentId, BASE_URL, commentDiv) => {
     try {
         const textarea = document.querySelector(".edit-textarea");
         const content = textarea.value.trim();
@@ -293,7 +296,7 @@ saveEditedComment = async (commentId, token, BASE_URL, commentDiv) => {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`,
+                credentials: 'include'
             },
             body: JSON.stringify({ content })
         })
@@ -343,15 +346,15 @@ writeComment = () => {
 }
 
 // 댓글 작성 완료
-submitComplete = (token, BASE_URL) => {
+submitComplete = (BASE_URL) => {
     document.getElementById("submitComment").addEventListener("click", async () => {
         try {
             const content = document.getElementById("commentInput").value;
             const response = await fetch(`${BASE_URL}/posts/${postId}/comments`, {
                 method: "POST",
+                credentials: 'include',
                 headers: {
                     "Content-Type": "application/json",
-                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ content })
             })
@@ -370,7 +373,7 @@ submitComplete = (token, BASE_URL) => {
 
                 currentPage = 0;
                 hasMore = true;
-                await getComments(token, BASE_URL);
+                await getComments(BASE_URL);
 
                 commentListDiv.classList.remove("fade");
             }
@@ -383,11 +386,11 @@ submitComplete = (token, BASE_URL) => {
 
 // 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
-deleteComment = async (commentId, token, BASE_URL) => {
+deleteComment = async (commentId, BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
             method: "DELETE",
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include',
         })
 
         if (response.status === 200) {
@@ -411,11 +414,10 @@ clickLike = () => {
     likeBtn.addEventListener("click", async () => {
         try {
             const isActive = likeBtn.classList.toggle("active");
-            const token = window.sessionStorage.getItem("accessToken");
             const BASE_URL = window.CONFIG.BASE_URL
             const response = await fetch(`${BASE_URL}/post/${postId}/likes`, {
                 method: `${isActive ? "POST" : "DELETE"}`,
-                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include'
             })
 
             const likeResponse = await response.json();
@@ -433,11 +435,11 @@ clickLike = () => {
     });
 }
 
-deletePost = async (token, BASE_URL) => {
+deletePost = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: "DELETE",
-            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include'
         })
 
         const deletePostResponse = await response.json();
