@@ -4,7 +4,16 @@ const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
+
     getMyInfo();
+
+    const path = window.location.pathname;
+    if (path.includes("/edit-info")) {
+        // 헤더가 로드된 뒤 실행되도록 약간 딜레이 주기
+        setTimeout(() => {
+            clickEditInfo();
+        }, 100);
+    }
 });
 
 // 헤더 파일 불러오기
@@ -37,10 +46,9 @@ clickMenu = (e, dropdown) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
 
-    document.getElementById("editInfo").addEventListener("click", () => clickEditInfo());
+    document.getElementById("editInfo").addEventListener("click", () => window.location.replace("/my/edit-info"));
     document.getElementById("editPw").addEventListener("click", () => {
-        console.log("click edit password")
-        window.location.href = "/edit-password"
+        window.location.replace("/my/edit-password");
     });
     document.getElementById("logout").addEventListener("click", async () => {
         const BASE_URL = window.CONFIG.BASE_URL;

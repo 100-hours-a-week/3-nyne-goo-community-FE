@@ -105,6 +105,13 @@
   object-fit: cover;
 }
 
+.text-content {
+  white-space: pre-wrap; /* 줄바꿈, 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 자동 줄바꿈 */
+  overflow-wrap: break-word; /* 최신 브라우저용 줄바꿈 */
+  max-width: 100%; /* 부모 영역 안에서만 표시 */
+}
+
 /* 좋아요 수, 조회수, 댓글수 */
 .post-stats {
   display: flex;
