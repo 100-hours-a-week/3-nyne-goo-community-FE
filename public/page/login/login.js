@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 로그인 한 상태라면 이 이전 페이지로 이동
     const token = sessionStorage.getItem("accessToken");
-    if (token) {
+    if (token!=null) {
         history.back();
     }
 
@@ -93,6 +93,7 @@ login = async (e) => {
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
+            credentials: 'include', // 쿠키 수신(브라우저가 Set-Cookie를 받음)
             body: JSON.stringify({
                 email: email,
                 password: password
@@ -105,12 +106,10 @@ login = async (e) => {
         // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
         // 아니라면 오류 메시지를 alert로 보여줌
         if (response.ok) {
-            const accessToken = loginResponse.data.accessToken
-            window.sessionStorage.setItem('accessToken', accessToken);
-
             // 사용자 정보 받아옴
             const userResponse = await fetch(`${BASE_URL}/users`, {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
+                method: "GET",
+                credentials: 'include'
             });
             const user = await userResponse.json();
 
@@ -118,7 +117,6 @@ login = async (e) => {
                 profileImgUrl: user.data.profileImgUrl ?? "/assets/image/default_profile.png",
                 nickname: user.data.nickname,
                 email: user.data.email
-
             };
 
             // 사용자 정보 캐싱
