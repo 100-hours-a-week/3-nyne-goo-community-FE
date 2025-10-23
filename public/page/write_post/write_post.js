@@ -12,20 +12,7 @@ const validationState = {
 
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
-
-    // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
-    const postId = new URLSearchParams(window.location.search).get("postId");
-    if (postId != null) {
-        editPost(Number(postId));
-        writeForm(Number(postId));
-    } else writeForm(null);
-
-    // 제목과 내용에 적는 동시에 유효성 검사
-    validateTitle();
-    validateContent();
-
-    // 이미지 추가
-    addFile();
+    verifyToken();
 });
 
 // 헤더 파일 불러오기
@@ -38,20 +25,68 @@ loadHeader = () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
+            const script = document.createElement("script");
+            script.src = "/common/js/header.js";
+            document.body.appendChild(script);
+
             document.getElementById("backBtn").addEventListener("click", () => history.back());
         })
         .catch(error => console.error(error));
 }
 
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    console.log("🔁 bfcache 복원 → verifyToken 재실행");
+    verifyToken();
+  }
+});
+
+verifyToken = async () => {
+    const BASE_URL = window.CONFIG.BASE_URL;
+
+    try {
+        // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
+        const res = await fetch(`${BASE_URL}/users`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            window.location.replace("/login");
+            return;
+        }
+
+        // 인증 성공 시에만 나머지 글쓰기 로직 실행
+        console.log("write success!");
+
+        // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
+        const postId = new URLSearchParams(window.location.search).get("postId");
+        if (postId != null) {
+            editPost(Number(postId));
+            writeForm(Number(postId));
+        } else writeForm(null);
+
+        // 제목과 내용에 적는 동시에 유효성 검사
+        validateTitle();
+        validateContent();
+
+        // 이미지 추가
+        addFile();
+
+    } catch (err) {
+        console.error("인증 확인 중 오류:", err);
+        window.location.replace("/login");
+    }
+}
+
 // 수정 페이지
 editPost = async (postId) => {
-    const token = window.sessionStorage.getItem("accessToken");
     const BASE_URL = window.CONFIG.BASE_URL;
 
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: "GET",
-            headers: { 'Authorization': `Bearer ${token}` }
+            credentials: 'include'
         });
 
         const postDetailResponse = await response.json();
@@ -257,7 +292,6 @@ writePost = async (postId) => {
     }
 
     try {
-        const token = sessionStorage.getItem('accessToken');
         const BASE_URL = window.CONFIG.BASE_URL
 
         let response = "";
@@ -265,13 +299,13 @@ writePost = async (postId) => {
         if (postId == null) {
             response = await fetch(`${BASE_URL}/posts`, {
                 method: "POST",
-                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
                 body: formData
             });
         } else {
             response = await fetch(`${BASE_URL}/posts/${postId}`, {
                 method: "PATCH",
-                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
                 body: formData
             });
         }

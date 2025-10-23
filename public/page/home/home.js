@@ -45,14 +45,13 @@ loadHeader = ()=>{
 getList = async () => {
     try {
         isFetching = true;
-        const token = sessionStorage.getItem('accessToken');
 
         const BASE_URL = window.CONFIG.BASE_URL;
         const response = await fetch(`${BASE_URL}/posts?page=${currentPage++}&size=10&sort=createdAt,ASC`, {
             method: 'GET',
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json;charset=utf-8'
             }
         });
 
@@ -116,7 +115,9 @@ getList = async () => {
             isFetching = false;
         }
         else {
-            alert(postListResponse.message);
+            if(response.status===401 || response.status===403){
+                window.location.replace("/login");
+            }
         }
 
     } catch (error) { console.error(error) };
