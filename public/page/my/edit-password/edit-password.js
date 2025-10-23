@@ -25,10 +25,7 @@ loadHeader = () => {
 
       menu.src = "/assets/image/ic_menu_black_512.png";
       menu.classList.add("menu");
-      menu.addEventListener("click", (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle("show");
-      });
+      menu.addEventListener("click", (e) => { clickMenu(e, dropdown) })
 
       // 메뉴 밖 클릭 시 닫기
       document.addEventListener("click", () => dropdown.classList.remove("show"));
@@ -39,6 +36,30 @@ loadHeader = () => {
       });
     })
     .catch(error => console.error(error));
+}
+
+clickMenu = (e, dropdown) => {
+  e.stopPropagation();
+  dropdown.classList.toggle("show");
+
+  document.getElementById("editInfo").addEventListener("click", () => window.location.replace("/my/edit-info"));
+  document.getElementById("editPw").addEventListener("click", () => {
+    window.location.replace("/my/edit-password")
+  });
+  document.getElementById("logout").addEventListener("click", async () => {
+    const BASE_URL = window.CONFIG.BASE_URL;
+    await fetch(`${BASE_URL}/auth`, {
+      method: 'DELETE',
+      credentials: 'include', // 쿠키를 서버에 보내야 서버가 삭제 가능
+    });
+
+    // 이후 클라이언트 쪽 데이터 정리
+    sessionStorage.clear();
+    localStorage.clear();
+
+    // 로그인 화면으로 이동
+    window.location.replace('/login');
+  })
 }
 
 initEyeToggles = () => {
