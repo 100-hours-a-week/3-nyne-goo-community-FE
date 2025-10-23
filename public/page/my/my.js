@@ -17,7 +17,7 @@ loadHeader = () => {
         .then(data => {
             document.getElementById("header").innerHTML = data;
 
-            // 프로필 사진 숨김
+            // 프로필 사진을 메뉴로 변경
             const menu = document.getElementById("userProfile")
             const dropdown = document.getElementById("dropdownMenu");
 
@@ -26,9 +26,7 @@ loadHeader = () => {
             menu.addEventListener("click", (e) => { clickMenu(e, dropdown) })
 
             // 메뉴 밖 클릭 시 닫기
-            document.addEventListener("click", () => {
-                dropdown.classList.remove("show");
-            });
+            document.addEventListener("click", () => dropdown.classList.remove("show"));
 
             document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
@@ -39,7 +37,10 @@ clickMenu = (e, dropdown) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
 
-    document.getElementById("goMy").addEventListener("click", () => clickEditInfo());
+    document.getElementById("editInfo").addEventListener("click", () => clickEditInfo());
+    document.getElementById("editPw").addEventListener("click", () => {
+        console.log("click edit password")
+        window.location.href="/edit-password"});
 }
 
 clickEditInfo = () => {
