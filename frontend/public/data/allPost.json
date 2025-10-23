@@ -1,0 +1,96 @@
+{
+    "data": {
+        "postList": [
+            {
+                "postId": 1,
+                "title": "Spring Boot 게시판 프로젝트 시작해봅시다요",
+                "createdAt": "2025-10-13T10:00:00",
+                "updatedAt": "",
+                "likesCount": 12,
+                "commentsCount": 3,
+                "viewsCount": 240,
+                "isLike": true,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "나인",
+                    "mine": true
+                }
+            },
+            {
+                "postId": 2,
+                "title": "JPA 연관관계 매핑 완전 정복",
+                "createdAt": "2025-10-12T21:00:00",
+                "updatedAt": "2025-10-13T14:30:00",
+                "likesCount": 7,
+                "commentsCount": 2,
+                "viewsCount": 120,
+                "isLike": false,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "익명의 고양이",
+                    "mine": false
+                }
+            },
+            {
+                "postId": 3,
+                "title": "QueryDSL로 복잡한 조건 쿼리 처리하기",
+                "createdAt": "2025-10-11T09:00:00",
+                "updatedAt": "2025-10-11T09:00:00",
+                "likesCount": 19,
+                "commentsCount": 5,
+                "viewsCount": 350,
+                "isLike": true,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "백엔드연습생",
+                    "mine": false
+                }
+            },
+            {
+                "postId": 4,
+                "title": "JWT 기반 로그인 구현 가이드",
+                "createdAt": "2025-10-14T08:00:00",
+                "updatedAt": "2025-10-14T08:30:00",
+                "likesCount": 9,
+                "commentsCount": 4,
+                "viewsCount": 187,
+                "isLike": false,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "오늘도개발중",
+                    "mine": false
+                }
+            },
+            {
+                "postId": 5,
+                "title": "AWS S3에 이미지 업로드 적용기",
+                "createdAt": "2025-10-09T11:00:00",
+                "updatedAt": "2025-10-10T16:00:00",
+                "likesCount": 14,
+                "commentsCount": 6,
+                "viewsCount": 420,
+                "isLike": true,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "테크캠프러버",
+                    "mine": false
+                }
+            },
+            {
+                "postId": 6,
+                "title": "Redis로 조회수 캐싱하기",
+                "createdAt": "2025-10-08T10:00:00",
+                "updatedAt": "2025-10-08T18:00:00",
+                "likesCount": 22,
+                "commentsCount": 8,
+                "viewsCount": 530,
+                "isLike": true,
+                "author": {
+                    "profileImageUrl": "http://localhost:8080/uploads/e181d12a-fa72-41d2-b81a-08b40b59e332.png",
+                    "name": "디버거",
+                    "mine": false
+                }
+            }
+        ]
+    }
+}
