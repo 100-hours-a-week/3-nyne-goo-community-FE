@@ -1,0 +1,23 @@
+{
+  "name": "nyne-cloud-community-frontend",
+  "version": "1.0.0",
+  "description": "커뮤니티 웹 프론트엔드입니다.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tn-als/nyne-cloud-community-frontend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tn-als/nyne-cloud-community-frontend/issues"
+  },
+  "homepage": "https://github.com/tn-als/nyne-cloud-community-frontend#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  }
+}

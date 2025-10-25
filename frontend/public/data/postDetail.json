@@ -1,0 +1,25 @@
+{
+    "data": {
+        "post": {
+            "postId": 1,
+            "title": "오늘은 아무말 대잔치 첫 글이에요!",
+            "content": "안녕하세요! 드디어 아무말 대잔치 프로젝트를 시작했어요 😄\n이 프로젝트는 커뮤니티 서비스로, 자유롭게 글을 작성하고 소통할 수 있습니다.",
+            "createdAt": "2025-10-16T14:30:00",
+            "updatedAt": "2025-10-16T15:00:00",
+            "likesCount": 23,
+            "commentsCount": 5,
+            "viewsCount": 102,
+            "isLike": true,
+            "author": {
+                "profileImageUrl": "/assets/image/default_profile.png",
+                "name": "나인",
+                "mine":true
+            },
+            "imageUrlList": [
+                "/assets/image/post_img_1.png",
+                "/assets/image/post_img_2.png",
+                "/assets/image/post_img_3.png"
+            ]
+        }
+    }
+}

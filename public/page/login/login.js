@@ -1,13 +1,5 @@
-console.log("login js loaded");
-
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
-
-    // 로그인 한 상태라면 이 이전 페이지로 이동
-    const token = sessionStorage.getItem("accessToken");
-    if (token!=null) {
-        history.back();
-    }
 
     // 로그인 버튼 클릭 시
     const form = document.querySelector(".login");
@@ -19,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = () => {
+const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -40,7 +32,7 @@ loadHeader = () => {
 
 
 // 로그인 버튼 클릭 시 서버에 이메일, 비밀번호 보내고 토큰 가져옴
-login = async (e) => {
+const login = async (e) => {
     e.preventDefault();     // 페이지 새로고침 막음
 
     const emailInput = document.getElementById("email");
@@ -131,14 +123,14 @@ login = async (e) => {
     } catch (error) { console.error(error) };
 };
 
-showError = (input, error, message) => {
+const showError = (input, error, message) => {
     error.textContent = message;
     error.style.display = "block";
     input.classList.add("error");
 }
 
 // 회원가입
-signup = () => {
-    console.log("click signup!");
-    window.location.href = "/signup";
+const signup = async() => {
+    //window.location.href="/signup";
+    window.location.href = `${window.CONFIG.BASE_URL}/terms`;
 }

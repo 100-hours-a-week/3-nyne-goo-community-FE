@@ -1,5 +1,3 @@
-console.log("my js loaded");
-
 const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = () => {
+const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -42,7 +40,7 @@ loadHeader = () => {
         .catch(error => console.error(error));
 };
 
-clickMenu = (e, dropdown) => {
+const clickMenu = (e, dropdown) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
 
@@ -67,7 +65,7 @@ clickMenu = (e, dropdown) => {
     })
 }
 
-clickEditInfo = () => {
+const clickEditInfo = () => {
     const nicknameValue = document.getElementById("nicknameValue");
     const current = nicknameValue.textContent;
 
@@ -134,7 +132,7 @@ clickEditInfo = () => {
     })
 }
 
-editProfile = () => {
+const editProfile = () => {
     const profileInput = document.getElementById("profileInput");
     const profileImg = document.getElementById("profileImg");
 
@@ -187,7 +185,7 @@ deleteUser = async () => {
 
 }
 
-getMyInfo = () => {
+const getMyInfo = () => {
     document.getElementById("profileImg").src = my.profileImgUrl
     document.getElementById("emailValue").textContent = my.email;
     document.getElementById("nicknameValue").textContent = my.nickname;

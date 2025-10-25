@@ -1,5 +1,3 @@
-console.log("signup js loaded");
-
 const validationState = {
     password: false,
     passwordConfirm: false,
@@ -29,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = () => {
+const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -48,7 +46,7 @@ loadHeader = () => {
 };
 
 // 이미지 업로드
-uploadProfile = () => {
+const uploadProfile = () => {
     const fileDOM = document.querySelector('#addProfile');
     const profile = document.querySelector('#profile');
     const plusIcon = document.querySelector('.profile-circle span'); // + 버튼
@@ -66,13 +64,13 @@ uploadProfile = () => {
     });
 }
 
-controlEmail = () => {
+const controlEmail = () => {
     document.getElementById("email").addEventListener("input", (e) => { validateEmail(e) });
     document.getElementById("checkEmail").addEventListener("click", checkEmail)
 }
 
 // 이메일 유효성 검사
-validateEmail = (e) => {
+const validateEmail = (e) => {
     const email = e.target.value;
     const emailMsg = document.getElementById("emailMsg");
     const checkEmailButton = document.getElementById("checkEmail")
@@ -97,7 +95,7 @@ validateEmail = (e) => {
 }
 
 // 이메일 중복 체크 통과 시 이메일 입력 비활성화
-checkEmail = async () => {
+const checkEmail = async () => {
     const emailInput = document.getElementById("email");
 
     try {
@@ -127,7 +125,7 @@ checkEmail = async () => {
     } catch (error) { console.error(error) };
 }
 
-controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
+const controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
     // message 있으면 오류로 표시
     if (message != null) {
         inputMsg.textContent = message;
@@ -173,7 +171,7 @@ controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
     }
 }
 
-controlPassword = () => {
+const controlPassword = () => {
     document.getElementById("password").addEventListener("input", (e) => { validatePassword(e) });
     document.getElementById("passwordConfirm").addEventListener("input", (e) => { validatePasswordConfirm(e) });
 
@@ -186,7 +184,7 @@ controlPassword = () => {
     clickEye(togglePasswordConfirm, passwordConfirmInput);
 }
 // 비밀번호 유효성 검사
-validatePassword = (e) => {
+const validatePassword = (e) => {
     const password = e.target.value;
     const passwordError = document.getElementById("passwordMsg");
 
@@ -212,7 +210,7 @@ validatePassword = (e) => {
 }
 
 // 비밀번호 한번 더 확인
-validatePasswordConfirm = (e) => {
+const validatePasswordConfirm = (e) => {
     const passwordBox = document.getElementById("password");
     const passwordConfirmBox = e.target
     const password = passwordBox.value;
@@ -234,7 +232,7 @@ validatePasswordConfirm = (e) => {
 
 }
 
-showPwError = (isValid, errorContext, passwordBox, passwordConfirmBox) => {
+const showPwError = (isValid, errorContext, passwordBox, passwordConfirmBox) => {
     const passwordConfirmError = document.getElementById("passwordConfirmMsg");
 
     if (isValid) {
@@ -260,7 +258,7 @@ showPwError = (isValid, errorContext, passwordBox, passwordConfirmBox) => {
     }
 }
 
-clickEye = (toggle, Input) => {
+const clickEye = (toggle, Input) => {
     toggle.addEventListener("click", () => {
         const isHidden = Input.type === "password";
 
@@ -274,14 +272,14 @@ clickEye = (toggle, Input) => {
     });
 }
 
-controlNickname = () => {
+const controlNickname = () => {
     document.getElementById("nickname").addEventListener("input", (e) => { validateNicknameConfirm(e) });
     document.getElementById("checkNickname").addEventListener("click", checkNickname)
 
 }
 
 // 닉네임 유효성 검사
-validateNicknameConfirm = (e) => {
+const validateNicknameConfirm = (e) => {
     const nickname = e.target.value;
     const nicknameError = document.getElementById("nicknameMsg");
     const checkNicknameButton = document.getElementById("checkNickname")
@@ -306,7 +304,7 @@ validateNicknameConfirm = (e) => {
 }
 
 // 닉네임 중복 체크 통과 시 닉네임 입력 비활성화
-checkNickname = async () => {
+const checkNickname = async () => {
     const nicknameInput = document.getElementById("nickname");
 
     try {
@@ -334,7 +332,7 @@ checkNickname = async () => {
 }
 
 
-changeSignupButton = () => {
+const changeSignupButton = () => {
     const signupButton = document.getElementById("signupBtn");
     const allValid = validationState.password && validationState.passwordConfirm && validationState.checkEmail && validationState.checkNickname
 
@@ -347,7 +345,7 @@ changeSignupButton = () => {
     }
 }
 
-login = () => {
+const login = () => {
     document.getElementById("goLoginBtn").addEventListener("click", () => {
         // 이전 페이지 URL
         const prev = document.referrer;
@@ -363,7 +361,7 @@ login = () => {
     })
 };
 
-signupForm = () => {
+const signupForm = () => {
     const form = document.querySelector("#signupForm");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -371,7 +369,7 @@ signupForm = () => {
     });
 }
 
-signup = async (e) => {
+const signup = async (e) => {
     e.preventDefault();
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
