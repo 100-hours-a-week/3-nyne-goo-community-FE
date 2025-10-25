@@ -161,12 +161,14 @@ input.readonly {
     white-space: nowrap;
     transition: background-color 0.2s ease;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .check-btn.active {
     background-color: #8e9aff;
     color: white;
     cursor: pointer;
+    pointer-events: auto;
 }
 
 .check-btn.active:hover {
