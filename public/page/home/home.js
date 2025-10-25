@@ -9,9 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
     getList();
     writePost();
 
-    // 게시글 상세에서 홈으로 온 경우 게시글 리스트 새로고침 되도록
-    document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
+    // 게시글 상세 또는 게시글 작성에서 홈으로 온 경우 게시글 리스트만 새로고침 되도록
+    window.addEventListener("pageshow", (e) => {
+        if (e.persisted) {
             currentPage = 0;
             hasMore = true;
             document.querySelector(".post-list").innerHTML = "";
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = ()=>{
+loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -43,6 +43,7 @@ loadHeader = ()=>{
 
 // 게시글 리스트 불러오기
 getList = async () => {
+    console.log(document.cookie);
     try {
         isFetching = true;
 
@@ -58,9 +59,9 @@ getList = async () => {
         // response 값
         const postListResponse = await response.json();
 
-        if (response.status===200) {
+        if (response.status === 200) {
             const postList = postListResponse.data.content;
-            
+
             // posts에 게시글들 html로 만들어서 post-lists에 한번에 넣기
             let posts = "";
             for (const post of postList) {
@@ -110,12 +111,12 @@ getList = async () => {
                 const lastIndex = postsDiv.length - 2; // 마지막에서 두 번째
                 if (lastIndex > 0) onScroll(postsDiv[lastIndex]);
             }
-            
+
 
             isFetching = false;
         }
         else {
-            if(response.status===401 || response.status===403){
+            if (response.status === 401 || response.status === 403) {
                 window.location.replace("/login");
             }
         }
@@ -126,8 +127,8 @@ getList = async () => {
 onScroll = (post) => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if(entry.isIntersecting){
-                if(!isFetching && hasMore) getList();
+            if (entry.isIntersecting) {
+                if (!isFetching && hasMore) getList();
 
                 observer.unobserve(entry.target);
             }

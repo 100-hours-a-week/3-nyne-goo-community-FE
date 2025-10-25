@@ -138,7 +138,7 @@ showError = (input, error, message) => {
 }
 
 // 회원가입
-signup = () => {
-    console.log("click signup!");
-    window.location.href = "/signup";
+signup = async() => {
+    //window.location.href="/signup";
+    window.location.href = `${window.CONFIG.BASE_URL}/terms`;
 }

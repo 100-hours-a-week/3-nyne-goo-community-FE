@@ -279,7 +279,7 @@ writeForm = (postId) => {
 
 // 작성 완료 시 이전 화면으로 돌아감
 writePost = async (postId) => {
-    console.log(postId);
+    console.log("작성 완료: ", postId);
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
@@ -312,8 +312,9 @@ writePost = async (postId) => {
 
         const writePostResponse = await response.json();
 
-        if (response.status === 201) {
+        if (response.status === 201 || response.status===200) {
             window.sessionStorage.setItem("refreshHome", "true");
+            console.log("write complete!");
             history.back();
         } else {
             alert(writePostResponse.message);

@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHeader()
 
     postId = new URLSearchParams(window.location.search).get("postId");
+    console.log(postId);
     const BASE_URL = window.CONFIG.BASE_URL;
 
     getDetail(BASE_URL);
@@ -22,6 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 좋아요 클릭
     clickLike();
+
+    // 게시글 수정 후 돌아왔을 때 새로고침되도록
+    window.addEventListener("pageshow", (e) => {
+        if (e.persisted) {
+            getDetail(BASE_URL);
+            getComments( BASE_URL);
+        }
+    });
 });
 
 // 헤더 파일 불러오기

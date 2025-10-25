@@ -36,11 +36,11 @@ app.get('/detail', (req,res)=>{
     res.sendFile(__dirname+"/public/page/post_detail/post_detail.html")
 })
 
-app.get('/my', (req,res)=>{
+app.get(['/my', '/my/edit-info'], (req,res)=>{
     res.sendFile(__dirname + "/public/page/my/my.html")
 })
 
-app.get("/edit-password", (req,res)=>{
+app.get("/my/edit-password", (req,res)=>{
     res.sendFile(__dirname+"/public/page/my/edit-password/edit-password.html")
 })
 
