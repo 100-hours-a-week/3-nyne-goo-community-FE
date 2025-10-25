@@ -1,4 +1,4 @@
-console.log("post_detail js loaded");
+import { apiRequest } from "/common/js/api.js";
 
 let currentPage = 0;
 let isFetching = false;
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = () => {
+const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -57,7 +57,7 @@ loadHeader = () => {
 }
 
 // 게시물 상세 내용
-getDetail = async (BASE_URL) => {
+const getDetail = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: 'GET',
@@ -120,7 +120,7 @@ getDetail = async (BASE_URL) => {
 }
 
 // 게시글 수정, 삭제 리스너
-editPost = (BASE_URL) => {
+const editPost = (BASE_URL) => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
@@ -133,7 +133,7 @@ editPost = (BASE_URL) => {
     );
 }
 
-showDeleteDialog = (commentId, BASE_URL) => {
+const showDeleteDialog = (commentId, BASE_URL) => {
     const dialog = document.getElementById("deleteDialog");
     dialog.classList.remove("hidden");
 
@@ -154,7 +154,7 @@ showDeleteDialog = (commentId, BASE_URL) => {
 }
 
 // 댓글 리스트
-getComments = async (BASE_URL) => {
+const getComments = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=${currentPage++}&size=${size}&sort=createdAt,DESC`, {
             method: "GET",
@@ -220,7 +220,7 @@ getComments = async (BASE_URL) => {
     } catch (error) { console.error(error) }
 }
 
-onScroll = (comment, BASE_URL) => {
+const onScroll = (comment, BASE_URL) => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -235,7 +235,7 @@ onScroll = (comment, BASE_URL) => {
 }
 
 // 댓글 수정, 삭제 리스너
-editComment = (BASE_URL) => {
+const editComment = (BASE_URL) => {
     const editButtons = document.querySelectorAll(".edit-comment-btns")
     editButtons.forEach((editDiv) => {
         const id = editDiv.id;
@@ -257,7 +257,7 @@ editComment = (BASE_URL) => {
 
 // 댓글 수정
 // 해당 댓글이 있는 위치에 textarea가 보이고 거기서 수정할 수 있도록
-rewriteComment = (commentId, BASE_URL) => {
+const rewriteComment = (commentId, BASE_URL) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
     const currentContent = commentDiv.querySelector(".comment-content");
     const editButtons = commentDiv.querySelector(".edit-comment-btns");
@@ -296,7 +296,7 @@ rewriteComment = (commentId, BASE_URL) => {
 }
 
 // 댓글 수정 완료
-saveEditedComment = async (commentId, BASE_URL, commentDiv) => {
+const saveEditedComment = async (commentId, BASE_URL, commentDiv) => {
     try {
         const textarea = document.querySelector(".edit-textarea");
         const content = textarea.value.trim();
@@ -328,7 +328,7 @@ saveEditedComment = async (commentId, BASE_URL, commentDiv) => {
 }
 
 // 댓글 수정 취소
-cancelEdit = (commentDiv) => {
+const cancelEdit = (commentDiv) => {
     document.querySelector(".edit-textarea")?.remove();
     document.querySelector(".rewrite-comment-btns")?.remove();
 
@@ -337,7 +337,7 @@ cancelEdit = (commentDiv) => {
 }
 
 // 댓글 작성
-writeComment = () => {
+const writeComment = () => {
     document.getElementById("commentInput").addEventListener("input", (e) => {
         const count = document.getElementById("count");
         const currentLength = e.target.value.length;
@@ -355,7 +355,7 @@ writeComment = () => {
 }
 
 // 댓글 작성 완료
-submitComplete = (BASE_URL) => {
+const submitComplete = (BASE_URL) => {
     document.getElementById("submitComment").addEventListener("click", async () => {
         try {
             const content = document.getElementById("commentInput").value;
@@ -395,7 +395,7 @@ submitComplete = (BASE_URL) => {
 
 // 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
-deleteComment = async (commentId, BASE_URL) => {
+const deleteComment = async (commentId, BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
             method: "DELETE",
@@ -412,7 +412,7 @@ deleteComment = async (commentId, BASE_URL) => {
 }
 
 // 좋아요 클릭
-clickLike = () => {
+const clickLike = () => {
     const likeBtn = document.getElementById("likeBtn");
     const likeCount = document.getElementById("likeCount");
     const heartIcon = document.getElementById("heartIcon");
@@ -444,7 +444,7 @@ clickLike = () => {
     });
 }
 
-deletePost = async (BASE_URL) => {
+const deletePost = async (BASE_URL) => {
     try {
         const response = await fetch(`${BASE_URL}/posts/${postId}`, {
             method: "DELETE",

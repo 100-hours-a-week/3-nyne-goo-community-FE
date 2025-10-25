@@ -1,5 +1,3 @@
-console.log("header js loaded");
-
 clickProfile = () => {
     document.getElementById("userProfile").addEventListener("click", ()=>{
         window.location.href="/my";

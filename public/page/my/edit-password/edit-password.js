@@ -1,5 +1,3 @@
-console.log("password js loaded");
-
 document.addEventListener("DOMContentLoaded", () => {
   loadHeader();
 
@@ -10,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 불러오기 (뒤로가기 버튼 동작 포함)
-loadHeader = () => {
+const loadHeader = () => {
   fetch("/common/html/header.html")
     .then(response => {
       if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -38,7 +36,7 @@ loadHeader = () => {
     .catch(error => console.error(error));
 }
 
-clickMenu = (e, dropdown) => {
+const clickMenu = (e, dropdown) => {
   e.stopPropagation();
   dropdown.classList.toggle("show");
 
@@ -62,7 +60,7 @@ clickMenu = (e, dropdown) => {
   })
 }
 
-initEyeToggles = () => {
+const initEyeToggles = () => {
   const pairs = [
     { input: "currentPassword", eye: "eyeCurrent" },
     { input: "newPassword", eye: "eyeNew" },
@@ -86,7 +84,7 @@ initEyeToggles = () => {
 };
 
 /* 현재 비밀번호 검증  */
-verifyCurrentPassword = async () => {
+const verifyCurrentPassword = async () => {
   const input = document.getElementById("currentPassword");
   const errorMsg = document.getElementById("currentError");
   const value = input.value.trim();
@@ -131,7 +129,7 @@ verifyCurrentPassword = async () => {
 }
 
 /*  새 비밀번호 변경  */
-changePassword = async () => {
+const changePassword = async () => {
   const newInput = document.getElementById("newPassword");
   const confirmInput = document.getElementById("confirmPassword");
   const newError = document.getElementById("newError");
@@ -186,7 +184,7 @@ changePassword = async () => {
   }
 }
 
-showToast = (message) => {
+const showToast = (message) => {
   const toast = document.getElementById("toast");
   toast.textContent = message;
   toast.classList.add("show");
@@ -196,14 +194,14 @@ showToast = (message) => {
   }, 1800);
 }
 
-showFieldError = (input, msgEl, message) => {
+const showFieldError = (input, msgEl, message) => {
   input.classList.add("input-error");
   msgEl.textContent = message;
   msgEl.classList.add("show");
   input.addEventListener("input", () => clearFieldError(input, msgEl), { once: true });
 }
 
-clearFieldError = (input, msgEl) => {
+const clearFieldError = (input, msgEl) => {
   input.classList.remove("input-error");
   msgEl.textContent = "";
   msgEl.classList.remove("show");

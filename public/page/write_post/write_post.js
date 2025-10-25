@@ -1,5 +1,3 @@
-console.log("write js loaded");
-
 // 파일 저장하는 리스트
 const fileArr = [];
 let fileNo = 0;
@@ -16,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 헤더 파일 불러오기
-loadHeader = () => {
+const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
             if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
@@ -34,14 +32,14 @@ loadHeader = () => {
         .catch(error => console.error(error));
 }
 
-window.addEventListener("pageshow", (event) => {
+const window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     console.log("🔁 bfcache 복원 → verifyToken 재실행");
     verifyToken();
   }
 });
 
-verifyToken = async () => {
+const verifyToken = async () => {
     const BASE_URL = window.CONFIG.BASE_URL;
 
     try {
@@ -80,7 +78,7 @@ verifyToken = async () => {
 }
 
 // 수정 페이지
-editPost = async (postId) => {
+const editPost = async (postId) => {
     const BASE_URL = window.CONFIG.BASE_URL;
 
     try {
@@ -139,7 +137,7 @@ editPost = async (postId) => {
 }
 
 // 제목 길이 검사
-validateTitle = () => {
+const validateTitle = () => {
     document.getElementById("title").addEventListener("input", (e) => {
         const titleLength = e.target.value.length;
         const titleError = document.getElementById("titleError");
@@ -162,7 +160,7 @@ validateTitle = () => {
 }
 
 // 내용 길이 검사
-validateContent = () => {
+const validateContent = () => {
     document.getElementById("content").addEventListener("input", (e) => {
         const contentLength = e.target.value.length;
         const contentError = document.getElementById("contentError");
@@ -186,7 +184,7 @@ validateContent = () => {
 }
 
 // 이미지 추가 (최대 3장)
-addFile = () => {
+const addFile = () => {
     const fileDOM = document.querySelector('#images');
     const fileListDiv = document.querySelector(".file-list");
 
@@ -232,7 +230,7 @@ addFile = () => {
 }
 
 // jpeg, png, jpg 만 가능
-fileValidation = (file) => {
+const fileValidation = (file) => {
     const fileTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
     if (!fileTypes.includes(file.type)) {
@@ -244,7 +242,7 @@ fileValidation = (file) => {
 }
 
 // 파일 삭제
-deleteFile = (deleteNum) => {
+const deleteFile = (deleteNum) => {
     // 삭제하려는 파일의 id을 fileArr에서 찾음
     const index = fileArr.findIndex(f => f.id === deleteNum)
 
@@ -257,7 +255,7 @@ deleteFile = (deleteNum) => {
 }
 
 // 제목, 내용 모두 유효하면 완료버튼 활성화
-activatePostButton = () => {
+const activatePostButton = () => {
     const postButton = document.getElementById("completeBtn")
 
     if (validationState.title && validationState.content) {
@@ -269,7 +267,7 @@ activatePostButton = () => {
     }
 }
 
-writeForm = (postId) => {
+const writeForm = (postId) => {
     const form = document.querySelector("#writeForm");
     form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -278,7 +276,7 @@ writeForm = (postId) => {
 }
 
 // 작성 완료 시 이전 화면으로 돌아감
-writePost = async (postId) => {
+const writePost = async (postId) => {
     console.log("작성 완료: ", postId);
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
