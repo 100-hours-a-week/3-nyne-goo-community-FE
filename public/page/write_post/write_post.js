@@ -1,3 +1,5 @@
+import { apiRequest } from "/common/js/api.js";
+
 // 파일 저장하는 리스트
 const fileArr = [];
 let fileNo = 0;
@@ -29,33 +31,24 @@ const loadHeader = () => {
 
             document.getElementById("backBtn").addEventListener("click", () => history.back());
         })
-        .catch(error => console.error(error));
-}
-
-const window.addEventListener("pageshow", (event) => {
-  if (event.persisted) {
-    console.log("🔁 bfcache 복원 → verifyToken 재실행");
-    verifyToken();
-  }
-});
-
-const verifyToken = async () => {
-    const BASE_URL = window.CONFIG.BASE_URL;
-
-    try {
-        // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
-        const res = await fetch(`${BASE_URL}/users`, {
-            method: "GET",
-            credentials: "include",
+        .catch(error => {
+            console.error(error);
+            showToast("페이지에 문제가 발생했습니다.");
         });
 
-        if (res.status === 401 || res.status === 403) {
-            window.location.replace("/login");
-            return;
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            console.log("bfcache 복원 → verifyToken 재실행");
+            verifyToken();
         }
+    });
+}
 
-        // 인증 성공 시에만 나머지 글쓰기 로직 실행
-        console.log("write success!");
+const verifyToken = async () => {
+    try {
+        // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
+        const res = await apiRequest("/users", { method: "GET" });
+        if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
 
         // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
         const postId = new URLSearchParams(window.location.search).get("postId");
@@ -67,73 +60,56 @@ const verifyToken = async () => {
         // 제목과 내용에 적는 동시에 유효성 검사
         validateTitle();
         validateContent();
-
-        // 이미지 추가
         addFile();
-
     } catch (err) {
-        console.error("인증 확인 중 오류:", err);
+        showToast("로그인이 필요합니다.");
         window.location.replace("/login");
     }
 }
 
 // 수정 페이지
 const editPost = async (postId) => {
-    const BASE_URL = window.CONFIG.BASE_URL;
-
     try {
-        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
-            method: "GET",
-            credentials: 'include'
-        });
+        const response = await apiRequest(`/posts/${postId}`, { method: "GET" });
+        const post = response.data;
 
-        const postDetailResponse = await response.json();
+        // 제목, 내용
+        document.getElementById("title").value = post.title;
+        document.getElementById("content").value = post.content;
+        document.getElementById("count").textContent = `${post.content.length} / 2000`;
 
-        if (response.status === 200) {
-            const post = postDetailResponse.data;
+        validationState.title = true;
+        validationState.content = true;
+        activatePostButton();
 
-            // 제목, 내용
-            document.getElementById("title").value = post.title;
-            document.getElementById("content").value = post.content;
-            document.getElementById("count").textContent = `${post.content.length} / 2000`
+        // 이미지
+        const fileListDiv = document.querySelector(".file-list");
+        const imageList = post.imageList;
 
-            validationState.title = true;
-            validationState.content = true;
-            activatePostButton();
+        for (let i = 0; i < imageList.length; i++) {
+            const imageName = imageList[i].imageName;
+            const imageUrl = imageList[i].imageUrl;
 
-            // 사진
-            const fileListDiv = document.querySelector(".file-list");
-            const imageList = post.imageList;
 
-            for (let i = 0; i < imageList.length; i++) {
-                const imageName = imageList[i].imageName;
-                const imageUrl = imageList[i].imageUrl;
+            // 이미지 url로 이미지 잠시 데이터에 저장한다음 file 객체 만들어서 저장
+            const imageResponse = await fetch(imageUrl);
+            const blob = await imageResponse.blob();
+            const file = new File([blob], imageName, { type: blob.type });
 
-                // 이미지 url로 이미지 잠시 데이터에 저장한다음 file 객체 만들어서 저장
-                const imageResponse = await fetch(imageUrl);
-                const blob = await imageResponse.blob();
+            fileArr.push({ id: fileNo, type: "exist", file });
 
-                const file = new File([blob], imageName, { type: blob.type });
-
-                fileArr.push({
-                    id: fileNo,
-                    type: "exist",
-                    file: file
-                });
-
-                // 파일 리스트 추가
-                const fileHtml =
-                    `
-                    <div id="file${fileNo}" class="filebox">
-                        <p class="name"> ${imageName}</p>
-                        <button type="button" class="delete-btn" onclick="deleteFile(${fileNo++})">삭제</button>
-                    </div>
-                    `;
-
-                fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
-            }
+            // 파일 리스트 추가
+            const fileHtml = `
+        <div id="file${fileNo}" class="filebox">
+            <p class="name"> ${imageName}</p>
+            <button type="button" class="delete-btn" onclick="deleteFile(${fileNo++})">삭제</button>
+        </div>`;
+            fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
         }
-    } catch (error) { console.error(error); }
+    } catch (error) {
+        showToast("게시글 데이터를 불러오는 중 오류가 발생했습니다.");
+    }
+
 }
 
 // 제목 길이 검사
@@ -196,7 +172,7 @@ const addFile = () => {
         // 현재까지 추가한 파일 개수와 추가하려고 하는 파일 개수를 더했을 때 최대 개수를 넘기면
         // 추가하려고 하는 파일을 추가하지 않음
         if (currentCount + addFiles.length > maxCount) {
-            alert("이미지는 최대 " + maxCount + "개까지 업로드 가능합니다.");
+            showToast(`이미지는 최대 ${maxCount}개까지 업로드 가능합니다.`);
             return;
         }
 
@@ -222,8 +198,6 @@ const addFile = () => {
 
             fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
         }
-
-        console.log("fileArr: ", fileArr);
         // 입력한 값 초기화 -> 동일한 파일 재선택 가능
         e.target.value = "";
     });
@@ -234,7 +208,7 @@ const fileValidation = (file) => {
     const fileTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
     if (!fileTypes.includes(file.type)) {
-        alert("jpeg, png, jpg 확장자인 이미지만 첨부 가능합니다.");
+        showToast("jpeg, png, jpg 확장자만 첨부 가능합니다.");
         return false;
     }
 
@@ -277,9 +251,13 @@ const writeForm = (postId) => {
 
 // 작성 완료 시 이전 화면으로 돌아감
 const writePost = async (postId) => {
-    console.log("작성 완료: ", postId);
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
+
+    if (title === "" || content === "") {
+        showToast("제목과 내용을 모두 입력해주세요.");
+        return;
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -290,32 +268,29 @@ const writePost = async (postId) => {
     }
 
     try {
-        const BASE_URL = window.CONFIG.BASE_URL
-
-        let response = "";
-
+        let response;
         if (postId == null) {
-            response = await fetch(`${BASE_URL}/posts`, {
+            response = await apiRequest("/posts", {
                 method: "POST",
-                credentials: 'include',
-                body: formData
+                body: formData,
+                headers: {}, // multipart 헤더 자동 처리
             });
         } else {
-            response = await fetch(`${BASE_URL}/posts/${postId}`, {
+            response = await apiRequest(`/posts/${postId}`, {
                 method: "PATCH",
-                credentials: 'include',
-                body: formData
+                body: formData,
+                headers: {},
             });
         }
 
-        const writePostResponse = await response.json();
-
-        if (response.status === 201 || response.status===200) {
+        if (response.statusCode === 201 || response.statusCode === 200) {
+            showToast(postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!");
             window.sessionStorage.setItem("refreshHome", "true");
-            console.log("write complete!");
             history.back();
         } else {
-            alert(writePostResponse.message);
+            showToast("게시글 저장 실패");
         }
-    } catch (error) { console.error(error) };
+    } catch (error) {
+        showToast("게시글 저장 중 오류가 발생했습니다.");
+    }
 }

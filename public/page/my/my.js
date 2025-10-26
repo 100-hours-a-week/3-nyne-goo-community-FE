@@ -1,3 +1,6 @@
+import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
+
 const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,10 +37,12 @@ const loadHeader = () => {
 
             // 메뉴 밖 클릭 시 닫기
             document.addEventListener("click", () => dropdown.classList.remove("show"));
-
             document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+            console.error(error);
+            showToast("페이지에 문제가 발생했습니다.");
+        });
 };
 
 const clickMenu = (e, dropdown) => {
@@ -49,20 +54,18 @@ const clickMenu = (e, dropdown) => {
         window.location.replace("/my/edit-password");
     });
     document.getElementById("logout").addEventListener("click", async () => {
-        const BASE_URL = window.CONFIG.BASE_URL;
-        await fetch(`${BASE_URL}/auth`, {
-            method: 'DELETE',
-            credentials: 'include', // 쿠키를 서버에 보내야 서버가 삭제 가능
-        });
+        try {
+            await apiRequest("/auth", { method: "DELETE" });
 
-        // 이후 클라이언트 쪽 데이터 정리
-        sessionStorage.clear();
-        localStorage.clear();
+            // 클라이언트 저장소 정리
+            sessionStorage.clear();
+            localStorage.clear();
 
-        // 로그인 화면으로 이동
-        window.location.replace('/login');
-
-    })
+            window.location.replace("/login");
+        } catch (error) {
+            showToast("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
 }
 
 const clickEditInfo = () => {
@@ -84,41 +87,41 @@ const clickEditInfo = () => {
     // 저장
     document.getElementById("saveBtn").addEventListener("click", async () => {
         const newNicknameInput = document.getElementById("nicknameInput");
-        const newNickname = newNicknameInput ? newNicknameInput.value.trim() : document.getElementById("nicknameValue").textContent;
+        const newNickname = newNicknameInput
+            ? newNicknameInput.value.trim()
+            : document.getElementById("nicknameValue").textContent;
         const profile = document.getElementById("profileInput");
         const newProfileUrl = document.getElementById("profileImg").src;
 
         const formData = new FormData();
         formData.append("nickname", newNickname);
-
         if (profile.files.length > 0) {
             formData.append("image", profile.files[0]);
-        } else formData.append("image", null);
+        } else {
+            formData.append("image", null);
+        }
 
         try {
-            const BASE_URL = window.CONFIG.BASE_URL;
-            const response = await fetch(`${BASE_URL}/users`, {
-                method: 'PATCH',
-                credentials: 'include',
-                body: formData
-            })
+            // apiRequest 사용 (FormData는 Content-Type 자동 처리됨)
+            const response = await apiRequest("/users", {
+                method: "PATCH",
+                body: formData,
+                headers: {}, // Content-Type 자동 제거
+            });
 
-            const editInfoResponse = await response.json();
-            if (response.status === 200) {
+            if (response.statusCode === 200 || response.statusCode === 201) {
                 const updatedInfo = {
                     email: my.email,
                     nickname: newNickname,
-                    profileImgUrl: newProfileUrl
+                    profileImgUrl: newProfileUrl,
                 };
-
                 sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+                showToast("회원정보가 수정되었습니다.");
                 window.location.reload();
             }
-            else {
-                console.log(editInfoResponse.message);
-            }
-        } catch (error) { console.error(error) }
-
+        } catch (error) {
+           showToast("회원정보 수정 중 오류가 발생했습니다.");
+        }
     });
 
     // 탈퇴
@@ -153,35 +156,26 @@ const editProfile = () => {
 
 }
 
-deleteUser = async () => {
+const deleteUser = async () => {
     try {
-        const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/users`, {
-            method: "DELETE",
-            credentials: 'include',
-        })
+    await apiRequest("/users", { method: "DELETE" });
 
-        const deleteUserResponse = await response.json();
+    showToast("회원 탈퇴가 완료되었습니다.");
 
-        if (response.status === 200) {
-            alert("회원 탈퇴가 완료되었습니다.");
+    // 클라이언트 저장소 초기화
+    localStorage.clear();
+    sessionStorage.clear();
 
-            // 클라이언트 저장소 초기화
-            window.localStorage.clear();
-            window.sessionStorage.clear();
+    // 로그인 페이지로 이동
+    window.location.replace("/login");
 
-            // 브라우저 히스토리 초기화
-            window.location.replace("/login");
+    // 뒤로가기 방지
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = () => window.history.go(1);
 
-            // 히스토리 스택 방어 (뒤로가기 막기)
-            window.history.pushState(null, "", window.location.href);
-            window.onpopstate = () => {
-                window.history.go(1);
-            };
-        } else {
-            console.log(deleteUserResponse.message);
-        }
-    } catch (error) { console.error(error); }
+  } catch (error) {
+    showToast("회원 탈퇴 중 오류가 발생했습니다.");
+  }
 
 }
 

@@ -337,28 +337,3 @@
   from { opacity: 0; transform: translateY(-2px); }
   to { opacity: 1; transform: translateY(0); }
 } 
-
-/* ===== 커스텀 토스트 알림 ===== */
-.toast {
-  visibility: hidden;
-  min-width: 280px;
-  background-color: rgba(60, 60, 60, 0.9);
-  color: #fff;
-  text-align: center;
-  border-radius: 8px;
-  padding: 14px 18px;
-  position: fixed;
-  left: 50%;
-  bottom: 80px;
-  transform: translateX(-50%);
-  font-size: 15px;
-  z-index: 2000;
-  opacity: 0;
-  transition: opacity 0.4s, bottom 0.4s;
-}
-
-.toast.show {
-  visibility: visible;
-  opacity: 1;
-  bottom: 100px;
-}

@@ -1,3 +1,6 @@
+import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
+
 const validationState = {
     password: false,
     passwordConfirm: false,
@@ -42,7 +45,10 @@ const loadHeader = () => {
 
             document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
-        .catch(error => console.error(error));
+       .catch(error => {
+            console.error(error);
+            showToast("페이지에 문제가 발생했습니다.");
+        });
 };
 
 // 이미지 업로드
@@ -98,31 +104,18 @@ const validateEmail = (e) => {
 const checkEmail = async () => {
     const emailInput = document.getElementById("email");
 
-    try {
-        const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/users/availability`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify({
-                email: email.value
-            })
+   try {
+        const checkEmailResponse = await apiRequest("/users/availability", {
+            method: "POST",
+            body: JSON.stringify({ email: email.value }),
         });
 
-        const emailMsg = document.getElementById("emailMsg");
-
-        // response 값
-        const checkEmailResponse = await response.json();
-
-        // statusCode = 200면 서버에 이메일 존재 유무에 따라 이메일 입력 비활성화
-        // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.ok) {
-            controlInputMsg(checkEmailResponse.data.exist, "email", emailMsg, emailInput, null);
-        } else {
-            controlInputMsg(null, null, emailMsg, emailInput)
-        }
-    } catch (error) { console.error(error) };
+        // 서버에서 반환한 존재 여부에 따라 처리
+        controlInputMsg(checkEmailResponse.data.exist, "email", emailMsg, emailInput, null);
+    } catch (error) {
+        showToast("이메일 중복 확인 중 오류가 발생했습니다.");
+        controlInputMsg(null, null, emailMsg, emailInput);
+    }
 }
 
 const controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
@@ -308,27 +301,15 @@ const checkNickname = async () => {
     const nicknameInput = document.getElementById("nickname");
 
     try {
-        const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/users/availability?nickname=${nicknameInput.value}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
+        const checkNicknameResponse = await apiRequest(`/users/availability?nickname=${nicknameInput.value}`, {
+            method: "GET",
         });
 
-        const nicknameMsg = document.getElementById("nicknameMsg");
-
-        // response 값
-        const checkNicknameResponse = await response.json();
-
-        // statusCode = 200면 서버에 닉네임 존재 유무에 따라 닉네임 입력 비활성화
-        // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.ok) {
-            controlInputMsg(checkNicknameResponse.data.exist, "nickname", nicknameMsg, nicknameInput, null)
-        } else {
-            controlInputMsg(null, null, nicknameMsg, nicknameInput, checkNicknameResponse.message)
-        }
-    } catch (error) { console.error(error) };
+        controlInputMsg(checkNicknameResponse.data.exist, "nickname", nicknameMsg, nicknameInput, null);
+    } catch (error) {
+        showToast("닉네임 중복 확인 중 오류가 발생했습니다.");
+        controlInputMsg(null, null, nicknameMsg, nicknameInput, "닉네임 확인 중 오류가 발생했습니다.");
+    }
 }
 
 
@@ -386,22 +367,20 @@ const signup = async (e) => {
     }
 
     try {
-        // BASE_URL/auth로 보냄
-        const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/users`, {
-            method: 'POST',
-            body: formData
+        const signupResponse = await apiRequest("/users", {
+            method: "POST",
+            body: formData,
+            headers: {}, // multipart 자동 감지
         });
 
-        // response 값
-        const signupResponse = await response.json();
-
-        // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
-        // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.status === 201) {
-            window.location.href = "/login"
+        // statusCode = 201이면 제대로 받은 것이므로 로그인 페이지로 이동
+        if (signupResponse.statusCode === 201 || signupResponse.statusCode === 200) {
+             showToast("회원가입이 완료되었습니다!");
+            window.location.href = "/login";
         } else {
-            alert(signupResponse.message);
+            showToast("회원가입에 실패했습니다.");
         }
-    } catch (error) { console.error(error) };
+    } catch (error) {
+         showToast("회원가입 중 오류가 발생했습니다.");
+    }
 }

@@ -14,21 +14,24 @@ export async function apiRequest(endpoint, options = {}) {
 
     // 공통 에러 처리
     if (response.status === 401 || response.status === 403) {
-      window.location.replace("/login");
+      // 로그인 페이지에서는 redirect 하지 않음
+      if (!window.location.pathname.includes("/login")) {
+        window.location.replace("/login");
+      } else {
+        throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
+      }
       return null;
     }
 
     // JSON 파싱
     const data = await response.json();
 
-    if (!response.ok) {
-      console.error(`API Error: ${data.message || response.statusText}`);
+    if (!(response.status === 200 || response.status === 201)) {
       throw new Error(data.message || "API 요청 실패");
     }
 
     return data;
   } catch (error) {
-    console.error("API 호출 에러:", error);
     throw error;
   }
 }
