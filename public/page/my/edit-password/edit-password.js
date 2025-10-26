@@ -101,6 +101,13 @@ const verifyCurrentPassword = async () => {
   const errorMsg = document.getElementById("currentError");
   const value = input.value.trim();
 
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      verifyCurrentPassword();
+    }
+  });
+
   clearFieldError(input, errorMsg);
 
   if (!value) {
@@ -160,6 +167,15 @@ const changePassword = async () => {
     showToast(message);
     return;
   }
+
+  [newInput, confirmInput].forEach(input => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        changePassword();
+      }
+    });
+  });
 
   try {
     // 비밀번호 변경 API 호출
