@@ -1,3 +1,6 @@
+import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   loadHeader();
 
@@ -33,7 +36,10 @@ const loadHeader = () => {
         history.back();
       });
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+            console.error(error);
+            showToast("페이지에 문제가 발생했습니다.");
+        });
 }
 
 const clickMenu = (e, dropdown) => {
@@ -45,18 +51,24 @@ const clickMenu = (e, dropdown) => {
     window.location.replace("/my/edit-password")
   });
   document.getElementById("logout").addEventListener("click", async () => {
-    const BASE_URL = window.CONFIG.BASE_URL;
-    await fetch(`${BASE_URL}/auth`, {
-      method: 'DELETE',
-      credentials: 'include', // 쿠키를 서버에 보내야 서버가 삭제 가능
-    });
+    try {
+      // 로그아웃 API 호출 (DELETE /auth)
+      await apiRequest("/auth", {
+        method: "DELETE",
+      });
 
-    // 이후 클라이언트 쪽 데이터 정리
-    sessionStorage.clear();
-    localStorage.clear();
+      // 클라이언트 저장소 초기화
+      window.sessionStorage.clear();
+      window.localStorage.clear();
 
-    // 로그인 화면으로 이동
-    window.location.replace('/login');
+      // 로그인 화면으로 이동 (뒤로가기 방지)
+      window.location.replace("/login");
+
+      showToast("로그아웃되었습니다.");
+
+    } catch (error) {
+      showToast("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   })
 }
 
@@ -97,34 +109,23 @@ const verifyCurrentPassword = async () => {
   }
 
   try {
-    const token = sessionStorage.getItem("accessToken");
-    const BASE_URL = window.CONFIG.BASE_URL;
-
-    const response = await fetch(`${BASE_URL}/users/password`, {
+    // 비밀번호 확인 요청
+    const data = await apiRequest("/users/password", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ password: value })
+      body: JSON.stringify({ password: value }),
     });
 
-    const verifyPasswordResponse = await response.json();
+    // 성공 → 다음 단계로 이동
+    document.getElementById("step1").style.display = "none";
+    document.getElementById("step2").style.display = "block";
 
-    if (response.status === 200) {
-      // 성공 → 다음 단계로 이동
-      document.getElementById("step1").style.display = "none";
-      document.getElementById("step2").style.display = "block";
-    } else if (response.statuss === 401) {
-      alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
-      window.sessionStorage.clear();
-      window.localStorage.clear();
-      window.location.replace("/login");
-    } else {
-      showFieldError(input, errorMsg, "비밀번호가 일치하지 않습니다.");
-    }
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    // 401, 403은 apiRequest가 자동 리다이렉트하므로 여기서 처리 안 해도 됨
+    console.error("비밀번호 확인 오류:", error);
+
+    // 실패 → 에러 메시지 표시
+    showFieldError(input, errorMsg, "비밀번호가 일치하지 않습니다.");
+    showToast("비밀번호 확인에 실패했습니다.");
   }
 }
 
@@ -153,45 +154,30 @@ const changePassword = async () => {
 
   // 새 비밀번호 불일치
   if (newPassword !== confirmPassword) {
-    showFieldError(newInput, newError, "새 비밀번호가 일치하지 않습니다.");
-    showFieldError(confirmInput, confirmError, "새 비밀번호가 일치하지 않습니다.");
+    const message = "새 비밀번호가 일치하지 않습니다."
+    showFieldError(newInput, newError, message);
+    showFieldError(confirmInput, confirmError, message);
+    showToast(message);
     return;
   }
 
   try {
-    const token = sessionStorage.getItem("accessToken");
-    const BASE_URL = window.CONFIG.BASE_URL;
-
-    const response = await fetch(`${BASE_URL}/users/password`, {
+    // 비밀번호 변경 API 호출
+    const data = await apiRequest("/users/password", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ password: newPassword })
+      body: JSON.stringify({ password: newPassword }),
     });
 
-    const data = await response.json();
+    // 성공 시
+    showToast("비밀번호가 성공적으로 변경되었습니다.");
+    history.back();
 
-    if (response.status === 200) {
-      showToast("비밀번호가 성공적으로 변경되었습니다.");
-      history.back();
-    } else {
-      showFieldError(confirmInput, confirmError, data.message || "비밀번호 변경 실패");
-    }
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    // 401 / 403은 apiRequest가 자동으로 로그인 리다이렉트 처리함
+    console.error("비밀번호 변경 실패:", error);
+    showFieldError(confirmInput, confirmError, "비밀번호 변경 실패");
+    showToast("비밀번호 변경 중 오류가 발생했습니다.");
   }
-}
-
-const showToast = (message) => {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 1800);
 }
 
 const showFieldError = (input, msgEl, message) => {

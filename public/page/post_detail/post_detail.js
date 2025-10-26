@@ -1,4 +1,5 @@
 import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
 
 let currentPage = 0;
 let isFetching = false;
@@ -12,14 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     postId = new URLSearchParams(window.location.search).get("postId");
     console.log(postId);
-    const BASE_URL = window.CONFIG.BASE_URL;
 
-    getDetail(BASE_URL);
-    getComments( BASE_URL);
+    getDetail();
+    getComments();
 
     // 댓글 작성
     writeComment();
-    submitComplete(BASE_URL);
+    submitComplete();
 
     // 좋아요 클릭
     clickLike();
@@ -27,8 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 게시글 수정 후 돌아왔을 때 새로고침되도록
     window.addEventListener("pageshow", (e) => {
         if (e.persisted) {
-            getDetail(BASE_URL);
-            getComments( BASE_URL);
+            getDetail();
+            getComments();
         }
     });
 });
@@ -53,74 +53,74 @@ const loadHeader = () => {
                 history.back();
             })
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+            console.error(error);
+            showToast("페이지에 문제가 발생했습니다.");
+        });
 }
 
 // 게시물 상세 내용
-const getDetail = async (BASE_URL) => {
+const getDetail = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
-            method: 'GET',
-            credentials: 'include'
-        })
+        const detailResponse = await apiRequest(`/posts/${postId}`, {
+            method: "GET",
+        });
 
-        const detailResponse = await response.json();
+        const post = detailResponse.data;
+        // 제목, 유저프로필, 유저이름
+        document.getElementById("postTitle").textContent = post.title;
+        document.querySelector("#profile").src = (post.author.profileImageUrl == null)
+            ? "/assets/image/default_profile.png"
+            : post.author.profileImageUrl
+        document.getElementById("postAuthorName").textContent = post.author.nickname;
 
-        if (response.status === 200) {
-            const post = detailResponse.data;
-            // 제목, 유저프로필, 유저이름
-            document.getElementById("postTitle").textContent = post.title;
-            document.querySelector("#profile").src = (post.author.profileImageUrl == null) ? "/assets/image/default_profile.png" : post.author.profileImageUrl
-            document.getElementById("postAuthorName").textContent = post.author.nickname;
+        // 수정날짜 있으면 수정날짜 보여줌
+        const date = document.getElementById("postDate");
+        date.textContent = (post.updatedAt == null)
+            ? post.createdAt.replace("T", " ").split(".")[0]
+            : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
 
-            // 수정날짜 있으면 수정날짜 보여줌
-            const date = document.getElementById("postDate");
-            date.textContent = (post.updatedAt == null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
+        // \n 여러 개를 <br>로 바꿔서 줄바꿈표시
+        document.getElementById("postContent").innerHTML = post.content.replace(/\n/g, "<br>");
 
-            // \n 여러 개를 <br>로 바꿔서 줄바꿈표시
-            document.getElementById("postContent").innerHTML = post.content.replace(/\n/g, "<br>");
+        // 좋아요, 조회수, 댓글 수
+        document.getElementById("likeCount").textContent = post.likesCount;
+        document.getElementById("viewCount").textContent = post.viewsCount;
+        document.getElementById("commentCount").textContent = post.commentsCount;
 
-            // 좋아요, 조회수, 댓글 수
-            document.getElementById("likeCount").textContent = post.likesCount;
-            document.getElementById("viewCount").textContent = post.viewsCount;
-            document.getElementById("commentCount").textContent = post.commentsCount;
-
-            // 좋아요 버튼 활성화 여부
-            const likeBtn = document.getElementById("likeBtn")
-            if (post.like) {
-                likeBtn.classList.add("active");
-                document.getElementById("heartIcon").src = "/assets/image/ic_heart_red_64.png";
-            }
-
-            // 작성자가 자신이면 수정,삭제 버튼 보이게
-            if (post.author.mine) {
-                document.getElementById("postEdit").classList.add("show");
-            }
-
-            // 사진
-            const imageListDiv = document.querySelector(".image-list");
-            const imageList = post.imageList;
-
-            for (let i = 0; i < imageList.length; i++) {
-                const imageHtml =
-                    `
-                    <div id="image${i}" class="imagebox">
-                        <img src = ${imageList[i].imageUrl}>
-                    </div>
-                    `;
-
-                imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
-            }
-
-            editPost(BASE_URL);
-        }else if(response.status===401 || response.status===403){
-            window.location.replace("/login");
+        // 좋아요 버튼 활성화 여부
+        const likeBtn = document.getElementById("likeBtn")
+        if (post.like) {
+            likeBtn.classList.add("active");
+            document.getElementById("heartIcon").src = "/assets/image/ic_heart_red_64.png";
         }
-    } catch (error) { console.error(error) }
+
+        // 작성자가 자신이면 수정,삭제 버튼 보이게
+        if (post.author.mine) {
+            document.getElementById("postEdit").classList.add("show");
+        }
+
+        // 사진
+        const imageListDiv = document.querySelector(".image-list");
+        const imageList = post.imageList;
+
+        for (let i = 0; i < imageList.length; i++) {
+            const imageHtml =
+                `
+                <div id="image${i}" class="imagebox">
+                    <img src = ${imageList[i].imageUrl}>
+                </div>
+                `;
+
+            imageListDiv.insertAdjacentHTML("beforeend", imageHtml);
+        }
+
+        editPost();
+    } catch (error) { showToast("게시글을 불러오는 중 오류가 발생했습니다."); }
 }
 
 // 게시글 수정, 삭제 리스너
-const editPost = (BASE_URL) => {
+const editPost = () => {
     const editDiv = document.getElementById("postEdit");
     const editBtn = editDiv.querySelector(".edit-btn");
     const deleteBtn = editDiv.querySelector(".delete-btn");
@@ -129,11 +129,11 @@ const editPost = (BASE_URL) => {
         window.location.href = `/write?postId=${postId}`
     });
     deleteBtn.addEventListener("click", () =>
-        showDeleteDialog(null, BASE_URL)
+        showDeleteDialog(null)
     );
 }
 
-const showDeleteDialog = (commentId, BASE_URL) => {
+const showDeleteDialog = (commentId) => {
     const dialog = document.getElementById("deleteDialog");
     dialog.classList.remove("hidden");
 
@@ -143,8 +143,8 @@ const showDeleteDialog = (commentId, BASE_URL) => {
     // 삭제
     confirmBtn.onclick = async () => {
         dialog.classList.add("hidden");
-        if (commentId == null) await deletePost(BASE_URL);
-        else await deleteComment(commentId, BASE_URL);
+        if (commentId == null) await deletePost();
+        else await deleteComment(commentId);
     };
 
     // 취소
@@ -154,77 +154,73 @@ const showDeleteDialog = (commentId, BASE_URL) => {
 }
 
 // 댓글 리스트
-const getComments = async (BASE_URL) => {
+const getComments = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/posts/${postId}/comments?page=${currentPage++}&size=${size}&sort=createdAt,DESC`, {
-            method: "GET",
-            credentials: 'include'
-        })
+        const commentsResponse = await apiRequest(
+            `/posts/${postId}/comments?page=${currentPage++}&size=${size}&sort=createdAt,DESC`,
+            { method: "GET" }
+        );
 
-        const commentsResponse = await response.json();
+        const commentList = commentsResponse.data.content;
 
-        if (response.status === 200) {
-            const commentList = commentsResponse.data.content;
+        // comments에 html들 넣어서 한 번에 comment-list에 넣기
+        let comments = "";
+        for (let i = 0; i < commentList.length; i++) {
+            const comment = commentList[i];
 
-            // comments에 html들 넣어서 한 번에 comment-list에 넣기
-            let comments = "";
-            for (let i = 0; i < commentList.length; i++) {
-                const comment = commentList[i];
+            const date = (comment.updatedAt == null)
+                ? comment.createdAt.replace("T", " ").split(".")[0]
+                : (comment.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
+            const profileImageUrl = comment.author.profileImageUrl ?? "/assets/image/default_profile.png";
 
-                const date = (comment.updatedAt == null) ? comment.createdAt.replace("T", " ").split(".")[0] : (comment.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
-                const profileImageUrl = comment.author.profileImgUrl ?? "/assets/image/default_profile.png";
-
-                const commentHtml =
-                    `
-                <div class="comment" id="comment${comment.commentId}">
-                    <div class="comment-header">
-                        <img src="${profileImageUrl}" class="comment-profile" />
-                        <div class="comment-info">
-                            <p class="author-name", id="commentAuthor">${comment.author.name}</p>
-                            <p class="date", id="commentDate">${date}</p>
-                        </div>
-                        ${comment.author.mine
-                        ? `
-                                <div class="edit-comment-btns" id="comment${comment.commentId}Edit">
-                                    <button class="edit-btn">수정</button>
-                                    <button class="delete-btn">삭제</button>
-                                </div>
-                            `: ""}
-                        
+            const commentHtml =
+                `
+            <div class="comment" id="comment${comment.commentId}">
+                <div class="comment-header">
+                    <img src="${profileImageUrl}" class="comment-profile" />
+                    <div class="comment-info">
+                        <p class="author-name", id="commentAuthor">${comment.author.name}</p>
+                        <p class="date", id="commentDate">${date}</p>
                     </div>
-                    <p class="comment-content">${comment.content.replace(/\n/g, "<br>")}</p>
+                    ${comment.author.mine
+                    ? `
+                            <div class="edit-comment-btns" id="comment${comment.commentId}Edit">
+                                <button class="edit-btn">수정</button>
+                                <button class="delete-btn">삭제</button>
+                            </div>
+                        `: ""}
+                    
                 </div>
-            `
+                <p class="comment-content">${comment.content.replace(/\n/g, "<br>")}</p>
+            </div>
+        `
 
-                comments += commentHtml;
-            }
-
-            const commentListDiv = document.querySelector(".comment-list");
-            commentListDiv.insertAdjacentHTML("beforeend", comments);
-
-            // 뒤에 더 있으면 intersection observer 연결
-            if (commentsResponse.data.last) hasMore = false;
-            else {
-                hasMore = true;
-
-                const commentsDiv = document.querySelectorAll(".comment");
-                const lastIndex = commentsDiv.length - 2;
-                if (lastIndex > 0) onScroll(commentsDiv[lastIndex], BASE_URL);
-            }
-
-            editComment(BASE_URL);
-            commentListDiv.classList.remove("fade");
-        } else if(response.status===401 || response.status===403) {
-            window.location.replace("/login");
+            comments += commentHtml;
         }
-    } catch (error) { console.error(error) }
+
+        const commentListDiv = document.querySelector(".comment-list");
+        commentListDiv.insertAdjacentHTML("beforeend", comments);
+
+        // 뒤에 더 있으면 intersection observer 연결
+        if (commentsResponse.data.last) hasMore = false;
+        else {
+            hasMore = true;
+
+            const commentsDiv = document.querySelectorAll(".comment");
+            const lastIndex = commentsDiv.length - 2;
+            if (lastIndex > 0) onScroll(commentsDiv[lastIndex]);
+        }
+
+        editComment();
+        commentListDiv.classList.remove("fade");
+    } catch (error) { showToast("댓글을 불러오는 중 오류가 발생했습니다."); }
 }
 
-const onScroll = (comment, BASE_URL) => {
+const onScroll = (comment) => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                if (!isFetching && hasMore) getComments(BASE_URL);
+                if (!isFetching && hasMore) getComments();
 
                 observer.unobserve(entry.target);
             }
@@ -235,20 +231,20 @@ const onScroll = (comment, BASE_URL) => {
 }
 
 // 댓글 수정, 삭제 리스너
-const editComment = (BASE_URL) => {
+const editComment = () => {
     const editButtons = document.querySelectorAll(".edit-comment-btns")
     editButtons.forEach((editDiv) => {
         const id = editDiv.id;
         const commentId = id.replace("comment", "").replace("Edit", "");
         // 수정
         editDiv.querySelector(".edit-btn").addEventListener("click", () => {
-            rewriteComment(commentId, BASE_URL);
+            rewriteComment(commentId);
         }
         )
         // 삭제
         editDiv.querySelector(".delete-btn").addEventListener("click", () => {
             if (id.startsWith("comment")) {
-                showDeleteDialog(commentId, BASE_URL)
+                showDeleteDialog(commentId)
             }
         })
     });
@@ -257,7 +253,7 @@ const editComment = (BASE_URL) => {
 
 // 댓글 수정
 // 해당 댓글이 있는 위치에 textarea가 보이고 거기서 수정할 수 있도록
-const rewriteComment = (commentId, BASE_URL) => {
+const rewriteComment = (commentId) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
     const currentContent = commentDiv.querySelector(".comment-content");
     const editButtons = commentDiv.querySelector(".edit-comment-btns");
@@ -286,7 +282,7 @@ const rewriteComment = (commentId, BASE_URL) => {
 
     // 수정 완료
     document.getElementById(`save${commentId}`).addEventListener("click", (e) => {
-        saveEditedComment(commentId, BASE_URL, commentDiv);
+        saveEditedComment(commentId, commentDiv);
     })
 
     // 수정 취소
@@ -296,34 +292,27 @@ const rewriteComment = (commentId, BASE_URL) => {
 }
 
 // 댓글 수정 완료
-const saveEditedComment = async (commentId, BASE_URL, commentDiv) => {
+const saveEditedComment = async (commentId, commentDiv) => {
     try {
         const textarea = document.querySelector(".edit-textarea");
         const content = textarea.value.trim();
 
-        const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
+        const response = await apiRequest(`/comments/${commentId}`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                credentials: 'include'
-            },
             body: JSON.stringify({ content })
-        })
+        });
 
-        const editCommentResponse = response.json();
-
-        if (response.status === 200) {
-            // 아무 내용 안 쓰면 alert 발생
-            if (content === "") return alert("내용을 입력하세요!");
-
-            // 수정된 내용이 comment-content에 들어감
-            commentDiv.querySelector(".comment-content").innerHTML = content.replace(/\n/g, "<br>");
-            // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
-            cancelEdit(commentDiv);
-        } else {
-            alert(editCommentResponse.message);
+        // 아무 내용 안 쓰면 alert 발생
+        if (content === "") {
+            showToast("내용을 입력하세요!");
         }
-    } catch (error) { console.error(error) }
+
+        // 수정된 내용이 comment-content에 들어감
+        commentDiv.querySelector(".comment-content").innerHTML = content.replace(/\n/g, "<br>");
+        // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
+        cancelEdit(commentDiv);
+        showToast("댓글이 수정되었습니다.");
+    } catch (error) { showToast("댓글 수정 중 오류가 발생했습니다."); }
 
 }
 
@@ -355,39 +344,36 @@ const writeComment = () => {
 }
 
 // 댓글 작성 완료
-const submitComplete = (BASE_URL) => {
+const submitComplete = () => {
     document.getElementById("submitComment").addEventListener("click", async () => {
         try {
-            const content = document.getElementById("commentInput").value;
-            const response = await fetch(`${BASE_URL}/posts/${postId}/comments`, {
-                method: "POST",
-                credentials: 'include',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content })
-            })
-
-            const writeCommentResponse = await response.json();
-
-            // 작성 완료 시 댓글 리스트 초기화 후 새로 불러옴
-            if (response.status === 201) {
-                document.getElementById("commentInput").value = "";
-                document.getElementById("count").textContent = "0 / 500";
-
-                // 댓글 리스트 영역 초기화 후 깜빡임 효과
-                const commentListDiv = document.querySelector(".comment-list");
-                commentListDiv.classList.add("fade");
-                commentListDiv.innerHTML = "";
-
-                currentPage = 0;
-                hasMore = true;
-                await getComments(BASE_URL);
-
-                commentListDiv.classList.remove("fade");
+            const content = document.getElementById("commentInput").value.trim();
+            if (!content) {
+                showToast("댓글 내용을 입력해주세요!");
+                return;
             }
 
-        } catch (error) { console.error(error) }
+            const writeCommentResponse = await apiRequest(`/posts/${postId}/comments`, {
+                method: "POST",
+                body: JSON.stringify({ content })
+            });
+
+            // 작성 완료 시 댓글 리스트 초기화 후 새로 불러옴
+            document.getElementById("commentInput").value = "";
+            document.getElementById("count").textContent = "0 / 500";
+
+            // 댓글 리스트 영역 초기화 후 깜빡임 효과
+            const commentListDiv = document.querySelector(".comment-list");
+            commentListDiv.classList.add("fade");
+            commentListDiv.innerHTML = "";
+
+            currentPage = 0;
+            hasMore = true;
+            await getComments();
+
+            commentListDiv.classList.remove("fade");
+
+        } catch (error) { showToast("댓글 등록 중 오류가 발생했습니다."); }
 
     });
 
@@ -395,20 +381,13 @@ const submitComplete = (BASE_URL) => {
 
 // 삭제 api 호출 후 바로 댓글 리스트 api 호출해서
 // 서버로부터 댓글 리스트 새로 받아옴
-const deleteComment = async (commentId, BASE_URL) => {
+const deleteComment = async (commentId) => {
     try {
-        const response = await fetch(`${BASE_URL}/comments/${commentId}`, {
-            method: "DELETE",
-            credentials: 'include',
-        })
+        await apiRequest(`/comments/${commentId}`, { method: "DELETE" });
 
-        if (response.status === 200) {
-            alert("댓글이 삭제되었습니다.");
-            window.location.reload();   // 전체 새로고침
-        } else {
-            alert(response.json().message);
-        }
-    } catch (error) { console.error(error) }
+        showToast("댓글이 삭제되었습니다.");
+        window.location.reload();   // 전체 새로고침
+    } catch (error) { showToast("댓글 삭제 중 오류가 발생했습니다."); }
 }
 
 // 좋아요 클릭
@@ -423,41 +402,25 @@ const clickLike = () => {
     likeBtn.addEventListener("click", async () => {
         try {
             const isActive = likeBtn.classList.toggle("active");
-            const BASE_URL = window.CONFIG.BASE_URL
-            const response = await fetch(`${BASE_URL}/post/${postId}/likes`, {
+
+            const likeResponse = await apiRequest(`/posts/${postId}/likes`, {
                 method: `${isActive ? "POST" : "DELETE"}`,
-                credentials: 'include'
-            })
+            });
 
-            const likeResponse = await response.json();
+            heartIcon.src = isActive
+                ? "/assets/image/ic_heart_red_64.png"
+                : "/assets/image/ic_heart_white_64.png";
 
-            if (response.status === 200 || response.status === 201) {
-                heartIcon.src = isActive
-                    ? "/assets/image/ic_heart_red_64.png"
-                    : "/assets/image/ic_heart_white_64.png";
-
-                likeCount.textContent = likeResponse.data.likesCount;
-            } else {
-                alert(likeResponse.message);
-            }
-        } catch (error) { console.error(error) };
+            likeCount.textContent = likeResponse.data.likesCount;
+        } catch (error) { showToast("오류가 발생했습니다."); };
     });
 }
 
-const deletePost = async (BASE_URL) => {
+const deletePost = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/posts/${postId}`, {
-            method: "DELETE",
-            credentials: 'include'
-        })
+        await apiRequest(`/posts/${postId}`, { method: "DELETE" });
 
-        const deletePostResponse = await response.json();
-
-        if (response.status === 200) {
-            alert("게시글이 삭제되었습니다.");
-            history.back();
-        } else {
-            console.error(deletePostResponse.message);
-        }
-    } catch (error) { console.error(error) }
+        showToast("게시글이 삭제되었습니다.");
+        history.back();
+    } catch (error) { showToast("오류가 발생했습니다."); }
 }
