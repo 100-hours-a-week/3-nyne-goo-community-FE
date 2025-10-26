@@ -1,3 +1,6 @@
+import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
 
@@ -27,7 +30,10 @@ const loadHeader = () => {
             backButton.classList.add("hide");
             profile.classList.add("hide");
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+            console.error(error)
+            showToast("페이지에 문제가 발생했습니다.");
+        });
 }
 
 
@@ -78,49 +84,44 @@ const login = async (e) => {
     }
 
     try {
-        // BASE_URL/auth로 보냄
-        const BASE_URL = window.CONFIG.BASE_URL;
-        const response = await fetch(`${BASE_URL}/auth`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            credentials: 'include', // 쿠키 수신(브라우저가 Set-Cookie를 받음)
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+        // 로그인 요청
+        const loginResponse = await apiRequest("/auth", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
         });
 
-        // response 값
-        const loginResponse = await response.json();
+        if (loginResponse == null) return;
 
-        // statusCode = 200이면 제대로 받은 것이므로 토큰 저장 후 홈으로 이동
-        // 아니라면 오류 메시지를 alert로 보여줌
-        if (response.ok) {
-            // 사용자 정보 받아옴
-            const userResponse = await fetch(`${BASE_URL}/users`, {
-                method: "GET",
-                credentials: 'include'
-            });
-            const user = await userResponse.json();
+        // 로그인 성공 시 사용자 정보 요청
+        const userResponse = await apiRequest("/users", {
+            method: "GET",
+        });
 
-            const userData = {
-                profileImgUrl: user.data.profileImgUrl ?? "/assets/image/default_profile.png",
-                nickname: user.data.nickname,
-                email: user.data.email
-            };
+        const userData = {
+            profileImgUrl: userResponse.data.profileImgUrl ?? "/assets/image/default_profile.png",
+            nickname: userResponse.data.nickname,
+            email: userResponse.data.email,
+        };
 
-            // 사용자 정보 캐싱
-            window.sessionStorage.setItem('userInfo', JSON.stringify(userData));
+        // 사용자 정보 세션 스토리지에 저장
+        window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
+        window.sessionStorage.setItem("loginSuccess", userData.nickname);
+        window.location.replace("/home");
 
-            // 로그인 후 다시 로그인으로 돌아오지 못하게
-            window.location.replace("/home");
-        } else {
-            loginError.textContent = loginResponse.message;
-            loginError.style.display = "block";
+    } catch (error) {
+        // 서버나 네트워크 오류 시 토스트로 표시
+        let errorMessage = error.message
+        if (error.message.includes("Failed to fetch")) {
+            errorMessage = "서버와 연결할 수 없습니다. 인터넷 상태를 확인해주세요."
         }
-    } catch (error) { console.error(error) };
+
+        showToast(errorMessage);
+
+        // 401, 403은 apiRequest에서 이미 처리되므로 나머지 에러만 표시
+        const loginError = document.getElementById("loginError");
+        loginError.textContent = errorMessage
+        loginError.style.display = "block";
+    }
 };
 
 const showError = (input, error, message) => {
@@ -130,7 +131,7 @@ const showError = (input, error, message) => {
 }
 
 // 회원가입
-const signup = async() => {
+const signup = async () => {
     //window.location.href="/signup";
     window.location.href = `${window.CONFIG.BASE_URL}/terms`;
 }
