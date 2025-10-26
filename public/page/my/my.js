@@ -117,10 +117,12 @@ const clickEditInfo = () => {
                 };
                 sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
                 showToast("회원정보가 수정되었습니다.");
-                window.location.reload();
+                setTimeout(() => {
+                    window.location.replace("/my");
+                }, 700);
             }
         } catch (error) {
-           showToast("회원정보 수정 중 오류가 발생했습니다.");
+            showToast("회원정보 수정 중 오류가 발생했습니다.");
         }
     });
 
@@ -158,24 +160,24 @@ const editProfile = () => {
 
 const deleteUser = async () => {
     try {
-    await apiRequest("/users", { method: "DELETE" });
+        await apiRequest("/users", { method: "DELETE" });
 
-    showToast("회원 탈퇴가 완료되었습니다.");
+        showToast("회원 탈퇴가 완료되었습니다.");
 
-    // 클라이언트 저장소 초기화
-    localStorage.clear();
-    sessionStorage.clear();
+        // 클라이언트 저장소 초기화
+        localStorage.clear();
+        sessionStorage.clear();
 
-    // 로그인 페이지로 이동
-    window.location.replace("/login");
+        // 로그인 페이지로 이동
+        window.location.replace("/login");
 
-    // 뒤로가기 방지
-    window.history.pushState(null, "", window.location.href);
-    window.onpopstate = () => window.history.go(1);
+        // 뒤로가기 방지
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = () => window.history.go(1);
 
-  } catch (error) {
-    showToast("회원 탈퇴 중 오류가 발생했습니다.");
-  }
+    } catch (error) {
+        showToast("회원 탈퇴 중 오류가 발생했습니다.");
+    }
 
 }
 

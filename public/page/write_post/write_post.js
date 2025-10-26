@@ -1,4 +1,5 @@
 import { apiRequest } from "/common/js/api.js";
+import { showToast } from "/common/js/toast.js";
 
 // 파일 저장하는 리스트
 const fileArr = [];
@@ -13,6 +14,12 @@ const validationState = {
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
     verifyToken();
+
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            verifyToken();
+        }
+    });
 });
 
 // 헤더 파일 불러오기
@@ -35,13 +42,6 @@ const loadHeader = () => {
             console.error(error);
             showToast("페이지에 문제가 발생했습니다.");
         });
-
-    window.addEventListener("pageshow", (event) => {
-        if (event.persisted) {
-            console.log("bfcache 복원 → verifyToken 재실행");
-            verifyToken();
-        }
-    });
 }
 
 const verifyToken = async () => {
@@ -100,12 +100,19 @@ const editPost = async (postId) => {
 
             // 파일 리스트 추가
             const fileHtml = `
-        <div id="file${fileNo}" class="filebox">
+        <div id="file${fileNo++}" class="filebox">
             <p class="name"> ${imageName}</p>
-            <button type="button" class="delete-btn" onclick="deleteFile(${fileNo++})">삭제</button>
+            <button type="button" class="delete-btn">삭제</button>
         </div>`;
             fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
         }
+
+        document.querySelector(".file-list").addEventListener("click", (e) => {
+            if (e.target.classList.contains("delete-btn")) {
+                const id = e.target.parentElement.id.replace("file", "");
+                deleteFile(Number(id));
+            }
+        });
     } catch (error) {
         showToast("게시글 데이터를 불러오는 중 오류가 발생했습니다.");
     }
