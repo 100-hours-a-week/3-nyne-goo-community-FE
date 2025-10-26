@@ -45,7 +45,7 @@ const loadHeader = () => {
 
             document.getElementById("backBtn").addEventListener("click", () => { history.back() })
         })
-       .catch(error => {
+        .catch(error => {
             console.error(error);
             showToast("페이지에 문제가 발생했습니다.");
         });
@@ -91,6 +91,17 @@ const validateEmail = (e) => {
         emailMsg.classList.remove("show", "error");
         checkEmailButton.disabled = false;
         checkEmailButton.classList.add("active");
+
+        // 이메일 입력 중 엔터 시 이메일 중복 확인 버튼 클릭
+        document.getElementById("email").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // form 전체 submit 방지
+                const checkEmailButton = document.getElementById("checkEmail");
+                if (!checkEmailButton.disabled) {
+                    checkEmailButton.click();
+                }
+            }
+        });
     } else {
         emailMsg.textContent =
             "이메일은 영문과 @, . 만 사용이 가능합니다.";
@@ -104,7 +115,7 @@ const validateEmail = (e) => {
 const checkEmail = async () => {
     const emailInput = document.getElementById("email");
 
-   try {
+    try {
         const checkEmailResponse = await apiRequest("/users/availability", {
             method: "POST",
             body: JSON.stringify({ email: email.value }),
@@ -287,6 +298,17 @@ const validateNicknameConfirm = (e) => {
         nicknameError.classList.remove("show");
         checkNicknameButton.disabled = false;
         checkNicknameButton.classList.add("active");
+
+        // 닉네임 입력 중 엔터 시 닉네임 중복 확인 버튼 클릭
+        document.getElementById("nickname").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const checkNicknameButton = document.getElementById("checkNickname");
+                if (!checkNicknameButton.disabled) {
+                    checkNicknameButton.click();
+                }
+            }
+        });
     } else {
         nicknameError.textContent =
             "띄어쓰기 불가, 10자 이내로 작성해주세요.";
@@ -375,12 +397,12 @@ const signup = async (e) => {
 
         // statusCode = 201이면 제대로 받은 것이므로 로그인 페이지로 이동
         if (signupResponse.statusCode === 201 || signupResponse.statusCode === 200) {
-             showToast("회원가입이 완료되었습니다!");
+            showToast("회원가입이 완료되었습니다!");
             window.location.href = "/login";
         } else {
             showToast("회원가입에 실패했습니다.");
         }
     } catch (error) {
-         showToast("회원가입 중 오류가 발생했습니다.");
+        showToast("회원가입 중 오류가 발생했습니다.");
     }
 }
