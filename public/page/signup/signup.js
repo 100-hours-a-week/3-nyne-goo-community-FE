@@ -141,7 +141,12 @@ const controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
 
     // 이미 존재
     if (exist) {
-        inputMsg.textContent = "이미 존재하는 이메일입니다."
+        let message = "이미 존재하는 이메일입니다."
+        if (type == "nickname") {
+            message = "이미 존재하는 닉네임입니다."
+        }
+
+        inputMsg.textContent = message;
         inputMsg.classList.add("show", "error");
 
         // 테두리 빨간색으로 변경

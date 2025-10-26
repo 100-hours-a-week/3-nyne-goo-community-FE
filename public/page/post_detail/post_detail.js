@@ -102,6 +102,8 @@ const getDetail = async () => {
 
         // 사진
         const imageListDiv = document.querySelector(".image-list");
+        imageListDiv.innerHTML = "";
+
         const imageList = post.imageList;
 
         for (let i = 0; i < imageList.length; i++) {
@@ -199,6 +201,8 @@ const getComments = async () => {
         }
 
         const commentListDiv = document.querySelector(".comment-list");
+        if (currentPage === 0) commentListDiv.innerHTML = ""; // 첫 페이지일 때만 초기화
+        
         commentListDiv.insertAdjacentHTML("beforeend", comments);
 
         // 뒤에 더 있으면 intersection observer 연결
