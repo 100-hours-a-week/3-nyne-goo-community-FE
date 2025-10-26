@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 회원가입 글자 클릭 시
     const signupButton = document.getElementById("signupBtn");
     signupButton.addEventListener("click", signup)
+
+    const toastMessage = sessionStorage.getItem("toastMessage");
+    if (toastMessage) {
+        showToast(toastMessage);
+        sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
+    }
 });
 
 // 헤더 파일 불러오기
@@ -105,12 +111,12 @@ const login = async (e) => {
 
         // 사용자 정보 세션 스토리지에 저장
         window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
-        window.sessionStorage.setItem("loginSuccess", userData.nickname);
+        window.sessionStorage.setItem("toastMessage", `${userData.nickname}님, 환영합니다!`);
         window.location.replace("/home");
 
     } catch (error) {
         // 서버나 네트워크 오류 시 토스트로 표시
-        let errorMessage = error.message
+        let errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다."
         if (error.message.includes("Failed to fetch")) {
             errorMessage = "서버와 연결할 수 없습니다. 인터넷 상태를 확인해주세요."
         }

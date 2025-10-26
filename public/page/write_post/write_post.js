@@ -184,6 +184,13 @@ const addFile = () => {
         }
 
         for (const file of addFiles) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                showToast("이미지 크기는 10MB 이하만 업로드 가능합니다.");
+                e.target.value = ""; // 선택 초기화
+                continue;
+            }
+
             // 이미지가 아닌 다른 파일을 올리면 올리지 않음
             if (!fileValidation(file)) continue;
 
@@ -291,8 +298,8 @@ const writePost = async (postId) => {
         }
 
         if (response.statusCode === 201 || response.statusCode === 200) {
-            showToast(postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!");
             window.sessionStorage.setItem("refreshHome", "true");
+            window.sessionStorage.setItem("toastMessage", postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!")
             history.back();
         } else {
             showToast("게시글 저장 실패");

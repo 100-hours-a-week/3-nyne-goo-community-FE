@@ -8,6 +8,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("verifyBtn").addEventListener("click", verifyCurrentPassword);
   document.getElementById("savePasswordBtn").addEventListener("click", changePassword);
+
+  const currenetInput = document.getElementById("currentPassword");
+  currenetInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      verifyCurrentPassword();
+    }
+  });
+
+  const newInput = document.getElementById("newPassword");
+  const confirmInput = document.getElementById("confirmPassword");
+  [newInput, confirmInput].forEach(input => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        changePassword();
+      }
+    });
+  });
 });
 
 // 헤더 불러오기 (뒤로가기 버튼 동작 포함)
@@ -37,16 +56,16 @@ const loadHeader = () => {
       });
     })
     .catch(error => {
-            console.error(error);
-            showToast("페이지에 문제가 발생했습니다.");
-        });
+      console.error(error);
+      showToast("페이지에 문제가 발생했습니다.");
+    });
 }
 
 const clickMenu = (e, dropdown) => {
   e.stopPropagation();
   dropdown.classList.toggle("show");
 
-  document.getElementById("editInfo").addEventListener("click", () => window.location.replace("/my/edit-info"));
+  document.getElementById("editInfo").addEventListener("click", () => window.location.href = "/my/edit-info");
   document.getElementById("editPw").addEventListener("click", () => {
     window.location.replace("/my/edit-password")
   });
@@ -100,13 +119,6 @@ const verifyCurrentPassword = async () => {
   const input = document.getElementById("currentPassword");
   const errorMsg = document.getElementById("currentError");
   const value = input.value.trim();
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      verifyCurrentPassword();
-    }
-  });
 
   clearFieldError(input, errorMsg);
 
@@ -168,15 +180,6 @@ const changePassword = async () => {
     return;
   }
 
-  [newInput, confirmInput].forEach(input => {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        changePassword();
-      }
-    });
-  });
-
   try {
     // 비밀번호 변경 API 호출
     const data = await apiRequest("/users/password", {
@@ -185,7 +188,7 @@ const changePassword = async () => {
     });
 
     // 성공 시
-    showToast("비밀번호가 성공적으로 변경되었습니다.");
+    sessionStorage.setItem("toastMessage", "비밀번호가 성공적으로 변경되었습니다.");
     history.back();
 
   } catch (error) {

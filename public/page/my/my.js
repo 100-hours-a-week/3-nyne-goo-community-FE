@@ -5,7 +5,6 @@ const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
-
     getMyInfo();
 
     const path = window.location.pathname;
@@ -15,6 +14,18 @@ document.addEventListener("DOMContentLoaded", () => {
             clickEditInfo();
         }, 100);
     }
+
+    const toastMessage = sessionStorage.getItem("toastMessage");
+    if (toastMessage) {
+        showToast(toastMessage);
+        sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
+    }
+
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            verifyToken();
+        }
+    });
 });
 
 // 헤더 파일 불러오기
@@ -51,7 +62,7 @@ const clickMenu = (e, dropdown) => {
 
     document.getElementById("editInfo").addEventListener("click", () => window.location.replace("/my/edit-info"));
     document.getElementById("editPw").addEventListener("click", () => {
-        window.location.replace("/my/edit-password");
+        window.location.href = "/my/edit-password";
     });
     document.getElementById("logout").addEventListener("click", async () => {
         try {
@@ -93,6 +104,20 @@ const clickEditInfo = () => {
         const profile = document.getElementById("profileInput");
         const newProfileUrl = document.getElementById("profileImg").src;
 
+        if (!newNickname) {
+            // 닉네임 비어있을 때
+            newNicknameInput.classList.add("input-error");
+            showToast("닉네임을 입력해주세요.");
+
+            // 0.5초 뒤 빨간 테두리 제거 (흔들림 효과 후 복원)
+            setTimeout(() => {
+                newNicknameInput.classList.remove("input-error");
+            }, 600);
+
+            return;
+        }
+        newNicknameInput.classList.remove("input-error");
+
         const formData = new FormData();
         formData.append("nickname", newNickname);
         if (profile.files.length > 0) {
@@ -109,26 +134,34 @@ const clickEditInfo = () => {
                 headers: {}, // Content-Type 자동 제거
             });
 
-            if (response.statusCode === 200 || response.statusCode === 201) {
+            if (response != null) {
                 const updatedInfo = {
                     email: my.email,
                     nickname: newNickname,
                     profileImgUrl: newProfileUrl,
                 };
                 sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
-                showToast("회원정보가 수정되었습니다.");
-                setTimeout(() => {
-                    window.location.replace("/my");
-                }, 700);
+                sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
+                window.location.replace("/my");
             }
         } catch (error) {
-            showToast("회원정보 수정 중 오류가 발생했습니다.");
+            if (error.status === 409) {
+                newNicknameInput.classList.add("input-error");
+                showToast("이미 사용 중인 닉네임입니다.");
+
+                setTimeout(() => {
+                    newNicknameInput.classList.remove("input-error");
+                }, 600);
+
+                return;
+            }
         }
     });
 
     // 탈퇴
     document.getElementById("deleteBtn").addEventListener("click", () => {
-        const deleteAlert = document.getElementById("deleteAlert").style.display = "flex";
+        const deleteAlert = document.getElementById("deleteAlert")
+        deleteAlert.style.display = "flex";
         document.getElementById("cancelBtn").addEventListener("click", () => {
             deleteAlert.style.display = "none";
         })
@@ -148,6 +181,13 @@ const editProfile = () => {
     profileInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showToast("이미지 크기는 10MB 이하만 업로드 가능합니다.");
+            e.target.value = ""; // 선택 초기화 (같은 파일 다시 선택 가능하게)
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = (ev) => {
@@ -187,3 +227,25 @@ const getMyInfo = () => {
     document.getElementById("nicknameValue").textContent = my.nickname;
 }
 
+const verifyToken = async () => {
+    try {
+        // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
+        const res = await apiRequest("/users", { method: "GET" });
+        if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
+
+        // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
+        const postId = new URLSearchParams(window.location.search).get("postId");
+        if (postId != null) {
+            editPost(Number(postId));
+            writeForm(Number(postId));
+        } else writeForm(null);
+
+        // 제목과 내용에 적는 동시에 유효성 검사
+        validateTitle();
+        validateContent();
+        addFile();
+    } catch (err) {
+        showToast("로그인이 필요합니다.");
+        window.location.replace("/login");
+    }
+}
