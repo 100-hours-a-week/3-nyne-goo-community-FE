@@ -58,6 +58,17 @@ const uploadProfile = () => {
     const plusIcon = document.querySelector('.profile-circle span'); // + 버튼
 
     fileDOM.addEventListener('change', () => {
+        const file = fileDOM.files[0];
+        if (!file) return;
+
+        // 10MB 초과 시 차단
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            showToast("이미지 크기는 10MB 이하만 업로드 가능합니다.");
+            fileDOM.value = ""; // 파일 선택 초기화
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = ({ target }) => {
             console.log(target.result);
@@ -402,7 +413,7 @@ const signup = async (e) => {
 
         // statusCode = 201이면 제대로 받은 것이므로 로그인 페이지로 이동
         if (signupResponse.statusCode === 201 || signupResponse.statusCode === 200) {
-            showToast("회원가입이 완료되었습니다!");
+            window.sessionStorage.setItem("toastMessage", "회원가입이 완료되었습니다!");
             window.location.href = "/login";
         } else {
             showToast("회원가입에 실패했습니다.");

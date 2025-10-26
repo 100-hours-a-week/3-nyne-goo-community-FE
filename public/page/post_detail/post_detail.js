@@ -31,6 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
             getComments();
         }
     });
+
+    const toastMessage = sessionStorage.getItem("toastMessage");
+    if (toastMessage) {
+        showToast(toastMessage);
+        sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
+    }
 });
 
 // 헤더 파일 불러오기
@@ -424,7 +430,7 @@ const deletePost = async () => {
     try {
         await apiRequest(`/posts/${postId}`, { method: "DELETE" });
 
-        showToast("게시글이 삭제되었습니다.");
+        window.sessionStorage.setItem("toastMessage", "게시글이 삭제되었습니다.");
         history.back();
     } catch (error) { showToast("오류가 발생했습니다."); }
 }

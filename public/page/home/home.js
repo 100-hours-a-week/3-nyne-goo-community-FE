@@ -7,12 +7,6 @@ let isFetching = false;
 let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const nickname = window.sessionStorage.getItem("loginSuccess");
-    if (nickname) {
-        showToast(`${nickname}님, 환영합니다!`);
-        window.sessionStorage.removeItem("loginSuccess"); // 재실행 방지
-    }
-
     loadHeader();
     getList();
     writePost();
@@ -27,6 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
             getList();
         }
     });
+
+    const toastMessage = sessionStorage.getItem("toastMessage");
+    if (toastMessage) {
+        showToast(toastMessage);
+        sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
+    }
 });
 
 // 헤더 파일 불러오기
