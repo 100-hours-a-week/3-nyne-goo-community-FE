@@ -3,9 +3,10 @@ import { showToast } from "/common/js/toast.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
+    loadFooter()
 
     // 로그인 버튼 클릭 시
-    const form = document.querySelector(".login");
+    const form = document.querySelector(".login-form");
     form.addEventListener("submit", (e) => login(e));
 
     // 회원가입 글자 클릭 시
@@ -17,9 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(toastMessage);
         sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
     }
+
+    verifyToken();
 });
 
-// 헤더 파일 불러오기
+// header 불러오기
 const loadHeader = () => {
     fetch("/common/html/header.html")
         .then(response => {
@@ -40,6 +43,35 @@ const loadHeader = () => {
             console.error(error)
             showToast("페이지에 문제가 발생했습니다.");
         });
+}
+
+// footer 불러오기
+const loadFooter = () => {
+  fetch("/common/html/footer.html")
+    .then((response) => {
+      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
+      return response.text();
+    })
+    .then((data) => {
+      document.getElementById("footer").innerHTML = data;
+    })
+    .catch((error) => {
+      console.error(error);
+      showToast("푸터를 불러오는 중 문제가 발생했습니다.");
+    });
+};
+
+const verifyToken = async()=>{
+     try {
+            // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
+            const res = await apiRequest("/users", { method: "GET" });
+            if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
+
+            // 통과했다면 home 으로 이동
+            window.location.replace("/home");
+        } catch (err) {
+            showToast("로그인이 필요합니다.");
+        }
 }
 
 
@@ -96,22 +128,8 @@ const login = async (e) => {
             body: JSON.stringify({ email, password }),
         });
 
-        if (loginResponse == null) return;
-
-        // 로그인 성공 시 사용자 정보 요청
-        const userResponse = await apiRequest("/users", {
-            method: "GET",
-        });
-
-        const userData = {
-            profileImgUrl: userResponse.data.profileImgUrl ?? "/assets/image/default_profile.png",
-            nickname: userResponse.data.nickname,
-            email: userResponse.data.email,
-        };
-
-        // 사용자 정보 세션 스토리지에 저장
-        window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
-        window.sessionStorage.setItem("toastMessage", `${userData.nickname}님, 환영합니다!`);
+        if (loginResponse == null) throw new Error();
+    
         window.location.replace("/home");
 
     } catch (error) {

@@ -1,28 +1,66 @@
+/* ===== 기본 설정 (라벤더 블루 테마) ===== */
 body {
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    /* 글씨체: pretendard */
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f9f9f9;
+  background-color: #F6F7FA;
+  color: #2F316B;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* 메인 컨테이너 */
 #container {
-  max-width: 700px;
-  /* 중앙 영역의 최대 폭 */
-  margin: 0 auto;
-  /* 좌우 자동 여백 → 가운데 정렬 */
-  padding: 40px 20px;
-  /* 위아래, 좌우 패딩 */
+  max-width: 720px;
+  margin: 60px auto;
+  padding: 40px 28px;
   box-sizing: border-box;
 }
 
+/* 버튼 공통 */
 .button-box {
-  text-align: center;
-  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
 }
 
+.button-box button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.1s ease;
+  background-color: #7D84C3;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(125, 132, 195, 0.25);
+}
+
+.button-box button:hover {
+  background-color: #2F316B;
+  transform: translateY(-1px);
+}
+
+.button-box button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* 반응형 */
 @media (max-width: 700px) {
+  #container {
+    margin: 40px 16px;
+    padding: 30px 20px;
+    border-radius: 14px;
+  }
+
   .button-box {
     flex-direction: column;
+    gap: 12px;
   }
 
   .button-box button {
@@ -30,15 +68,15 @@ body {
   }
 }
 
-/* 공통 토스트 알림 */
+/* ===== 토스트 알림 ===== */
 .toast {
   visibility: hidden;
   min-width: 280px;
-  background-color: rgba(60, 60, 60, 0.9);
+  background-color: rgba(47, 49, 107, 0.9);
   color: #fff;
   text-align: center;
-  border-radius: 8px;
-  padding: 14px 18px;
+  border-radius: 12px;
+  padding: 14px 20px;
   position: fixed;
   left: 50%;
   bottom: 80px;
@@ -46,11 +84,32 @@ body {
   font-size: 15px;
   z-index: 2000;
   opacity: 0;
-  transition: opacity 0.4s, bottom 0.4s;
+  box-shadow: 0 4px 12px rgba(47, 49, 107, 0.25);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.4s ease, bottom 0.4s ease;
 }
 
 .toast.show {
   visibility: visible;
   opacity: 1;
   bottom: 100px;
+}
+
+/* ===== 링크/텍스트 ===== */
+a {
+  color: #7D84C3;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #2F316B;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: #888;
 }

@@ -6,8 +6,33 @@ const size = 10;
 let isFetching = false;
 let hasMore = true;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const isFirstVisit = !sessionStorage.getItem("homeVisited");
+
+    const userResponse = await apiRequest("/users", {
+        method: "GET",
+    });
+
+    const userData = {
+        profileImgUrl: userResponse.data.profileImgUrl ?? "/assets/image/default_profile.png",
+        nickname: userResponse.data.nickname,
+        email: userResponse.data.email,
+    };
+
+    // 사용자 정보 세션 스토리지에 저장
+    window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
+
+    if (isFirstVisit) {
+        // 홈에 처음 진입했을 때만 사용자 정보 요청
+        // 로그인 성공 시 사용자 정보 요청
+        const toastMessage = `${userData.nickname}님, 환영합니다!`;
+        showToast(toastMessage);
+    }
+
+
     loadHeader();
+    loadFooter();
+    loadPopularPosts();
     getList();
     writePost();
 
@@ -52,6 +77,54 @@ const loadHeader = () => {
         });
 }
 
+// footer 불러오기
+const loadFooter = () => {
+  fetch("/common/html/footer.html")
+    .then((response) => {
+      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
+      return response.text();
+    })
+    .then((data) => {
+      document.getElementById("footer").innerHTML = data;
+    })
+    .catch((error) => {
+      console.error(error);
+      showToast("푸터를 불러오는 중 문제가 발생했습니다.");
+    });
+};
+
+// 인기 게시글 가져오기
+const loadPopularPosts = async () => {
+  try {
+    const data = await apiRequest(`/posts?page=0&size=5&sort=likesCount,DESC`);
+     renderPopularPosts(data.data.content.slice(0, 3));
+  } catch (err) {
+    console.error(err);
+    showToast("인기 게시글을 불러오는 중 오류가 발생했습니다.");
+  }
+};
+
+// 인기 게시글 렌더링
+const renderPopularPosts = (posts) => {
+  const container = document.querySelector(".popular-scroll");
+  if (posts.length === 0) {
+    container.innerHTML = `<p class="empty-msg">인기 게시글이 아직 없습니다.</p>`;
+    return;
+  }
+
+  container.innerHTML = posts.map(post => `
+    <div class="popular-card" onclick="window.location.href='/detail?postId=${post.postId}'">
+      <h4>${post.title}</h4>
+      <p>${post.content?.slice(0, 60) ?? ""}...</p>
+      <div class="popular-meta">
+        <span>❤️ ${post.likesCount}</span>
+        <span>💬 ${post.commentsCount}</span>
+        <span>${post.author.name}</span>
+      </div>
+    </div>
+  `).join("");
+};
+
 // 게시글 리스트 불러오기
 const getList = async () => {
     try {
@@ -67,7 +140,7 @@ const getList = async () => {
 
         renderPosts(postListResponse);
 
-        if (data.data.last) hasMore = false;
+        if (postListResponse.last) hasMore = false;
         else hasMore = true;
     } catch (error) {
         showToast("게시글을 불러오는 중 오류가 발생했습니다.");
