@@ -65,6 +65,7 @@ const clickMenu = (e, dropdown) => {
         window.location.href = "/my/edit-password";
     });
     document.getElementById("logout").addEventListener("click", async () => {
+        console.log("click logout");
         try {
             await apiRequest("/auth", { method: "DELETE" });
 
@@ -231,6 +232,7 @@ const verifyToken = async () => {
     try {
         // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
         const res = await apiRequest("/users", { method: "GET" });
+        
         if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
 
         // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
@@ -245,7 +247,7 @@ const verifyToken = async () => {
         validateContent();
         addFile();
     } catch (err) {
-        showToast("로그인이 필요합니다.");
+        window.sessionStorage.setItem("toastMessage", "로그인이 필요합니다.");
         window.location.replace("/login");
     }
 }

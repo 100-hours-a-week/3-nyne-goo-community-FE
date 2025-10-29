@@ -10,13 +10,18 @@ export async function apiRequest(endpoint, options = {}) {
         ...options.headers,
       },
       ...options,
-    });
+    }).catch(()=>null); // fetch 자체 네트워크 에러 방지
 
     // 공통 에러 처리
     if (response.status === 401 || response.status === 403) {
       // 로그인 페이지에서는 redirect 하지 않음
-      if (!(window.location.pathname.includes("/login")||window.location.pathname.includes("/signup"))) {
-        window.location.replace("/login");
+      if (!(window.location.pathname.includes("/login") || window.location.pathname.includes("/signup"))) {
+        try{
+          const reissueResponse = await tokenReissue()
+          if(reissueResponse.status===201) return apiRequest(endpoint, options);
+          throw new Error("invalid token")
+        }catch(e){window.location.replace("/login");}
+       
       } else {
         throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
       }
@@ -33,7 +38,42 @@ export async function apiRequest(endpoint, options = {}) {
     }
 
     return data;
-  } catch (error) {
-    throw error;
+  } catch (_) {
+    return null;
+  }
+}
+
+// 토큰 재발급
+export async function tokenReissue() {
+  const BASE_URL = window.CONFIG.BASE_URL;
+  const url = `${BASE_URL}/auth/refresh`;
+
+  try {
+    const response = await fetch(url, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      }
+    }).catch(()=>null);
+
+    // 401 에러 -> 토큰 유효하지 않거나 잘못된 토큰
+    if (response.status === 401) {
+      window.location.replace("/login");
+      return null;
+    }
+
+    // JSON 파싱
+    const data = await response.json();
+
+    if (!(response.status === 201)) {
+      const error = new Error("API 요청 실패");
+      error.status = response.status;
+      throw error;
+    }
+
+    return {status: response.status, data};
+  } catch (_) {
+    return null;
   }
 }

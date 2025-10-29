@@ -1,64 +1,195 @@
-.title {
-  font-weight: bold;
-  text-align: center;
-  margin-top: 50px;
+/* 전체 레이아웃 */
+.login-layout {
+  display: flex;
+  align-items: center;   
+  justify-content: center;
+  min-height: calc(100vh - 160px);
+  background-color: #f6f7fa;
 }
 
+/* ===== 왼쪽 브랜드 영역 ===== */
+.login-left {
+  flex: 1;
+  height: 100%; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #2f316b;
+  padding: 0 20px;
+}
+
+.brand-box h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #2f316b;
+}
+
+.brand-box p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4f518c;
+}
+
+/* ===== 오른쪽 로그인 카드 ===== */
+.login-right {
+  flex: 1;
+  height: 100%;  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 30px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border: 2px solid #b6bce2;
+  border-radius: 20px;
+  padding: 48px 42px;
+  box-shadow: 0 8px 24px rgba(47, 49, 107, 0.08);
+  text-align: center;
+}
+
+.login-card h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #2f316b;
+  margin-bottom: 8px;
+}
+
+.login-card .sub-text {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+/* ===== 입력 영역 ===== */
 .login-form {
   display: flex;
   flex-direction: column;
-  width: 300px;
-  margin: 0 auto; /* 가운데 정렬 */
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column; /* label을 input 위로 */
-  margin-bottom: 16px;
+  gap: 20px;
+  text-align: left;
 }
 
 label {
+  font-weight: 600;
+  color: #2f316b;
   margin-bottom: 6px;
-  font-weight: 500;
 }
 
 input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #b6bce2;
+  border-radius: 8px;
+  font-size: 15px;
+  background: #fff;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border-color: #7d84c3;
+  box-shadow: 0 0 0 3px rgba(125, 132, 195, 0.2);
+  outline: none;
+}
+
+/* 비밀번호 아이콘 */
+.input-eye-group {
+  position: relative;
+}
+
+.input-eye-group input {
+  padding-right: 42px;
+}
+
+.toggle-eye {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.toggle-eye:hover {
+  opacity: 1;
+}
+
+/* 에러 메시지 */
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
+  text-align: left;
+}
+
+/* 로그인 버튼 */
+#loginBtn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background-color: #2f316b;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 4px 12px rgba(47, 49, 107, 0.2);
+}
+
+#loginBtn:hover {
+  background-color: #7d84c3;
+  transform: translateY(-1px);
+}
+
+/* 회원가입 링크 */
+.signup-link {
+  text-align: center;
+  margin-top: 30px;
+  color: #666;
   font-size: 14px;
 }
 
-.error-message {
-  color: #e74c3c; /* 붉은색 */
-  font-size: 13px;
-  margin-top: 4px;
-  display: none; /* 기본은 숨김 */
-}
-
-input.error {
-  border-color: #e74c3c;
-  background-color: #fff6f6;
-}
-
-
-button#loginBtn {
-  padding: 10px;
+#signupBtn {
+  background: none;
   border: none;
-  background-color: #8e9aff;
-  color: white;
-  border-radius: 6px;
+  color: #7d84c3;
+  font-weight: 700;
+  margin-left: 6px;
   cursor: pointer;
-  width: 100%;
+  transition: color 0.25s ease;
 }
 
-button#signupBtn {
-  display: block;          
-  margin: 20px auto 0;     /* 가로 중앙 정렬 */
-  background: none;        
-  border: none;              
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;         
-  transition: color 0.2s ease;
+#signupBtn:hover {
+  color: #2f316b;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .login-layout {
+    flex-direction: column;
+  }
+
+  .login-left {
+    order: 2;
+    padding: 40px 20px;
+  }
+
+  .login-right {
+    order: 1;
+    padding: 40px 20px;
+  }
+
+  .brand-box h1 {
+    font-size: 28px;
+  }
 }
