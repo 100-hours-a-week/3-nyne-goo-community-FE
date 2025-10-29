@@ -1,0 +1,46 @@
+/* ===== 푸터 (라벤더 블루 테마) ===== */
+footer {
+  width: 100%;
+  background-color: #E8EBF6; /* 연라벤더 톤 */
+  border-top: 1px solid #B6BCE2;
+  text-align: center;
+  padding: 30px 10px;
+  color: #2F316B;
+  margin-top: 80px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+footer:hover {
+  background-color: #FEF5F3; /* subtle ivory hover */
+}
+
+footer .footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+footer .brand {
+  font-weight: 800;
+  color: #2F316B;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+footer .desc {
+  color: #555;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* 반응형 */
+@media (max-width: 600px) {
+  footer {
+    font-size: 13px;
+    padding: 24px 8px;
+  }
+
+  footer .brand {
+    font-size: 14px;
+  }
+}

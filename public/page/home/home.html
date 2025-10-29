@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <title>아무 말 대잔치</title>
-    <link rel="stylesheet" href="/common/css/common.css">
-    <link rel="stylesheet" href="/page/home/home.css">
+  <meta charset="UTF-8">
+  <title>홈 | 아무말 대잔치</title>
+  <link rel="stylesheet" href="/common/css/common.css">
+  <link rel="stylesheet" href="/page/home/home.css">
 </head>
-
 <body>
-    <div id="wrap">
-        <div id="header"></div>
+  <div id="wrap">
+    <div id="header"></div>
 
-        <div id="container">
-            <div class="home-top">
-                <div class="home-title">
-                    <p>안녕하세요,<br><strong>아무 말 대잔치 게시판</strong> 입니다.</p>
-                </div>
-                <button id="writePostBtn">게시글 작성</button>
-            </div>
-
-            <!-- 게시글 리스트 -->
-            <div class="post-list">
-            </div>
+    <div id="container">
+      <!-- 상단 인사말 -->
+      <div class="home-top">
+        <div class="home-title">
+          <p>안녕하세요,<br><strong>아무말 대잔치 게시판</strong> 입니다 🎈</p>
         </div>
+        <button id="writePostBtn">게시글 작성</button>
+      </div>
+
+      <!-- 인기 게시글 섹션 -->
+      <section class="popular-section">
+        <h3>🔥 인기 게시글</h3>
+        <div class="popular-scroll">
+          <!-- JS로 인기글 카드 들어옴 -->
+        </div>
+      </section>
+
+      <!-- 전체 게시글 리스트 -->
+      <section class="all-posts">
+        <h3>📜 모든 게시글</h3>
+        <div class="post-list"></div>
+      </section>
     </div>
 
-    <div class="toast" id="toast"></div>
-    <script type="module" src="page/home/home.js"></script>
-    <script src="/config.js"></script>
-</body>
+      <div id="footer"></div>
+  </div>
 
+  <div id="toast" class="toast"></div>
+  <script type="module" src="/page/home/home.js"></script>
+  <script src="/config.js"></script>
+</body>
 </html>

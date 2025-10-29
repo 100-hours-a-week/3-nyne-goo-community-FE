@@ -208,7 +208,7 @@ const getComments = async () => {
 
         const commentListDiv = document.querySelector(".comment-list");
         if (currentPage === 0) commentListDiv.innerHTML = ""; // 첫 페이지일 때만 초기화
-        
+
         commentListDiv.insertAdjacentHTML("beforeend", comments);
 
         // 뒤에 더 있으면 intersection observer 연결
@@ -265,6 +265,10 @@ const editComment = () => {
 // 해당 댓글이 있는 위치에 textarea가 보이고 거기서 수정할 수 있도록
 const rewriteComment = (commentId) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
+
+    // ✅ 이미 수정 중이면 return (중복 생성 방지)
+    if (commentDiv.querySelector(".edit-textarea")) return;
+
     const currentContent = commentDiv.querySelector(".comment-content");
     const editButtons = commentDiv.querySelector(".edit-comment-btns");
 
