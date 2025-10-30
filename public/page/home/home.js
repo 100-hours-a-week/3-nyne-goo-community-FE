@@ -36,17 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     getList();
     writePost();
 
-    // 게시글 상세 또는 게시글 작성에서 홈으로 온 경우 게시글 리스트만 새로고침 되도록
-    window.addEventListener("pageshow", (e) => {
-        if (e.persisted) {
-            console.log("bfcache");
-            currentPage = 0;
-            hasMore = true;
-            document.querySelector(".post-list").innerHTML = "";
-            getList();
-        }
-    });
-
     const toastMessage = sessionStorage.getItem("toastMessage");
     if (toastMessage) {
         showToast(toastMessage);
@@ -96,7 +85,7 @@ const loadFooter = () => {
 // 인기 게시글 가져오기
 const loadPopularPosts = async () => {
   try {
-    const data = await apiRequest(`/posts?page=0&size=5&sort=likesCount,DESC`);
+    const data = await apiRequest(`/posts?page=0&size=5&sort=likesCount,DESC&sort=createdAt,ASC`);
      renderPopularPosts(data.data.content.slice(0, 3));
   } catch (err) {
     console.error(err);

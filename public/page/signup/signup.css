@@ -13,7 +13,6 @@
   padding: 48px 44px 50px;
   box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(47, 49, 107, 0.08);
-  border: 2px solid #B6BCE2; /* ✅ 라벤더 테두리 */
 }
 
 .signup-box h2 {

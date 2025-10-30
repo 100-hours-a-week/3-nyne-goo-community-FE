@@ -58,7 +58,7 @@
   overflow-x: auto;
   gap: 16px;
   scroll-snap-type: x mandatory;
-  padding-bottom: 8px;
+  padding: 12px 0 8px; /* ⬅ 위쪽 padding 12px로 여유 */
 }
 
 .popular-scroll::-webkit-scrollbar {
