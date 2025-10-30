@@ -1,74 +1,86 @@
-/* 제목 */
+/* ===== 제목 영역 ===== */
 .write-top {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 36px;
 }
 
 .write-top h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #222;
+  font-size: 24px;
+  font-weight: 800;
+  color: #2f316b;
   margin: 0;
 }
 
-/* 폼 전체 */
+/* ===== 폼 전체 ===== */
 #writeForm {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
-/* 각 입력 그룹 */
+/* ===== 각 입력 그룹 ===== */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  text-align: left;
 }
 
 label {
   font-size: 15px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #2f316b;
 }
 
 .required {
-  color: #ff5c5c;
+  color: #ff4d4d;
   margin-left: 4px;
 }
 
-/* input, textarea 공통 스타일 */
+/* ===== 입력창 공통 ===== */
 input[type="text"],
 textarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1.5px solid #ccc;
+  border: 1.5px solid #cfd3f9;
   border-radius: 8px;
   font-size: 15px;
   outline: none;
-  transition: border-color 0.2s ease;
+  color: #333;
+  background-color: #fff;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
   resize: none;
+  box-sizing: border-box;
 }
 
 input[type="text"]:focus,
 textarea:focus {
-  border-color: #8d9bff;
+  border-color: #8e9aff;
+  box-shadow: 0 0 0 2px rgba(142, 154, 255, 0.15);
 }
 
-/* 에러 텍스트 */
+/* ===== 글자수 카운트 ===== */
+#count {
+  font-size: 13px;
+  color: #777;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ===== 에러 텍스트 ===== */
 .error-text {
-  display:none;
+  display: none;
   color: #ff4d4f;
   font-size: 13px;
-  margin-top: -4px;
-  height: 14px;
+  margin-top: 4px;
+  min-height: 16px;
 }
 
 .error-text.show {
-    display: block;
-    /* ✅ JS로 이 클래스만 추가 */
+  display: block;
 }
 
-/* 파일 업로드 */
+/* ===== 파일 업로드 ===== */
 input[type="file"] {
   font-size: 14px;
   color: #555;
@@ -80,78 +92,31 @@ input[type="file"] {
   color: #666;
 }
 
-/* 완료 버튼 */
-.button-box {
-  text-align: center;
-  margin-top: 10px;
-}
-
-#completeBtn {
-  background-color: #d3d3d3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 40px;
-  font-size: 15px;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
-}
-
-#completeBtn.active {
-    background-color: #8e9aff;
-    color: white;
-    cursor: pointer;
-}
-
-#completeBtn.active:hover {
-  background-color: #7588ff;
-}
-
-
-/* 반응형 */
-@media (max-width: 700px) {
-  #container {
-    padding: 30px 16px;
-  }
-
-  input[type="text"],
-  textarea {
-    font-size: 14px;
-  }
-
-  #complete {
-    width: 100%;
-    padding: 12px;
-  }
-}
-
-/* 파일 목록 내부 요소 정렬 */
+/* 파일 목록 박스 */
 .filebox {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 이름 왼쪽, 버튼 오른쪽 */
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 1px solid #e3e6fb;
+  border-radius: 8px;
   margin-top: 6px;
-  background-color: #fafafa;
+  background-color: #f9f9ff;
 }
 
-/* 파일 이름 */
 .filebox .name {
   font-size: 14px;
-  color: #444;
-  flex: 1;              /* 이름이 남은 공간 차지 */
+  color: #333;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 삭제 버튼 */
 .filebox .delete-btn {
   background: none;
   border: none;
-  color: #ff5c5c;
+  color: #ff4d4d;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -161,4 +126,78 @@ input[type="file"] {
 
 .filebox .delete-btn:hover {
   color: #d82e2f;
+}
+
+/* ===== 완료 버튼 ===== */
+.button-box {
+  text-align: center;
+  margin-top: 16px;
+}
+
+#completeBtn {
+  background-color: #d3d3d3;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 40px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.25s ease, transform 0.1s ease;
+  box-shadow: 0 4px 10px rgba(125, 132, 195, 0.15);
+}
+
+#completeBtn.active {
+  background-color: #2f316b;
+  color: white;
+  cursor: pointer;
+}
+
+#completeBtn.active:hover {
+  background-color: #7d84c3;
+  transform: translateY(-1px);
+}
+
+/* ===== 토스트 메시지 ===== */
+.toast {
+  visibility: hidden;
+  min-width: 280px;
+  background-color: rgba(47, 49, 107, 0.9);
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  padding: 14px 20px;
+  position: fixed;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  font-size: 15px;
+  z-index: 2000;
+  opacity: 0;
+  box-shadow: 0 4px 12px rgba(47, 49, 107, 0.25);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.4s ease, bottom 0.4s ease;
+}
+
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 100px;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 700px) {
+  #container {
+    margin: 40px 16px;
+    padding: 30px 20px;
+  }
+
+  input[type="text"],
+  textarea {
+    font-size: 14px;
+  }
+
+  #completeBtn {
+    width: 100%;
+    padding: 12px;
+  }
 }

@@ -5,6 +5,7 @@ const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
+    loadFooter();
     getMyInfo();
 
     const path = window.location.pathname;
@@ -54,6 +55,22 @@ const loadHeader = () => {
             console.error(error);
             showToast("페이지에 문제가 발생했습니다.");
         });
+};
+
+// footer 불러오기
+const loadFooter = () => {
+  fetch("/common/html/footer.html")
+    .then((response) => {
+      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
+      return response.text();
+    })
+    .then((data) => {
+      document.getElementById("footer").innerHTML = data;
+    })
+    .catch((error) => {
+      console.error(error);
+      showToast("푸터를 불러오는 중 문제가 발생했습니다.");
+    });
 };
 
 const clickMenu = (e, dropdown) => {
