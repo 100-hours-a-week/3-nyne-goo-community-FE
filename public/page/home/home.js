@@ -129,7 +129,7 @@ const renderPopularPosts = (posts) => {
 const getList = async () => {
     try {
         isFetching = true;
-        const data = await apiRequest(`/posts?page=${currentPage++}&size=${size}&sort=createdAt,ASC`);
+        const data = await apiRequest(`/posts?page=${currentPage++}&size=${size}&sort=createdAt,DESC`);
         const postListResponse = data.data;
 
         // 게시글이 아예 없을 때
