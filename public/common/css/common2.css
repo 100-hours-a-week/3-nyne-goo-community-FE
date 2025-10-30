@@ -1,0 +1,89 @@
+/* === 공통 스타일 === */
+:root {
+  --light-bg: #fff7f7;
+  --mid-light: #b4bce3;
+  --mid: #7c84c4;
+  --deep: #2c2e63;
+  --accent: #4e54a6;
+  --white: #ffffff;
+}
+
+/* 리셋 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Pretendard', sans-serif;
+}
+
+body, html {
+  height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  background-color: var(--white);
+}
+
+/* 공통 input */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+  background-color: var(--white);
+}
+
+/* 기본 버튼 */
+.btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* 진한 버튼 */
+.btn.login-btn,
+.btn-primary {
+  background: var(--deep);
+  color: var(--white);
+  border: none;
+}
+
+.btn.login-btn:hover,
+.btn-primary:hover {
+  background: var(--accent);
+}
+
+/* 테두리만 있는 버튼 (선택적으로 사용) */
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--deep);
+  color: var(--deep);
+  font-weight: 600;
+}
+
+.btn-outline:hover {
+  background: var(--deep);
+  color: var(--white);
+}
+
+/* 글자만 있는 버튼 (회원가입용) */
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--deep);
+  font-weight: 600;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-text:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}

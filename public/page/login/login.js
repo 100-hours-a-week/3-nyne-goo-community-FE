@@ -2,9 +2,12 @@ import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadHeader();
-    loadFooter();
-    verifyToken();
+
+     setTimeout(() => {
+        document.getElementById("loginSection").scrollIntoView({
+            behavior: "smooth"
+        });
+    }, 1500);
 
     // 로그인 버튼 클릭 시
     const form = document.querySelector(".login-form");
@@ -14,82 +17,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const signupButton = document.getElementById("signupBtn");
     signupButton.addEventListener("click", signup)
 
-    // 눈 모양 클릭 시
-    initEyeToggles();
-
     const toastMessage = sessionStorage.getItem("toastMessage");
     if (toastMessage) {
         showToast(toastMessage);
         sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
     }
+
+    verifyToken();
 });
 
-// header 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
+const verifyToken = async()=>{
+     try {
+            // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
+            const res = await apiRequest("/users", { method: "GET" });
+            if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
 
-            // 뒤로가기  버튼, 프로필 사진 숨김
-            const backButton = document.getElementById("backBtn")
-            const profile = document.querySelector(".profile");
-
-            backButton.classList.add("hide");
-            profile.classList.add("hide");
-        })
-        .catch(error => {
-            console.error(error)
-            showToast("페이지에 문제가 발생했습니다.");
-        });
+            // 통과했다면 home 으로 이동
+            window.location.replace("/home");
+        } catch (err) {
+            showToast("로그인이 필요합니다.");
+        }
 }
-
-// footer 불러오기
-const loadFooter = () => {
-    fetch("/common/html/footer.html")
-        .then((response) => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then((data) => {
-            document.getElementById("footer").innerHTML = data;
-        })
-        .catch((error) => {
-            console.error(error);
-            showToast("푸터를 불러오는 중 문제가 발생했습니다.");
-        });
-};
-
-const verifyToken = async () => {
-    try {
-        // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
-        const res = await apiRequest("/users", { method: "GET" });
-        if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
-
-        // 통과했다면 home 으로 이동
-        window.location.replace("/home");
-    } catch (err) {
-        showToast("로그인이 필요합니다.");
-    }
-}
-
-const initEyeToggles = () => {
-    const inputEl = document.getElementById("password");
-    const eyeEl = document.getElementById("togglePassword");
-    if (!inputEl || !eyeEl) return;
-
-    eyeEl.addEventListener("click", () => {
-        const isHidden = inputEl.type === "password";
-        inputEl.type = isHidden ? "text" : "password";
-        console.log(isHidden);
-        eyeEl.src = isHidden
-            ? "/assets/image/ic_eye_opend_black_64.png"
-            : "/assets/image/ic_eye_closed_black_64.png";
-    });
-};
 
 
 // 로그인 버튼 클릭 시 서버에 이메일, 비밀번호 보내고 토큰 가져옴
@@ -146,7 +94,7 @@ const login = async (e) => {
         });
 
         if (loginResponse == null) throw new Error();
-
+    
         window.location.replace("/home");
 
     } catch (error) {
