@@ -41,7 +41,6 @@ const verifyToken = async () => {
         validateContent();
         addFile();
     } catch (err) {
-        showToast("로그인이 필요합니다.");
         window.location.replace("/login");
     }
 }
