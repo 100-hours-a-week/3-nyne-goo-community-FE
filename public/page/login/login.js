@@ -61,6 +61,8 @@ const login = async (e) => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    const name = "asldifj";
+
     // 이메일 비었는지
     if (!email) {
         showError(emailInput, emailError, "이메일을 입력하세요.");

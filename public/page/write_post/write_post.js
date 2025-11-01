@@ -1,5 +1,6 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
+import { loadLayout } from "/common/js/load-layout.js";
 
 // 파일 저장하는 리스트
 const fileArr = [];
@@ -12,7 +13,7 @@ const validationState = {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadHeader();
+    loadLayout("write_post");
     verifyToken();
 
     window.addEventListener("pageshow", (event) => {
@@ -21,28 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-
-// 헤더 파일 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            const script = document.createElement("script");
-            script.src = "/common/js/header.js";
-            document.body.appendChild(script);
-
-            document.getElementById("backBtn").addEventListener("click", () => history.back());
-        })
-        .catch(error => {
-            console.error(error);
-            showToast("페이지에 문제가 발생했습니다.");
-        });
-}
 
 const verifyToken = async () => {
     try {

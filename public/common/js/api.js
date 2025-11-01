@@ -10,7 +10,7 @@ export async function apiRequest(endpoint, options = {}) {
         ...options.headers,
       },
       ...options,
-    }).catch(()=>null); // fetch 자체 네트워크 에러 방지
+    })
 
     // 공통 에러 처리
     if (response.status === 401 || response.status === 403) {
@@ -20,12 +20,11 @@ export async function apiRequest(endpoint, options = {}) {
           const reissueResponse = await tokenReissue()
           if(reissueResponse.status===201) return apiRequest(endpoint, options);
           throw new Error("invalid token")
-        }catch(e){window.location.replace("/login");}
+        }catch(e){throw e;}
        
       } else {
         throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
       }
-      return null;
     }
 
     // JSON 파싱
@@ -38,8 +37,9 @@ export async function apiRequest(endpoint, options = {}) {
     }
 
     return data;
-  } catch (_) {
-    return null;
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
 }
 
@@ -59,8 +59,7 @@ export async function tokenReissue() {
 
     // 401 에러 -> 토큰 유효하지 않거나 잘못된 토큰
     if (response.status === 401) {
-      window.location.replace("/login");
-      return null;
+      throw Error("invalid token");
     }
 
     // JSON 파싱
@@ -73,7 +72,7 @@ export async function tokenReissue() {
     }
 
     return {status: response.status, data};
-  } catch (_) {
-    return null;
+  } catch (e) {
+    console.error(e);
   }
 }

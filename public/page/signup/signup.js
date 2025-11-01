@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
         history.back();
     }
 
-    loadHeader();
     uploadProfile();
 
     controlEmail();
@@ -28,28 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     signupForm();
     login();
 });
-
-// 헤더 파일 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            // 프로필 사진 숨김
-            const profile = document.querySelector(".profile");
-            profile.classList.add("hide");
-
-            document.getElementById("backBtn").addEventListener("click", () => { history.back() })
-        })
-        .catch(error => {
-            console.error(error);
-            showToast("페이지에 문제가 발생했습니다.");
-        });
-};
 
 // 이미지 업로드
 const uploadProfile = () => {

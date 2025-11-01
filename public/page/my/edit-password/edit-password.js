@@ -1,8 +1,9 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
+import { loadLayout } from "/common/js/load-layout.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadHeader();
+  loadLayout("my");
 
   initEyeToggles();
 
@@ -28,38 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
-// 헤더 불러오기 (뒤로가기 버튼 동작 포함)
-const loadHeader = () => {
-  fetch("/common/html/header.html")
-    .then(response => {
-      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-      return response.text();
-    })
-    .then(data => {
-      document.getElementById("header").innerHTML = data;
-
-      // 프로필 사진을 메뉴로 변경
-      const menu = document.getElementById("userProfile");
-      const dropdown = document.getElementById("dropdownMenu");
-
-      menu.src = "/assets/image/ic_menu_black_512.png";
-      menu.classList.add("menu");
-      menu.addEventListener("click", (e) => { clickMenu(e, dropdown) })
-
-      // 메뉴 밖 클릭 시 닫기
-      document.addEventListener("click", () => dropdown.classList.remove("show"));
-
-      // 뒤로가기
-      document.getElementById("backBtn").addEventListener("click", () => {
-        history.back();
-      });
-    })
-    .catch(error => {
-      console.error(error);
-      showToast("페이지에 문제가 발생했습니다.");
-    });
-}
 
 const clickMenu = (e, dropdown) => {
   e.stopPropagation();

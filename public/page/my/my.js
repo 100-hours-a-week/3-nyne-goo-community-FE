@@ -1,11 +1,11 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
+import { loadLayout } from "/common/js/load-layout.js";
 
 const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadHeader();
-    loadFooter();
+    loadLayout("my");
     getMyInfo();
 
     const path = window.location.pathname;
@@ -27,57 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
             verifyToken();
         }
     });
+
+    const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    toTop();
 });
-
-// 헤더 파일 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            // 프로필 사진을 메뉴로 변경
-            const menu = document.getElementById("userProfile")
-            const dropdown = document.getElementById("dropdownMenu");
-
-            menu.src = "/assets/image/ic_menu_black_512.png";
-            menu.classList.add("menu");
-            menu.addEventListener("click", (e) => { clickMenu(e, dropdown) })
-
-            // 메뉴 밖 클릭 시 닫기
-            document.addEventListener("click", () => dropdown.classList.remove("show"));
-            document.getElementById("backBtn").addEventListener("click", () => { history.back() })
-        })
-        .catch(error => {
-            console.error(error);
-            showToast("페이지에 문제가 발생했습니다.");
-        });
-};
-
-// footer 불러오기
-const loadFooter = () => {
-  fetch("/common/html/footer.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-      return response.text();
-    })
-    .then((data) => {
-      document.getElementById("footer").innerHTML = data;
-    })
-    .catch((error) => {
-      console.error(error);
-      showToast("푸터를 불러오는 중 문제가 발생했습니다.");
-    });
-};
 
 const clickMenu = (e, dropdown) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
 
-    document.getElementById("editInfo").addEventListener("click", () => window.location.replace("/my/edit-info"));
+    document.getElementById("editInfo").addEventListener("click", () => {
+        window.location.href = "/my/edit-info"
+    });
+
     document.getElementById("editPw").addEventListener("click", () => {
         window.location.href = "/my/edit-password";
     });
@@ -245,24 +207,14 @@ const getMyInfo = () => {
     document.getElementById("nicknameValue").textContent = my.nickname;
 }
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 const verifyToken = async () => {
     try {
         // 인증 확인: 쿠키에 유효한 토큰 있는지 확인
         const res = await apiRequest("/users", { method: "GET" });
-        
-        if (!res) return; // 401/403이면 apiRequest가 이미 /login으로 이동시킴
 
-        // 파라미터로 postId가 왔다면 해당 게시글 내용을 불러옴
-        const postId = new URLSearchParams(window.location.search).get("postId");
-        if (postId != null) {
-            editPost(Number(postId));
-            writeForm(Number(postId));
-        } else writeForm(null);
-
-        // 제목과 내용에 적는 동시에 유효성 검사
-        validateTitle();
-        validateContent();
-        addFile();
+        if (!res) throw Error(res)
     } catch (err) {
         window.sessionStorage.setItem("toastMessage", "로그인이 필요합니다.");
         window.location.replace("/login");
