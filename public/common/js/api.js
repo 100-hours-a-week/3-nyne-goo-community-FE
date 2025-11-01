@@ -19,8 +19,8 @@ export async function apiRequest(endpoint, options = {}) {
         try{
           const reissueResponse = await tokenReissue()
           if(reissueResponse.status===201) return apiRequest(endpoint, options);
-          throw new Error("invalid token")
-        }catch(e){throw e;}
+          throw new Error("인증되지 않은 사용쟈");
+        }catch(e){ window.location.href="/login";;}
        
       } else {
         throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -29,6 +29,7 @@ export async function apiRequest(endpoint, options = {}) {
 
     // JSON 파싱
     const data = await response.json();
+    console.log(data);
 
     if (!(response.status === 200 || response.status === 201)) {
       const error = new Error("API 요청 실패");
@@ -59,7 +60,9 @@ export async function tokenReissue() {
 
     // 401 에러 -> 토큰 유효하지 않거나 잘못된 토큰
     if (response.status === 401) {
-      throw Error("invalid token");
+      const error = new Error("인증되지 않은 사용자")
+      error.status = response.status
+      return error;
     }
 
     // JSON 파싱
