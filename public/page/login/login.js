@@ -2,7 +2,6 @@ import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-
      setTimeout(() => {
         document.getElementById("loginSection").scrollIntoView({
             behavior: "smooth"
