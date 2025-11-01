@@ -1,5 +1,6 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
+import { loadLayout } from "/common/js/load-layout.js";
 
 let currentPage = 0;
 let isFetching = false;
@@ -9,7 +10,7 @@ const size = 10;
 let postId = -1;
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadHeader()
+    loadLayout("post_detail")
 
     postId = new URLSearchParams(window.location.search).get("postId");
     console.log(postId);
@@ -39,32 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 헤더 파일 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            const script = document.createElement("script");
-            script.src = "/common/js/header.js";
-            document.body.appendChild(script);
-
-            // 뒤로가기 버튼 클릭 시 홈으로 감
-            document.getElementById("backBtn").addEventListener("click", () => {
-                sessionStorage.setItem("refreshHome", "true");
-                history.back();
-            })
-        })
-        .catch(error => {
-            console.error(error);
-            showToast("페이지에 문제가 발생했습니다.");
-        });
-}
-
 // 게시물 상세 내용
 const getDetail = async () => {
     try {
@@ -74,7 +49,7 @@ const getDetail = async () => {
 
         const post = detailResponse.data;
         // 제목, 유저프로필, 유저이름
-        document.getElementById("postTitle").textContent = post.title;
+        document.getElementById("postTitle").innerHTML = post.title;
         document.querySelector("#profile").src = (post.author.profileImageUrl == null)
             ? "/assets/image/default_profile.png"
             : post.author.profileImageUrl

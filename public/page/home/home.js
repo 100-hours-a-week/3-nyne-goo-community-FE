@@ -1,5 +1,6 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
+import { loadLayout } from "/common/js/load-layout.js";
 
 let currentPage = 0;
 const size = 10;
@@ -30,8 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    loadHeader();
-    loadFooter();
+    loadLayout("home")
     loadPopularPosts();
     getList();
     writePost();
@@ -42,45 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         sessionStorage.removeItem("toastMessage"); // 한 번만 뜨게
     }
 });
-
-// 헤더 파일 불러오기
-const loadHeader = () => {
-    fetch("/common/html/header.html")
-        .then(response => {
-            if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById("header").innerHTML = data;
-
-            const script = document.createElement("script");
-            script.src = "/common/js/header.js";
-            document.body.appendChild(script);
-
-            // 뒤로가기 버튼 숨김
-            const backButton = document.getElementById("backBtn")
-            backButton.classList.add("hide");
-        })
-        .catch(error => {
-            showToast("페이지에 문제가 발생했습니다.");
-        });
-}
-
-// footer 불러오기
-const loadFooter = () => {
-  fetch("/common/html/footer.html")
-    .then((response) => {
-      if (!response.ok) throw new Error("파일을 불러올 수 없습니다.");
-      return response.text();
-    })
-    .then((data) => {
-      document.getElementById("footer").innerHTML = data;
-    })
-    .catch((error) => {
-      console.error(error);
-      showToast("푸터를 불러오는 중 문제가 발생했습니다.");
-    });
-};
 
 // 인기 게시글 가져오기
 const loadPopularPosts = async () => {
