@@ -2,6 +2,7 @@ import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
 
+let observer = null;
 let currentPage = 0;
 let isFetching = false;
 let hasMore = true;
@@ -48,6 +49,7 @@ const getDetail = async () => {
         });
 
         const post = detailResponse.data;
+
         // 제목, 유저프로필, 유저이름
         document.getElementById("postTitle").innerHTML = post.title;
         document.querySelector("#profile").src = (post.author.profileImageUrl == null)
@@ -201,18 +203,24 @@ const getComments = async () => {
     } catch (error) { showToast("댓글을 불러오는 중 오류가 발생했습니다."); }
 }
 
-const onScroll = (comment) => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                if (!isFetching && hasMore) getComments();
+const onScroll = (post) => {
+    const io = getObserver();
+    io.observe(post);
+}
 
-                observer.unobserve(entry.target);
-            }
+const getObserver = () =>{
+    if(!observer){
+        observer = new IntersectionObserver((entries, io) => {
+            entries.forEach(entry=>{
+                if(!entry.isIntersecting) return;
+
+                if(!isFetching && hasMore) getList();
+                io.unobserve(entry.target); // 한번 감지 후 해제
+            });
         })
-    })
+    }
 
-    observer.observe(comment);
+    return observer;
 }
 
 // 댓글 수정, 삭제 리스너
@@ -224,8 +232,7 @@ const editComment = () => {
         // 수정
         editDiv.querySelector(".edit-btn").addEventListener("click", () => {
             rewriteComment(commentId);
-        }
-        )
+        })
         // 삭제
         editDiv.querySelector(".delete-btn").addEventListener("click", () => {
             if (id.startsWith("comment")) {
