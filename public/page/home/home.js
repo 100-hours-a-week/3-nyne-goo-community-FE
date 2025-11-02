@@ -2,6 +2,7 @@ import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
 
+let observer = null;
 let currentPage = 0;
 const size = 10;
 let isFetching = false;
@@ -45,24 +46,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // 인기 게시글 가져오기
 const loadPopularPosts = async () => {
-  try {
-    const data = await apiRequest(`/posts?page=0&size=5&sort=likesCount,DESC&sort=createdAt,ASC`);
-     renderPopularPosts(data.data.content.slice(0, 3));
-  } catch (err) {
-    console.error(err);
-    showToast("인기 게시글을 불러오는 중 오류가 발생했습니다.");
-  }
+    try {
+        const data = await apiRequest(`/posts?page=0&size=5&sort=likesCount,DESC&sort=createdAt,ASC`);
+        renderPopularPosts(data.data.content.slice(0, 3));
+    } catch (err) {
+        console.error(err);
+        showToast("인기 게시글을 불러오는 중 오류가 발생했습니다.");
+    }
 };
 
 // 인기 게시글 렌더링
 const renderPopularPosts = (posts) => {
-  const container = document.querySelector(".popular-scroll");
-  if (posts.length === 0) {
-    container.innerHTML = `<p class="empty-msg">인기 게시글이 아직 없습니다.</p>`;
-    return;
-  }
+    const container = document.querySelector(".popular-scroll");
+    if (posts.length === 0) {
+        container.innerHTML = `<p class="empty-msg">인기 게시글이 아직 없습니다.</p>`;
+        return;
+    }
 
-  container.innerHTML = posts.map(post => `
+    container.innerHTML = posts.map(post => `
     <div class="popular-card" onclick="window.location.href='/detail?postId=${post.postId}'">
       <h4>${post.title}</h4>
       <p>${post.content?.slice(0, 60) ?? ""}...</p>
@@ -153,16 +154,23 @@ const renderPosts = (postListResponse) => {
 }
 
 const onScroll = (post) => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                if (!isFetching && hasMore) getList();
+    const io = getObserver();
+    io.observe(post);
+}
 
-                observer.unobserve(entry.target);
-            }
-        });
-    });
-    observer.observe(post);
+const getObserver = () =>{
+    if(!observer){
+        observer = new IntersectionObserver((entries, io) => {
+            entries.forEach(entry=>{
+                if(!entry.isIntersecting) return;
+
+                if(!isFetching && hasMore) getList();
+                io.unobserve(entry.target); // 한번 감지 후 해제
+            });
+        })
+    }
+
+    return observer;
 }
 
 // 게시글 상세페이지
