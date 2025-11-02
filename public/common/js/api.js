@@ -14,22 +14,20 @@ export async function apiRequest(endpoint, options = {}) {
 
     // 공통 에러 처리
     if (response.status === 401 || response.status === 403) {
-      // 로그인 페이지에서는 redirect 하지 않음
-      if (!(window.location.pathname.includes("/login") || window.location.pathname.includes("/signup"))) {
-        try{
-          const reissueResponse = await tokenReissue()
-          if(reissueResponse.status===201) return apiRequest(endpoint, options);
+      try{
+        const reissueResponse = await tokenReissue()
+        if(reissueResponse.status===201) return apiRequest(endpoint, options);
+
+        if (!(window.location.pathname.includes("/login") || window.location.pathname.includes("/signup"))) {
+          window.location.href="/login";
           throw new Error("인증되지 않은 사용쟈");
-        }catch(e){ window.location.href="/login";;}
-       
-      } else {
-        throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
-      }
+        }
+        else throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
+      }catch(e){ return null; }
     }
 
     // JSON 파싱
     const data = await response.json();
-    console.log(data);
 
     if (!(response.status === 200 || response.status === 201)) {
       const error = new Error("API 요청 실패");
