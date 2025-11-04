@@ -32,41 +32,26 @@ document.addEventListener("DOMContentLoaded", () => {
     toTop();
 });
 
-const clickMenu = (e, dropdown) => {
-    e.stopPropagation();
-    dropdown.classList.toggle("show");
-
-    document.getElementById("editInfo").addEventListener("click", () => {
-        window.location.href = "/my/edit-info"
-    });
-
-    document.getElementById("editPw").addEventListener("click", () => {
-        window.location.href = "/my/edit-password";
-    });
-    document.getElementById("logout").addEventListener("click", async () => {
-        console.log("click logout");
-        try {
-            await apiRequest("/auth", { method: "DELETE" });
-
-            // 클라이언트 저장소 정리
-            sessionStorage.clear();
-            localStorage.clear();
-
-            window.location.replace("/login");
-        } catch (error) {
-            showToast("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
-        }
-    });
+const getMyInfo = () => {
+    document.getElementById("profileImg").src = my.profileImgUrl
+    document.getElementById("emailValue").textContent = my.email;
+    document.getElementById("nicknameValue").textContent = my.nickname;
 }
 
 const clickEditInfo = () => {
     const nicknameValue = document.getElementById("nicknameValue");
     const current = nicknameValue.textContent;
 
-    nicknameValue.innerHTML = `
-      <input type="text" id="nicknameInput" class="nickname-input" maxlength = "10", value="${current}" />
-    `;
-    document.getElementById("nicknameInput").focus();
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "nicknameInput";
+    input.className = "nickname-input";
+    input.maxLength = 10;
+    input.value = current;
+    input.autocomplete = "off";
+
+    nicknameValue.replaceChildren(input);
+    input.focus();
 
     document.getElementById("changeProfileBtn").classList.add("show");
     const buttonBox = document.getElementById("bottomBtns").classList.add("show");
@@ -199,12 +184,6 @@ const deleteUser = async () => {
         showToast("회원 탈퇴 중 오류가 발생했습니다.");
     }
 
-}
-
-const getMyInfo = () => {
-    document.getElementById("profileImg").src = my.profileImgUrl
-    document.getElementById("emailValue").textContent = my.email;
-    document.getElementById("nicknameValue").textContent = my.nickname;
 }
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));

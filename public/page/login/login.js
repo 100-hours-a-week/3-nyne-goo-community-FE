@@ -94,10 +94,12 @@ const login = async (e) => {
             body: JSON.stringify({ email, password }),
         });
 
-        if (loginResponse == null) throw new Error();
+        console.log("login, response: ", loginResponse);
+        if (loginResponse.statusCode!=200) throw new Error();
     
+        console.log("passed");
+        window.sessionStorage.setItem("firstVisited", "true");
         window.location.replace("/home");
-
     } catch (error) {
         // 서버나 네트워크 오류 시 토스트로 표시
         let errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다."
@@ -123,5 +125,5 @@ const showError = (input, error, message) => {
 // 회원가입
 const signup = async () => {
     //window.location.href="/signup";
-    window.location.href = `${window.CONFIG.BASE_URL}/terms`;
+    window.location.href = `${window.CONFIG.BASE_URL}/agree/terms`;
 }

@@ -1,19 +1,24 @@
 export async function apiRequest(endpoint, options = {}) {
   const BASE_URL = window.CONFIG.BASE_URL;
   const url = `${BASE_URL}${endpoint}`;
+  const isFormData = options?.body instanceof FormData;
+
+  console.log("api request");
 
   try {
     const response = await fetch(url, {
       credentials: "include",
+      ...options, 
       headers: {
-        "Content-Type": "application/json;charset=utf-8",
-        ...options.headers,
-      },
-      ...options,
+      ...(options?.headers ?? {}),                    
+      ...(!isFormData ? { "Content-Type": "application/json;charset=utf-8" } : {}), // FormData면 생략
+  },
     })
 
+    console.log("response status: ", response.status);
+
     // 공통 에러 처리
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       try{
         const reissueResponse = await tokenReissue()
         if(reissueResponse.status===201) return apiRequest(endpoint, options);
@@ -24,6 +29,11 @@ export async function apiRequest(endpoint, options = {}) {
         }
         else throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
       }catch(e){ return null; }
+    }
+
+    if(response.status === 403){
+      history.back();
+      throw new Error("허용되지 않은 사용자");
     }
 
     // JSON 파싱
@@ -40,6 +50,10 @@ export async function apiRequest(endpoint, options = {}) {
     console.error(e);
     throw e;
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // 토큰 재발급

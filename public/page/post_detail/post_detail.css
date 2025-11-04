@@ -69,8 +69,12 @@
 
 /* 수정, 삭제 버튼 */
 .edit-btns {
-  display: flex;
+  display: none;
   gap: 6px;
+}
+
+.edit-btns.show{
+  display: flex;
 }
 
 .edit-btns button {
@@ -96,6 +100,8 @@
   line-height: 1.7;
   color: #333;
 }
+
+#postContent { white-space: pre-wrap; }
 
 /* 이미지 슬라이드 */
 .image-carousel {
@@ -291,6 +297,7 @@
   font-size: 14.5px;
   color: #333;
   line-height: 1.6;
+  white-space: pre-wrap; 
 }
 
 .comment .edit-comment-btns button {

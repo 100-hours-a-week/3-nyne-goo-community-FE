@@ -9,7 +9,7 @@ let isFetching = false;
 let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const isFirstVisit = !sessionStorage.getItem("homeVisited");
+    const isFirstVisit = window.sessionStorage.getItem("firstVisited");
 
     const userResponse = await apiRequest("/users", {
         method: "GET",
@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 로그인 성공 시 사용자 정보 요청
         const toastMessage = `${userData.nickname}님, 환영합니다!`;
         showToast(toastMessage);
+        window.sessionStorage.removeItem("firstVisited");
     }
 
 
@@ -59,21 +60,50 @@ const loadPopularPosts = async () => {
 const renderPopularPosts = (posts) => {
     const container = document.querySelector(".popular-scroll");
     if (posts.length === 0) {
-        container.innerHTML = `<p class="empty-msg">인기 게시글이 아직 없습니다.</p>`;
+        container.textContent = ""; // 초기화
+        const p = document.createElement("p");
+        p.className = "empty-msg";
+        p.textContent = "인기 게시글이 아직 없습니다.";
+        container.append(p);
         return;
     }
 
-    container.innerHTML = posts.map(post => `
-    <div class="popular-card" onclick="window.location.href='/detail?postId=${post.postId}'">
-      <h4>${post.title}</h4>
-      <p>${post.content?.slice(0, 60) ?? ""}...</p>
-      <div class="popular-meta">
-        <span>❤️ ${post.likesCount}</span>
-        <span>💬 ${post.commentsCount}</span>
-        <span>${post.author.name}</span>
-      </div>
-    </div>
-  `).join("");
+    const fragment = document.createDocumentFragment();
+
+    posts.forEach(post => {
+        const card = document.createElement("div");
+        card.className = "popular-card";
+        card.addEventListener("click", () => {
+            if (post.postId != null) {
+                window.location.href = `/detail?postId=${encodeURIComponent(post.postId)}`;
+            }
+        });
+
+        const h4 = document.createElement("h4");
+        h4.textContent = post.title ?? "";
+
+        const p = document.createElement("p");
+        const content = post.content ?? "";
+        p.textContent = content.length > 60 ? content.slice(0, 60) + "..." : content;
+
+        const meta = document.createElement("div");
+        meta.className = "popular-meta";
+
+        const like = document.createElement("span");
+        like.textContent = `❤️ ${post.likesCount ?? 0}`;
+
+        const comment = document.createElement("span");
+        comment.textContent = `💬 ${post.commentsCount ?? 0}`;
+
+        const author = document.createElement("span");
+        author.textContent = post.author?.name ?? "";
+
+        meta.append(like, comment, author);
+        card.append(h4, p, meta);
+        fragment.append(card);
+    });
+
+    container.replaceChildren(fragment);
 };
 
 // 게시글 리스트 불러오기
@@ -90,6 +120,7 @@ const getList = async () => {
         }
 
         renderPosts(postListResponse);
+        console.log("response:? ", postListResponse);
 
         if (postListResponse.last) hasMore = false;
         else hasMore = true;
@@ -101,46 +132,93 @@ const getList = async () => {
 }
 
 const renderPosts = (postListResponse) => {
-    // posts에 게시글들 html로 만들어서 post-lists에 한번에 넣기
-    let posts = "";
-    for (const post of postListResponse.content) {
-        // 서버에서 localdatetime으로 오기 때문에 날짜와 시간 사이의 "T"를 제거하고 초의 소수점 뒤를 날림
-        // updatedAt에 값이 있으면 수정된 시간을 보여주고 아니면 생성시간을 보여줌
-        const date = (post.updatedAt == null) ? post.createdAt.replace("T", " ").split(".")[0] : (post.updatedAt.replace("T", " ").split(".")[0] + " (수정)");
-        const imageUrl = (post.author.profileImageUrl == null) ? "/assets/image/default_profile.png" : post.author.profileImageUrl
+    const list = document.querySelector(".post-list");
 
-        // 제목, 좋아요&댓글&조회수, 날짜, 작성자 이미지&작성자 이름
-        posts +=
-            `
-                    <div class="post" id="post${post.postId}">
-                    <div class="post-header">
-                        <h2 class="post-title">${post.title.slice(0, 26)}</h2>
-                    </div>
-                    <div class="post-section">
-                        <div class="post-count">
-                            <span>좋아요 ${post.likesCount}</span>
-                            <span>댓글 ${post.commentsCount}</span>
-                            <span>조회수 ${post.viewsCount}</span>
-                        </div>
-                        <span class="post-date">${date}</span>
-                    </div>
-                    <hr class="post-divider">
-                    <div class="post-footer">
-                        <img src="${imageUrl}" alt="작성자 이미지" class="author-img">
-                        <span class="author-name">${post.author.name}</span>
-                    </div>
-                    </div>
-                    `
+    // 한 번에 그리기 위해 프래그먼트 사용
+    const fragment = document.createDocumentFragment();
+
+    for (const post of postListResponse.content) {
+        // 날짜 문자열 정리
+        const raw = post.updatedAt ?? post.createdAt ?? "";
+        const base = String(raw).replace("T", " ").split(".")[0] || "";
+        const date = post.updatedAt ? `${base} (수정)` : base;
+
+        // 프로필 이미지 URL (비정상 값이면 기본 이미지로)
+        const candidate = post?.author?.profileImageUrl || "/assets/image/default_profile.png";
+        const imageUrl = (/^(https?:\/\/|\/)/.test(candidate)) ? candidate : "/assets/image/default_profile.png";
+
+        const card = document.createElement("div");
+        card.className = "post";
+        card.id = `post${post.postId ?? ""}`;
+
+        // 각 게시글 클릭 시 해당 게시글 상세 페이지로 이동
+        card.addEventListener("click", () => {
+            const id = post.postId ?? "";
+            goDetail(String(id)); // 내부 함수라면 그대로 사용, 아니면 location.href 사용
+        });
+
+        // 헤더
+        const header = document.createElement("div");
+        header.className = "post-header";
+
+        const h2 = document.createElement("h2");
+        h2.className = "post-title";
+        const title = String(post.title ?? "");
+        h2.textContent = title.length > 26 ? title.slice(0, 26) : title;
+
+        header.append(h2);
+
+        // 본문 
+        const section = document.createElement("div");
+        section.className = "post-section";
+
+        const counts = document.createElement("div");
+        counts.className = "post-count";
+
+        const like = document.createElement("span");
+        like.textContent = `좋아요 ${post.likesCount ?? 0}`;
+
+        const comment = document.createElement("span");
+        comment.textContent = `댓글 ${post.commentsCount ?? 0}`;
+
+        const view = document.createElement("span");
+        view.textContent = `조회수 ${post.viewsCount ?? 0}`;
+
+        counts.append(like, comment, view);
+
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "post-date";
+        dateSpan.textContent = date;
+
+        section.append(counts, dateSpan);
+
+        // 구분선
+        const hr = document.createElement("hr");
+        hr.className = "post-divider";
+
+        // 푸터
+        const footer = document.createElement("div");
+        footer.className = "post-footer";
+
+        const img = document.createElement("img");
+        img.className = "author-img";
+        img.alt = "작성자 이미지";
+        img.src = imageUrl;
+        img.onerror = () => { img.src = "/assets/image/default_profile.png"; };
+
+        const author = document.createElement("span");
+        author.className = "author-name";
+        author.textContent = String(post?.author?.name ?? "");
+
+        footer.append(img, author);
+
+        // 합치기
+        card.append(header, section, hr, footer);
+        fragment.append(card);
     }
 
-    const list = document.querySelector(".post-list");
-    list.insertAdjacentHTML("beforeend", posts);
-
-    // 각 게시글 클릭 시 해당 게시글 상세 페이지로 이동
-    const postsDiv = document.querySelectorAll(".post");
-    postsDiv.forEach((postDiv) => {
-        postDiv.addEventListener("click", () => { goDetail(postDiv.id.replace("post", "")) });
-    })
+    // 기존 리스트 뒤에 추가(append)하거나, 교체하고 싶으면 replaceChildren(frag)
+    list.append(fragment);
 
     if (postListResponse.last) hasMore = false;
     else {
@@ -158,13 +236,13 @@ const onScroll = (post) => {
     io.observe(post);
 }
 
-const getObserver = () =>{
-    if(!observer){
+const getObserver = () => {
+    if (!observer) {
         observer = new IntersectionObserver((entries, io) => {
-            entries.forEach(entry=>{
-                if(!entry.isIntersecting) return;
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
 
-                if(!isFetching && hasMore) getList();
+                if (!isFetching && hasMore) getList();
                 io.unobserve(entry.target); // 한번 감지 후 해제
             });
         })
