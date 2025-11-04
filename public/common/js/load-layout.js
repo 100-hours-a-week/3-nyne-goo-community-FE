@@ -1,4 +1,5 @@
 import { showToast } from "/common/js/toast.js";
+import { apiRequest } from "/common/js/api.js";
 
 // layout 파일 불러오기
 export function loadLayout(location) {
@@ -82,6 +83,7 @@ const clickMenu = (header, e, dropdown) => {
     header.querySelector("#logout").addEventListener("click", async () => {
         console.log("click logout");
         try {
+            console.log("logout request");
             await apiRequest("/auth", { method: "DELETE" });
 
             // 클라이언트 저장소 정리

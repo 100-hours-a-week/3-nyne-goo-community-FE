@@ -64,28 +64,53 @@ const editPost = async (postId) => {
         const fileListDiv = document.querySelector(".file-list");
         const imageList = post.imageList;
 
-        for (let i = 0; i < imageList.length; i++) {
-            const imageName = imageList[i].imageName;
-            const imageUrl = imageList[i].imageUrl;
+        // 이미지들을 병렬로 불러와 File로 변환
+        const results = await Promise.allSettled(
+            imageList.map(async (img) => {
+                const imageName = String(img.imageName ?? "");
+                const href = toSafeHttpUrl(img.imageUrl);
+                if (!href) throw new Error("Invalid image URL");
+
+                const res = await fetch(href, { credentials: "include" });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const blob = await res.blob();
+                const file = new File([blob], imageName, { type: blob.type || "application/octet-stream" });
+
+                return { imageName, file };
+            })
+        );
 
 
-            // 이미지 url로 이미지 잠시 데이터에 저장한다음 file 객체 만들어서 저장
-            const imageResponse = await fetch(imageUrl);
-            const blob = await imageResponse.blob();
-            const file = new File([blob], imageName, { type: blob.type });
+        for (const image of results) {
+            if (image.status !== "fulfilled") {
+                console.error("이미지 로드 실패:", image.reason);
+                continue;
+            }
+            const { imageName, file } = image.value;
 
+            // fileArr에 파일 추가
             fileArr.push({ id: fileNo, type: "exist", file });
 
-            // 파일 리스트 추가
-            const fileHtml = `
-        <div id="file${fileNo++}" class="filebox">
-            <p class="name"> ${imageName}</p>
-            <button type="button" class="delete-btn">삭제</button>
-        </div>`;
-            fileListDiv.insertAdjacentHTML("beforeend", fileHtml);
-        }
+            const box = document.createElement("div");
+            box.className = "filebox";
+            box.dataset.id = String(fileNo); // id 파싱 대신 data-id 사용 권장
 
-        document.querySelector(".file-list").addEventListener("click", (e) => {
+            const p = document.createElement("p");
+            p.className = "name";
+            p.textContent = imageName;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "delete-btn";
+            btn.textContent = "삭제";
+
+            box.append(p, btn);
+            fileListDiv.append(box);
+
+            fileNo++;
+        }
+        
+        fileListDiv.addEventListener("click", (e) => {
             if (e.target.classList.contains("delete-btn")) {
                 const id = e.target.parentElement.id.replace("file", "");
                 deleteFile(Number(id));
@@ -251,6 +276,7 @@ const writePost = async (postId) => {
         return;
     }
 
+    console.log("title: ", title, " content: ", content);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
@@ -258,6 +284,8 @@ const writePost = async (postId) => {
     for (const file of fileArr) {
         formData.append("images", file.file);
     }
+
+    console.log(Array.from(formData.entries()));
 
     try {
         let response;
