@@ -29,11 +29,11 @@ app.get('/home', (req, res) => {
 })
 
 app.get('/write', (req, res) => {
-    res.sendFile(__dirname + "/public/page/write_post/write_post.html")
+    res.sendFile(__dirname + "/public/page/write/write.html")
 })
 
 app.get('/detail', (req, res) => {
-    res.sendFile(__dirname + "/public/page/post_detail/post_detail.html")
+    res.sendFile(__dirname + "/public/page/detail/detail.html")
 })
 
 app.get(['/my', '/my/edit-info'], (req, res) => {

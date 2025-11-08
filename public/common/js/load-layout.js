@@ -1,5 +1,6 @@
 import { showToast } from "/common/js/toast.js";
 import { apiRequest } from "/common/js/api.js";
+import { toAbsUrl } from "/common/js/to-url.js";
 
 // layout 파일 불러오기
 export function loadLayout(location) {
@@ -48,8 +49,7 @@ export function loadLayout(location) {
 
             backButton.addEventListener("click", () => { history.back() });
 
-            // layout.js 추가
-            loadLayoutScript("/common/js/layout.js");
+            setProfile();
         })
         .catch(error => {
             console.error(error);
@@ -57,16 +57,20 @@ export function loadLayout(location) {
         });
 }
 
-const loadLayoutScript = (src) => {
-    // 스크립트 다운로드와 실행 성공 시 resolve, 실패 시 reject 호출
-    return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.body.appendChild(script);
-    })
+const setProfile = () => {
+    const userInfo = JSON.parse(window.sessionStorage.getItem("userInfo"));
 
+    const profile = document.getElementById("userProfile");
+    if(profile.dataset && profile.dataset.lock==="menu") return;
+    profile.src = userInfo.profileImageUrl || "/assets/image/default_profile.png";
+
+    clickProfile();
+}
+
+const clickProfile = () => {
+    document.getElementById("userProfile").addEventListener("click", ()=>{
+        window.location.href="/my";
+    })
 }
 
 const clickMenu = (header, e, dropdown) => {

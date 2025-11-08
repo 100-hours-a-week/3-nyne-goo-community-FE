@@ -1,6 +1,7 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
+import { toAbsUrl } from "/common/js/to-url.js";
 
 let observer = null;
 let currentPage = 0;
@@ -52,9 +53,7 @@ const getDetail = async () => {
 
         // 제목, 유저프로필, 유저이름
         document.getElementById("postTitle").textContent = post.title;
-        document.querySelector("#profile").src = (post.author.profileImageUrl == null)
-            ? "/assets/image/default_profile.png"
-            : post.author.profileImageUrl
+        document.querySelector("#profile").src = toAbsUrl(post.author.profileImageUrl) || "/assets/image/default_profile.png";
         document.getElementById("postAuthorName").textContent = post.author.nickname;
 
         // 수정날짜 있으면 수정날짜 보여줌
@@ -97,9 +96,7 @@ const getDetail = async () => {
             box.id = `image${i}`;
 
             const image = document.createElement("img");
-            const safe = toSafeHttpUrl(img.imageUrl);
-            image.src = safe ?? "/assets/image/default_image.png";   // 폴백
-            image.alt = "첨부 이미지";
+            image.src = toAbsUrl(img.imageUrl) || "/assets/image/default_image.png";
             image.loading = "lazy";
             image.decoding = "async";
             image.onerror = () => { image.src = "/assets/image/default_image.png"; };
@@ -169,7 +166,7 @@ const getComments = async () => {
             const base = String(raw).replace("T", " ").split(".")[0] || "";
             const date = comment.updatedAt ? `${base} (수정)` : base;
 
-            const profileImage = (comment.author.profileImageUrl==null)? "/assets/image/default_profile.png":comment.author.profileImageUrl;
+            const profileImage = toAbsUrl(comment.author.profileImageUrl) || "/assets/image/default_profile.png";
 
             const wrap = document.createElement("div");
             wrap.className = "comment";
@@ -291,7 +288,7 @@ const editComment = () => {
 const rewriteComment = (commentId) => {
     const commentDiv = document.getElementById(`comment${commentId}`);
 
-    // ✅ 이미 수정 중이면 return (중복 생성 방지)
+    // 이미 수정 중이면 return
     if (commentDiv.querySelector(".edit-textarea")) return;
 
     const currentContent = commentDiv.querySelector(".comment-content");
@@ -336,7 +333,7 @@ const saveEditedComment = async (commentId, commentDiv) => {
         const textarea = document.querySelector(".edit-textarea");
         const content = textarea.value.trim();
 
-        const response = await apiRequest(`/comments/₩${commentId}`, {
+        const response = await apiRequest(`/comments/${commentId}`, {
             method: "PATCH",
             body: JSON.stringify({ content })
         });
@@ -347,7 +344,8 @@ const saveEditedComment = async (commentId, commentDiv) => {
         }
 
         // 수정된 내용이 comment-content에 들어감
-        commentDiv.querySelector(".comment-content").innerHTML = content.replace(/\n/g, "<br>");
+        commentDiv.querySelector(".comment-content").textContent = content;
+        commentDiv.querySelector(".date").textContent = response.data.updatedAt.replace("T", " ").split(".")[0] || "";;
         // 수정창, 완료&취소 버튼 숨기고 수정&삭제 버튼이 보이도록
         cancelEdit(commentDiv);
         showToast("댓글이 수정되었습니다.");

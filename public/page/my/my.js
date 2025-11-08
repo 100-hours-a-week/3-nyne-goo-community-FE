@@ -1,7 +1,6 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
-import { toAbsUrl } from "../../common/js/to-url";
 
 const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
@@ -9,8 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadLayout("my");
     getMyInfo();
 
-    const path = window.location.pathname;
-    if (path.includes("/edit-info")) {
+    const isEdit = window.location.pathname.includes("/edit-info");
+    document.documentElement.dataset.mode = isEdit ? "edit" : "view";
+
+    if (isEdit) {
         // 헤더가 로드된 뒤 실행되도록 약간 딜레이 주기
         setTimeout(() => {
             clickEditInfo();
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const getMyInfo = () => {
-    document.getElementById("profileImage").src = toAbsUrl(my.profileImageUrl) || "/assets/image/default_profile.png";
+    document.getElementById("profileImage").src = my.profileImageUrl;
     document.getElementById("emailValue").textContent = my.email;
     document.getElementById("nicknameValue").textContent = my.nickname;
 }
