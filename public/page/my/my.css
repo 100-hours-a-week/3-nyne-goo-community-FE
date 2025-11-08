@@ -1,10 +1,10 @@
-/* ===== 전체 박스 ===== */
+/* 전체 박스 */
 .mypage-box {
-  margin: 60px auto;
+  margin: 8px auto 48px;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(47, 49, 107, 0.08);
-  padding: 60px 80px;
+  padding: 28px 64px;
   width: 640px;
   max-width: 90%;
   text-align: center;
@@ -16,15 +16,15 @@
   font-size: 24px;
   font-weight: 800;
   color: #2f316b;
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 
-/* ===== 프로필 섹션 ===== */
+/* 프로필 섹션 */
 .profile-section {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 36px;
+  margin-bottom: 22px;
 }
 
 .profile-circle {
@@ -38,54 +38,47 @@
   transition: border-color 0.2s ease;
 }
 
-.profile-circle:hover {
-  border-color: #8e9aff;
-}
-
 .profile-circle img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* 변경 버튼 (기본은 숨김, edit 모드에서 hover 시 노출) */
 .change-btn {
-  visibility: hidden;
   position: absolute;
-  bottom: 10px;
   left: 50%;
+  bottom: 16px;
   transform: translateX(-50%);
-  background-color: rgba(47, 49, 107, 0.85);
+  background-color: rgba(47, 49, 107, 0.9);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  padding: 6px 14px;
+  border-radius: 9999px;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.profile-circle:hover .change-btn {
-  visibility: visible;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 2px 6px rgba(47, 49, 107, 0.25);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .change-btn:hover {
   background-color: rgba(47, 49, 107, 1);
 }
 
-/* ===== 회원 정보 ===== */
-/* ===== 회원 정보 ===== */
+/* 회원 정보 */
 .info-display {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  align-items: stretch;       /* ✅ 내부 요소 폭 100% */
+  align-items: stretch;
   background-color: #f9f9ff;
   border-radius: 12px;
   padding: 24px 36px;
   border: 1.5px solid #e3e6fb;
   width: 100%;
-  max-width: 440px;           /* ✅ 약간 좁게 조정 */
-  margin: 0 auto;             /* ✅ 완전 중앙 정렬 */
+  max-width: 440px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -93,7 +86,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;                /* ✅ 내부 텍스트 폭 전체 차지 */
+  width: 100%;
   border-bottom: 1px dashed #ddd;
   padding-bottom: 12px;
 }
@@ -116,12 +109,12 @@
   flex: 1;
 }
 
-
-/* ===== 하단 버튼 ===== */
+/* 하단 버튼 */
 .bottom-btns {
-  display: flex;
+  display: none;
+  /* 기본 숨김. edit 모드에서만 표시 */
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
   margin-top: 36px;
   width: 100%;
   max-width: 460px;
@@ -163,11 +156,13 @@
   color: #2f316b;
 }
 
-/* ===== 알림창 ===== */
+/* alert */
 .alert-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.4);
   display: none;
   align-items: center;
@@ -179,7 +174,7 @@
   background: #fff;
   padding: 30px 36px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   text-align: center;
   max-width: 320px;
 }
@@ -215,11 +210,51 @@
   color: white;
 }
 
-/* ===== 반응형 ===== */
+/* 모드별 */
+
+/* view 모드 */
+:root[data-mode="view"] .profile-circle:hover {
+  border-color: #cfd3f9;
+  /* 원래 색 유지 */
+}
+
+:root[data-mode="view"] .profile-circle {
+  cursor: default;
+}
+
+:root[data-mode="view"] .profile-circle .change-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* edit 모드 */
+:root[data-mode="edit"] .bottom-btns {
+  display: flex;
+}
+
+:root[data-mode="edit"] .profile-circle:hover {
+  border-color: #8e9aff;
+}
+
+:root[data-mode="edit"] .profile-circle:hover .change-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 반응형 */
 @media (max-width: 700px) {
   .mypage-box {
     width: 92%;
-    padding: 30px 24px;
+    margin: 6px auto 28px;
+    padding: 20px 16px;
+  }
+
+  .mypage-box h2 {
+    margin-bottom: 14px;
+  }
+
+  .profile-section {
+    margin-bottom: 18px;
   }
 
   .info-display {
@@ -228,5 +263,6 @@
 
   .bottom-btns {
     flex-direction: column;
+    gap: 12px;
   }
 }

@@ -1,6 +1,7 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
+import { toAbsUrl } from "/common/js/to-url.js";
 
 // 파일 저장하는 리스트
 const fileArr = [];
@@ -66,16 +67,17 @@ const editPost = async (postId) => {
 
         // 이미지들을 병렬로 불러와 File로 변환
         const results = await Promise.allSettled(
-            imageList.map(async (img) => {
-                const imageName = String(img.imageName ?? "");
-                const href = toSafeHttpUrl(img.imageUrl);
-                if (!href) throw new Error("Invalid image URL");
+            imageList.map(async (image) => {
+                const imageName = String(image.imageName ?? "");
+                const imageUrl = toAbsUrl(image.imageUrl) || "/assets/image/default_image.png";
+                if (!imageUrl) throw new Error("Invalid image URL");
 
-                const res = await fetch(href, { credentials: "include" });
+                const res = await fetch(imageUrl, { credentials: "include" });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const blob = await res.blob();
                 const file = new File([blob], imageName, { type: blob.type || "application/octet-stream" });
 
+                console.log("imageName: ", imageName);
                 return { imageName, file };
             })
         );
