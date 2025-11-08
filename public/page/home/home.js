@@ -1,7 +1,7 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
-import { toAbsUrl } from "/common/js/to-url";
+import { toAbsUrl } from "/common/js/to-url.js";
 
 let observer = null;
 let currentPage = 0;
