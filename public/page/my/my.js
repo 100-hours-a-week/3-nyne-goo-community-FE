@@ -1,6 +1,7 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
+import { toAbsUrl } from "../../common/js/to-url";
 
 const my = JSON.parse(sessionStorage.getItem("userInfo"));
 
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const getMyInfo = () => {
-    document.getElementById("profileImg").src = my.profileImgUrl
+    document.getElementById("profileImage").src = toAbsUrl(my.profileImageUrl) || "/assets/image/default_profile.png";
     document.getElementById("emailValue").textContent = my.email;
     document.getElementById("nicknameValue").textContent = my.nickname;
 }
@@ -67,7 +68,7 @@ const clickEditInfo = () => {
             ? newNicknameInput.value.trim()
             : document.getElementById("nicknameValue").textContent;
         const profile = document.getElementById("profileInput");
-        const newProfileUrl = document.getElementById("profileImg").src;
+        const newProfileUrl = document.getElementById("profileImage").src;
 
         if (!newNickname) {
             // 닉네임 비어있을 때
@@ -103,7 +104,7 @@ const clickEditInfo = () => {
                 const updatedInfo = {
                     email: my.email,
                     nickname: newNickname,
-                    profileImgUrl: newProfileUrl,
+                    profileImageUrl: newProfileUrl,
                 };
                 sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
                 sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
@@ -137,7 +138,7 @@ const clickEditInfo = () => {
 
 const editProfile = () => {
     const profileInput = document.getElementById("profileInput");
-    const profileImg = document.getElementById("profileImg");
+    const profileImage = document.getElementById("profileImage");
 
     document.getElementById("changeProfileBtn").addEventListener("click", () => {
         profileInput.click();
@@ -156,7 +157,7 @@ const editProfile = () => {
 
         const reader = new FileReader();
         reader.onload = (ev) => {
-            profileImg.src = ev.target.result; // 미리보기 반영
+            profileImage.src = ev.target.result; // 미리보기 반영
         };
         reader.readAsDataURL(file);
     });

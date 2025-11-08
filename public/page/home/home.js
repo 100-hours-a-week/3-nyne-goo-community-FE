@@ -1,6 +1,7 @@
 import { apiRequest } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
+import { toAbsUrl } from "/common/js/to-url";
 
 let observer = null;
 let currentPage = 0;
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const userData = {
-        profileImgUrl: userResponse.data.profileImgUrl ?? "/assets/image/default_profile.png",
+        profileImageUrl: toAbsUrl(userResponse.data.profileImageUrl),
         nickname: userResponse.data.nickname,
         email: userResponse.data.email,
     };
@@ -31,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast(toastMessage);
         window.sessionStorage.removeItem("firstVisited");
     }
-
 
     loadLayout("home")
     loadPopularPosts();
@@ -143,10 +143,6 @@ const renderPosts = (postListResponse) => {
         const base = String(raw).replace("T", " ").split(".")[0] || "";
         const date = post.updatedAt ? `${base} (수정)` : base;
 
-        // 프로필 이미지 URL (비정상 값이면 기본 이미지로)
-        const candidate = post?.author?.profileImageUrl || "/assets/image/default_profile.png";
-        const imageUrl = (/^(https?:\/\/|\/)/.test(candidate)) ? candidate : "/assets/image/default_profile.png";
-
         const card = document.createElement("div");
         card.className = "post";
         card.id = `post${post.postId ?? ""}`;
@@ -199,6 +195,9 @@ const renderPosts = (postListResponse) => {
         // 푸터
         const footer = document.createElement("div");
         footer.className = "post-footer";
+
+        // 프로필 이미지 URL (비정상 값이면 기본 이미지로)
+        const imageUrl = toAbsUrl(post.author.profileImageUrl) || "/assets/image/default_profile.png";
 
         const img = document.createElement("img");
         img.className = "author-img";

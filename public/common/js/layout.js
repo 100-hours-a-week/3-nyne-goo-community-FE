@@ -1,3 +1,7 @@
+import { toAbsUrl } from "/common/js/to-url";
+
+import (toAbsUrl)
+
 const clickProfile = () => {
     document.getElementById("userProfile").addEventListener("click", ()=>{
         window.location.href="/my";
@@ -9,7 +13,7 @@ const setProfile = () => {
 
     const profile = document.getElementById("userProfile");
     if(profile.dataset && profile.dataset.lock==="menu") return;
-    profile.src = userInfo.profileImgUrl;
+    profile.src = toAbsUrl(userInfo.profileImageUrl) || "/assets/image/default_profile.png";
 
     clickProfile();
 }
