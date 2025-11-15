@@ -13,7 +13,7 @@ app.get('/config.js', (req, res) => {
     res.send(`window.CONFIG = {
         BASE_URL: '${process.env.BASE_URL}',
         UPLOAD_URL: '${process.env.UPLOAD_URL}',
-        IMAGE_BASE_URL: '${process.env.IMAGE_BASE_URL}
+        IMAGE_BASE_URL: '${process.env.IMAGE_BASE_URL}'
         };`);
 });
 
