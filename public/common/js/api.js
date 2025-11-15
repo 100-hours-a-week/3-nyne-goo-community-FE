@@ -1,6 +1,5 @@
 export async function apiRequest(endpoint, options = {}) {
-  const BASE_URL = window.CONFIG.BASE_URL;
-  const url = `${BASE_URL}${endpoint}`;
+  const url = endpoint;
   const isFormData = options?.body instanceof FormData;
 
   console.log("api request");
@@ -40,6 +39,35 @@ export async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
 
     if (!(response.status === 200 || response.status === 201)) {
+      const error = new Error("API 요청 실패");
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}
+
+export async function upload(file){
+  const BASE_URL = window.CONFIG.UPLOAD_URL + "/upload/profile-image";
+  const formData = new FormData();
+  formData.append("profileImage", file);
+
+  try {
+    const response = await fetch(BASE_URL, {
+      method: "POST",
+      body: formData,
+    })
+
+    console.log("response status: ", response.status);
+
+    // JSON 파싱
+    const data = await response.json();
+
+    if (!(response.status === 201)) {
       const error = new Error("API 요청 실패");
       error.status = response.status;
       throw error;
