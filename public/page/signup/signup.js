@@ -1,4 +1,4 @@
-import { apiRequest } from "/common/js/api.js";
+import { apiRequest, upload } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 
 const validationState = {
@@ -372,30 +372,39 @@ const signup = async (e) => {
     const nickname = document.getElementById("nickname").value;
     const profile = document.getElementById("addProfile");
 
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("nickname", nickname);
-
-    if (profile.files.length > 0) {
-        formData.append("image", profile.files[0]);
-    }
-
     try {
-        const signupResponse = await apiRequest("/users", {
-            method: "POST",
-            body: formData,
-            headers: {}, // multipart 자동 감지
+        const imageUrl = (profile.files.length > 0) ? await upload(profile.files[0]).data.filePath : null;
+
+        if(imageUrl!=null && !imageUrl.statusCode===201){
+            throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
+        }
+
+        const body = JSON.stringify({
+            email,
+            password,
+            nickname,
+            imageUrl
         });
 
-        // statusCode = 201이면 제대로 받은 것이므로 로그인 페이지로 이동
-        if (signupResponse.statusCode === 201 || signupResponse.statusCode === 200) {
-            window.sessionStorage.setItem("toastMessage", "회원가입이 완료되었습니다!");
-            window.location.href = "/login";
-        } else {
-            showToast("회원가입에 실패했습니다.");
+
+        try {
+            const signupResponse = await apiRequest("/users", {
+                method: "POST",
+                body: body,
+            });
+
+            // statusCode = 201이면 제대로 받은 것이므로 로그인 페이지로 이동
+            if (signupResponse.statusCode === 201) {
+                window.sessionStorage.setItem("toastMessage", "회원가입이 완료되었습니다!");
+                window.location.href = "/login";
+            } else {
+                showToast("회원가입에 실패했습니다.");
+            }
+        } catch (error) {
+            showToast("회원가입 중 오류가 발생했습니다.");
         }
     } catch (error) {
         showToast("회원가입 중 오류가 발생했습니다.");
     }
+
 }
