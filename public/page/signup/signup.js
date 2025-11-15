@@ -373,9 +373,11 @@ const signup = async (e) => {
     const profile = document.getElementById("addProfile");
 
     try {
-        const imageUrl = (profile.files.length > 0) ? await upload(profile.files[0]).data.filePath : null;
+        const uploadRefult = (profile.files.length > 0) ? await upload(profile.files[0]) : null;
+        const imageUrl = (uploadRefult != null) ? uploadRefult.data.filePath : null;
 
-        if(imageUrl!=null && !imageUrl.statusCode===201){
+        if (imageUrl != null && !imageUrl.statusCode === 201) {
+            showToast("")
             throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
         }
 
@@ -385,7 +387,6 @@ const signup = async (e) => {
             nickname,
             imageUrl
         });
-
 
         try {
             const signupResponse = await apiRequest("/users", {
@@ -406,5 +407,4 @@ const signup = async (e) => {
     } catch (error) {
         showToast("회원가입 중 오류가 발생했습니다.");
     }
-
 }
