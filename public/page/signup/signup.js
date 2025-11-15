@@ -374,7 +374,7 @@ const signup = async (e) => {
 
     try {
         const uploadRefult = (profile.files.length > 0) ? await upload(profile.files[0]) : null;
-        const imageUrl = (uploadRefult != null) ? uploadRefult.data.filePath : null;
+        const imageUrl = (uploadRefult != null) ? new URL(uploadResult.data.filePath).pathname : null;
 
         if (imageUrl != null && !imageUrl.statusCode === 201) {
             showToast("")
