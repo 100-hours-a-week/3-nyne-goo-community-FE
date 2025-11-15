@@ -7,30 +7,30 @@ export async function apiRequest(endpoint, options = {}) {
   try {
     const response = await fetch(url, {
       credentials: "include",
-      ...options, 
+      ...options,
       headers: {
-      ...(options?.headers ?? {}),                    
-      ...(!isFormData ? { "Content-Type": "application/json;charset=utf-8" } : {}), // FormData면 생략
-  },
+        ...(options?.headers ?? {}),
+        ...(!isFormData ? { "Content-Type": "application/json;charset=utf-8" } : {}), // FormData면 생략
+      },
     })
 
     console.log("response status: ", response.status);
 
     // 공통 에러 처리
     if (response.status === 401) {
-      try{
+      try {
         const reissueResponse = await tokenReissue()
-        if(reissueResponse.status===201) return apiRequest(endpoint, options);
+        if (reissueResponse.status === 201) return apiRequest(endpoint, options);
 
         if (!(window.location.pathname.includes("/login") || window.location.pathname.includes("/signup"))) {
-          window.location.href="/login";
+          window.location.href = "/login";
           throw new Error("인증되지 않은 사용쟈");
         }
         else throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
-      }catch(e){ return null; }
+      } catch (e) { return null; }
     }
 
-    if(response.status === 403){
+    if (response.status === 403) {
       history.back();
       throw new Error("허용되지 않은 사용자");
     }
@@ -51,18 +51,16 @@ export async function apiRequest(endpoint, options = {}) {
   }
 }
 
-export async function upload(file){
-  const BASE_URL = window.CONFIG.UPLOAD_URL + "/upload/profile-image";
+export async function upload(file) {
+  const url = window.CONFIG.UPLOAD_URL + "/upload/profile-image";
   const formData = new FormData();
   formData.append("profileImage", file);
 
   try {
-    const response = await fetch(BASE_URL, {
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     })
-
-    console.log("response status: ", response.status);
 
     // JSON 파싱
     const data = await response.json();
@@ -96,7 +94,7 @@ export async function tokenReissue() {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
       }
-    }).catch(()=>null);
+    }).catch(() => null);
 
     // 401 에러 -> 토큰 유효하지 않거나 잘못된 토큰
     if (response.status === 401) {
@@ -114,7 +112,7 @@ export async function tokenReissue() {
       throw error;
     }
 
-    return {status: response.status, data};
+    return { status: response.status, data };
   } catch (e) {
     console.error(e);
   }
