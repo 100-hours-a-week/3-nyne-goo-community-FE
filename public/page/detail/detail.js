@@ -53,7 +53,7 @@ const getDetail = async () => {
 
         // 제목, 유저프로필, 유저이름
         document.getElementById("postTitle").textContent = post.title;
-        document.querySelector("#profile").src = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
+        document.querySelector("#profile").src = toAbsUrl(post.author.image.imagePath);
         document.getElementById("postAuthorName").textContent = post.author.nickname;
 
         // 수정날짜 있으면 수정날짜 보여줌
@@ -96,10 +96,10 @@ const getDetail = async () => {
             box.id = `image${i}`;
 
             const image = document.createElement("img");
-            image.src = toAbsUrl(img.imageUrl) || "/assets/image/default_image.png";
+            image.src = toAbsUrl(img.imagePath);
             image.loading = "lazy";
             image.decoding = "async";
-            image.onerror = () => { image.src = "/assets/image/default_image.png"; };
+            image.onerror = () => { showToast("이미지 오류가 발생했습니다.") };
 
             box.append(image);
             fragment.append(box);
