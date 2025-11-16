@@ -85,44 +85,64 @@ const clickEditInfo = () => {
         }
         newNicknameInput.classList.remove("input-error");
 
-        const formData = new FormData();
-        formData.append("nickname", newNickname);
-        if (profile.files.length > 0) {
-            formData.append("image", profile.files[0]);
-        } else {
-            formData.append("image", null);
-        }
-
         try {
-            // apiRequest 사용 (FormData는 Content-Type 자동 처리됨)
-            const response = await apiRequest("/users", {
-                method: "PATCH",
-                body: formData,
-                headers: {}, // Content-Type 자동 제거
+            const file = profile.files[0] ?? null;
+
+            const uploadResult = file ? await upload(file) : null;
+            const imagePath = uploadResult.data.length > 0
+            ? new URL(uploadResult.data[0].file_url).pathname 
+            : null;
+            const imageName = file ? file.name : null;
+
+            if (uploadResult != null && !uploadResult.statusCode === 201) {
+                showToast("")
+                throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
+            }
+
+            const image = JSON.stringify({
+                imagePath,
+                imageName
+            })
+
+            const body = JSON.stringify({
+                nickname,
+                image
             });
 
-            if (response != null) {
-                const updatedInfo = {
-                    email: my.email,
-                    nickname: newNickname,
-                    profileImageUrl: newProfileUrl,
-                };
-                sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
-                sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
-                window.location.replace("/my");
+            try {
+                // apiRequest 사용 (FormData는 Content-Type 자동 처리됨)
+                const response = await apiRequest("/users", {
+                    method: "PATCH",
+                    body: body,
+                    headers: {}, // Content-Type 자동 제거
+                });
+
+                if (response != null) {
+                    const updatedInfo = {
+                        email: my.email,
+                        nickname: newNickname,
+                        profileImageUrl: imageUrl!=null?imageUrl:newProfileUrl,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
+                    };
+                    sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+                    sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
+                    window.location.replace("/my");
+                }
+            } catch (error) {
+                if (error.status === 409) {
+                    newNicknameInput.classList.add("input-error");
+                    showToast("이미 사용 중인 닉네임입니다.");
+
+                    setTimeout(() => {
+                        newNicknameInput.classList.remove("input-error");
+                    }, 600);
+
+                    return;
+                }
             }
         } catch (error) {
-            if (error.status === 409) {
-                newNicknameInput.classList.add("input-error");
-                showToast("이미 사용 중인 닉네임입니다.");
-
-                setTimeout(() => {
-                    newNicknameInput.classList.remove("input-error");
-                }, 600);
-
-                return;
-            }
+            showToast("프로필 수정 중 오류가 발생했습니다.");
         }
+
     });
 
     // 탈퇴

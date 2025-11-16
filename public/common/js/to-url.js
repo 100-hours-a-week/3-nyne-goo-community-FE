@@ -5,5 +5,5 @@ const IMAGE_BASE_URL = (window.CONFIG?.IMAGE_BASE_URL) || window.location.origin
 
 export function toAbsUrl(path){
   if (!path) return null;
-  return `${IMAGE_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  return `${IMAGE_BASE_URL}${path}`;
 }
