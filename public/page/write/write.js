@@ -1,7 +1,6 @@
-import { apiRequest } from "/common/js/api.js";
+import { apiRequest, upload, uploadPost } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
-import { toAbsUrl } from "/common/js/to-url.js";
 
 // 파일 저장하는 리스트
 const fileArr = [];
@@ -276,26 +275,22 @@ const writePost = async (postId) => {
         .filter((item) => item.type === "new")
         .map((item) => item.file);
         
-        const uploadResult = (newList.length > 0) ? await upload(newList) : [];
+        const uploadResult = (newList.length > 0) ? await uploadPost(newList) : null;
         if (uploadResult != null && uploadResult.statusCode != 201) {
             throw new Error("이미지 업로드 중 오류가 발생했습니다.");
         }
 
-        const imagePathList = [];
+        const imageList = null;
         for (let i =0; i<fileArr.length; i++) {
             const imagePath = (fileArr[i].type==="new") ? new URL(uploadResult.data[i].file_url).pathname : fileArr[i].imagePath;
             const imageName = fileArr[i].imageName;
-            const image = JSON.stringify({
-                imagePath,
-                imageName
-            });
-            imagePathList.add(image);
+            imageList.push({imagePath, imageName});
         }
 
         const body = JSON.stringify({
             title,
             content,
-            imagePathList
+            imageList
         });
 
         try {
