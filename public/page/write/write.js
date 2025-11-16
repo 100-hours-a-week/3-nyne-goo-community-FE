@@ -69,16 +69,7 @@ const editPost = async (postId) => {
         const results = await Promise.allSettled(
             imageList.map(async (image) => {
                 const imageName = String(image.imageName ?? "");
-                const imageUrl = toAbsUrl(image.imageUrl) || "/assets/image/default_image.png";
-                if (!imageUrl) throw new Error("Invalid image URL");
-
-                const res = await fetch(imageUrl, { credentials: "include" });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const blob = await res.blob();
-                const file = new File([blob], imageName, { type: blob.type || "application/octet-stream" });
-
-                console.log("imageName: ", imageName);
-                return { imageName, file };
+                return { imageName, imagePath: image.imagePath};
             })
         );
 
@@ -88,13 +79,14 @@ const editPost = async (postId) => {
                 console.error("이미지 로드 실패:", image.reason);
                 continue;
             }
-            const { imageName, file } = image.value;
+            const { imageName, imagePath } = image.value;
 
             // fileArr에 파일 추가
-            fileArr.push({ id: fileNo, type: "exist", file });
+            fileArr.push({ id: fileNo, type: "exist", imagePath: imagePath, imageName: imageName});
 
             const box = document.createElement("div");
             box.className = "filebox";
+            box.id=`file${fileNo}`;
             box.dataset.id = String(fileNo); // id 파싱 대신 data-id 사용 권장
 
             const p = document.createElement("p");
@@ -111,7 +103,7 @@ const editPost = async (postId) => {
 
             fileNo++;
         }
-        
+
         fileListDiv.addEventListener("click", (e) => {
             if (e.target.classList.contains("delete-btn")) {
                 const id = e.target.parentElement.id.replace("file", "");
@@ -203,7 +195,8 @@ const addFile = () => {
             fileArr.push({
                 id: fileNo,
                 type: "new",
-                file: file
+                file: file,
+                imageName: file.name
             });
 
             // 파일 리스트 추가
@@ -278,39 +271,58 @@ const writePost = async (postId) => {
         return;
     }
 
-    console.log("title: ", title, " content: ", content);
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-
-    for (const file of fileArr) {
-        formData.append("images", file.file);
-    }
-
-    console.log(Array.from(formData.entries()));
-
     try {
-        let response;
-        if (postId == null) {
-            response = await apiRequest("/posts", {
-                method: "POST",
-                body: formData,
-                headers: {}, // multipart 헤더 자동 처리
-            });
-        } else {
-            response = await apiRequest(`/posts/${postId}`, {
-                method: "PATCH",
-                body: formData,
-                headers: {},
-            });
+        const newList = fileArr
+        .filter((item) => item.type === "new")
+        .map((item) => item.file);
+        
+        const uploadResult = (newList.length > 0) ? await upload(newList) : [];
+        if (uploadResult != null && uploadResult.statusCode != 201) {
+            throw new Error("이미지 업로드 중 오류가 발생했습니다.");
         }
 
-        if (response.statusCode === 201 || response.statusCode === 200) {
-            window.sessionStorage.setItem("refreshHome", "true");
-            window.sessionStorage.setItem("toastMessage", postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!")
-            history.back();
-        } else {
-            showToast("게시글 저장 실패");
+        const imagePathList = [];
+        for (let i =0; i<fileArr.length; i++) {
+            const imagePath = (fileArr[i].type==="new") ? new URL(uploadResult.data[i].file_url).pathname : fileArr[i].imagePath;
+            const imageName = fileArr[i].imageName;
+            const image = JSON.stringify({
+                imagePath,
+                imageName
+            });
+            imagePathList.add(image);
+        }
+
+        const body = JSON.stringify({
+            title,
+            content,
+            imagePathList
+        });
+
+        try {
+            let response;
+            if (postId == null) {
+                response = await apiRequest("/posts", {
+                    method: "POST",
+                    body: body,
+                    headers: {}, // multipart 헤더 자동 처리
+                });
+            } else {
+                response = await apiRequest(`/posts/${postId}`, {
+                    method: "PATCH",
+                    body: body,
+                    headers: {},
+                });
+            }
+
+            if (response.statusCode === 201 || response.statusCode === 200) {
+                window.sessionStorage.setItem("refreshHome", "true");
+                window.sessionStorage.setItem("toastMessage", postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!")
+                history.back();
+            } else {
+                showToast("게시글 저장 실패");
+            }
+        } catch (error) {
+            showToast("게시글 저장 중 오류가 발생했습니다.");
         }
     } catch (error) {
         showToast("게시글 저장 중 오류가 발생했습니다.");
