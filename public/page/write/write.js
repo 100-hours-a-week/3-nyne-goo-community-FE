@@ -292,7 +292,7 @@ const writePost = async (postId) => {
         for (let i = 0; i < fileArr.length; i++) {
             const image = fileArr[i];
 
-            const imagePath = image.type === "new" ? new URL(uploadedMap.file_url).pathname : image.imagePath;
+            const imagePath = image.type === "new" ? new URL(uploadedMap.get(i).file_url).pathname : image.imagePath;
             const imageName = image.imageName;
 
             imageList.push({ imagePath, imageName });
