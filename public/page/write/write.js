@@ -68,7 +68,7 @@ const editPost = async (postId) => {
         const results = await Promise.allSettled(
             imageList.map(async (image) => {
                 const imageName = String(image.imageName ?? "");
-                return { imageName, imagePath: image.imagePath};
+                return { imageName, imagePath: image.imagePath };
             })
         );
 
@@ -81,11 +81,11 @@ const editPost = async (postId) => {
             const { imageName, imagePath } = image.value;
 
             // fileArr에 파일 추가
-            fileArr.push({ id: fileNo, type: "exist", imagePath: imagePath, imageName: imageName});
+            fileArr.push({ id: fileNo, type: "exist", imagePath: imagePath, imageName: imageName });
 
             const box = document.createElement("div");
             box.className = "filebox";
-            box.id=`file${fileNo}`;
+            box.id = `file${fileNo}`;
             box.dataset.id = String(fileNo); // id 파싱 대신 data-id 사용 권장
 
             const p = document.createElement("p");
@@ -271,20 +271,31 @@ const writePost = async (postId) => {
     }
 
     try {
-        const newList = fileArr
-        .filter((item) => item.type === "new")
-        .map((item) => item.file);
-        
+        const newImages = fileArr
+            .map((item, index) => ({ ...item, index }))
+            .filter((item) => item.type === "new");
+
+        const newList = newImages.map((item) => item.file);
+        const uploadedMap = new Map();
+
         const uploadResult = (newList.length > 0) ? await uploadPost(newList) : null;
         if (uploadResult != null && uploadResult.statusCode != 201) {
             throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+        } else {
+            // 원래 fileArr 위치에 업로드 결과 매핑
+            newImages.forEach((item, idx) => {
+                uploadedMap.set(item.index, uploadResult.data[idx]);
+            });
         }
 
         const imageList = null;
-        for (let i =0; i<fileArr.length; i++) {
-            const imagePath = (fileArr[i].type==="new") ? new URL(uploadResult.data[i].file_url).pathname : fileArr[i].imagePath;
-            const imageName = fileArr[i].imageName;
-            imageList.push({imagePath, imageName});
+        for (let i = 0; i < fileArr.length; i++) {
+            const image = fileArr[i];
+
+            const imagePath = image.type === "new" ? new URL(uploadedMap.file_url).pathname : image.imagePath;
+            const imageName = image.imageName;
+
+            imageList.push({ imagePath, imageName });
         }
 
         const body = JSON.stringify({
