@@ -99,15 +99,12 @@ const clickEditInfo = () => {
                 throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
             }
 
-            const image = JSON.stringify({
-                imagePath,
-                imageName
-            })
-
             const body = JSON.stringify({
-                nickname,
-                image
+                nickname: newNickname,
+                image: imagePath && imageName ? {imagePath, imageName} : null
             });
+
+            console.log("imageName: ", imageName);
 
             try {
                 // apiRequest 사용 (FormData는 Content-Type 자동 처리됨)
