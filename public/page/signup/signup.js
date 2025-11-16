@@ -373,19 +373,29 @@ const signup = async (e) => {
     const profile = document.getElementById("addProfile");
 
     try {
-        const uploadRefult = (profile.files.length > 0) ? await upload(profile.files[0]) : null;
-        const imageUrl = (uploadRefult != null) ? new URL(uploadResult.data.filePath).pathname : null;
+        const file = profile.files[0] ?? null;
 
-        if (imageUrl != null && !imageUrl.statusCode === 201) {
+        const uploadResult = file ? await upload(file) : null;
+        const imagePath = uploadResult.data.length > 0
+        ? new URL(uploadResult.data[0].file_url).pathname 
+        : null;
+        const imageName = file ? file.name : null;
+
+        if (uploadResult != null && !uploadResult.statusCode === 201) {
             showToast("")
             throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
         }
+
+        const image = JSON.stringify({
+            imagePath,
+            imageName
+        })
 
         const body = JSON.stringify({
             email,
             password,
             nickname,
-            imageUrl
+            image
         });
 
         try {
