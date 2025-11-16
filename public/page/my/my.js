@@ -1,4 +1,4 @@
-import { apiRequest } from "/common/js/api.js";
+import { apiRequest, upload } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
 

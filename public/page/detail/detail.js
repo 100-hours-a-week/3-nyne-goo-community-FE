@@ -53,7 +53,7 @@ const getDetail = async () => {
 
         // 제목, 유저프로필, 유저이름
         document.getElementById("postTitle").textContent = post.title;
-        document.querySelector("#profile").src = toAbsUrl(post.author.profileImageUrl) || "/assets/image/default_profile.png";
+        document.querySelector("#profile").src = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
         document.getElementById("postAuthorName").textContent = post.author.nickname;
 
         // 수정날짜 있으면 수정날짜 보여줌
@@ -166,7 +166,7 @@ const getComments = async () => {
             const base = String(raw).replace("T", " ").split(".")[0] || "";
             const date = comment.updatedAt ? `${base} (수정)` : base;
 
-            const profileImage = toAbsUrl(comment.author.profileImageUrl) || "/assets/image/default_profile.png";
+            const profileImage = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
 
             const wrap = document.createElement("div");
             wrap.className = "comment";

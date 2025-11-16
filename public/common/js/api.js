@@ -78,6 +78,39 @@ export async function upload(file) {
   }
 }
 
+export async function uploadPost(files){
+  const url = window.CONFIG.UPLOAD_URL + "/upload/post-image";
+  const formData = new FormData();
+
+  // files가 배열인지 확인 (단일 파일 넣어도 가능)
+  const fileArray = Array.isArray(files)?files:[files];
+
+  fileArray.forEach((file)=>{
+    formData.append("postImage", file);
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    })
+
+    // JSON 파싱
+    const data = await response.json();
+
+    if (!(response.status === 201)) {
+      const error = new Error("API 요청 실패");
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
