@@ -166,7 +166,7 @@ const getComments = async () => {
             const base = String(raw).replace("T", " ").split(".")[0] || "";
             const date = comment.updatedAt ? `${base} (수정)` : base;
 
-            const profileImage = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
+            const profileImage = toAbsUrl(comment.author.image.imagePath) || "/assets/image/default_profile.png";
 
             const wrap = document.createElement("div");
             wrap.className = "comment";
@@ -240,7 +240,16 @@ const getComments = async () => {
 
         editComment();
         commentListDiv.classList.remove("fade");
-    } catch (error) { showToast("댓글을 불러오는 중 오류가 발생했습니다."); }
+    } catch (error) { 
+        console.error("댓글 불러오는 중 오류 발생:", error);
+
+        // axios 같은거면 응답 정보도 찍어보기
+        if (error.response) {
+            console.error("응답 상태:", error.response.status);
+            console.error("응답 바디:", error.response.data);
+        }
+        showToast("댓글을 불러오는 중 오류가 발생했습니다."); 
+    }
 }
 
 const onScroll = (post) => {

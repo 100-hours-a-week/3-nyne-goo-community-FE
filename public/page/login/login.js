@@ -125,5 +125,5 @@ const showError = (input, error, message) => {
 // 회원가입
 const signup = async () => {
     //window.location.href="/signup";
-    window.location.href = `${window.CONFIG.BASE_URL}/agree/terms`;
+    window.location.href = `${window.CONFIG.BASE_URL}/api/agree/terms`;
 }

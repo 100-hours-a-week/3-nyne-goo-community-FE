@@ -386,10 +386,10 @@ const signup = async (e) => {
             throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
         }
 
-        const image = JSON.stringify({
+        const image = {
             imagePath,
             imageName
-        })
+        };
 
         const body = JSON.stringify({
             email,
