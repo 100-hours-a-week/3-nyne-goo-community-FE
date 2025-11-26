@@ -61,7 +61,7 @@ jobs:
       - name: Prepare SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secret.FE_SSH_KEY }}" > ~/.ssh/dorandoran-fe.pem
+          echo "${{ secrets.FE_SSH_KEY }}" > ~/.ssh/dorandoran-fe.pem
           chmod 600 ~/.ssh/dorandoran-fe.pem
           ssh-keyscan -H ${{ secrets.FE_SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Check if Docker is installed
