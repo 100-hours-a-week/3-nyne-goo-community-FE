@@ -51,7 +51,7 @@ jobs:
 
   deploy:
     needs: build-and-push-image
-    runs-on: self-runner
+    runs-on: self-hosted
 
     steps:
       # actions-runner 권한 부여
@@ -67,19 +67,19 @@ jobs:
       - name: Check if Docker is installed
         id: check-docker 
         run: |
-          DOCKER_EXISTS=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@${{ secrets.FE_SSH_HOST }} 'command -v docker >/dev/null & echo "true" || echo "false" ')
+          DOCKER_EXISTS=$(ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@${{ secrets.FE_SSH_HOST }} 'command -v docker >/dev/null & echo "true" || echo "false" ')
           echo "docker_exists=$DOCKER_EXISTS" >> $GITHUB_OUTPUT
 
       - name: Check if Node.js is installed
         id: check-nodejs
         run: |
-          NODE_EXISTS=$(ssh -i ~/.ssh/id_rsa -i StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER}}@${{ secrets.FE_SSH_HOST }} 'command -v node >/dev/null && echo "true" || echo "false" ')
-          ecnho "node_exists=$NODE_EXISTS" >> $GITHUB_OUTPUT
+          NODE_EXISTS=$(ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER}}@${{ secrets.FE_SSH_HOST }} 'command -v node >/dev/null && echo "true" || echo "false" ')
+          echo "node_exists=$NODE_EXISTS" >> $GITHUB_OUTPUT
 
       - name: Install Docker on EC2
         if: steps.check-docker.outputs.docker_exists == 'false'
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@{{ secrets.FE_SSH_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@${{ secrets.FE_SSH_HOST }} << 'EOF'
             sudo apt-get update
             sudo apt-get install -y ca-certificates curl gnupg lsb-release
             sudo mkdir -p /etc/apt/keyrings
@@ -90,7 +90,7 @@ jobs:
               | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
             sudo apt-get update
             sudo apt-get insall -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-            sudo usermod -aG docker $usermod
+            sudo usermod -aG docker ${{ secrets.FE_SSH_USER }}
           EOF
 
       - name: Install Node.js on EC2
