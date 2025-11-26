@@ -77,7 +77,7 @@ jobs:
           ecnho "node_exists=$NODE_EXISTS" >> $GITHUB_OUTPUT
 
       - name: Install Docker on EC2
-        id: steps.check-docker.outputs.docker_exists == 'false'
+        if: steps.check-docker.outputs.docker_exists == 'false'
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@{{ secrets.FE_SSH_HOST }} << 'EOF'
             sudo apt-get update
@@ -94,7 +94,7 @@ jobs:
           EOF
 
       - name: Install Node.js on EC2
-        id: steps.check-nodejs.outputs.node_exists == 'false'
+        if: steps.check-nodejs.outputs.node_exists == 'false'
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }} << 'EOF'
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
