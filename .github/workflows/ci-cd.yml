@@ -35,7 +35,7 @@ jobs:
   build-and-push-image:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'   # main 브랜치에 push 될 때만
+    if: github.ref == 'refs/heads/develop'   # 우선 develop 브랜치에 push 될 때만
 
     steps:
       - uses: actions/checkout@v4
