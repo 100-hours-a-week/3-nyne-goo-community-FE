@@ -96,7 +96,7 @@ jobs:
       - name: Install Node.js on EC2
         if: steps.check-nodejs.outputs.node_exists == 'false'
         run: |
-          ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@{{ secrets.FE_SSH_HOST }} << 'EOF'
+          ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@${{ secrets.FE_SSH_HOST }} << 'EOF'
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
             sudo apt-get install -y nodejs
           EOF
