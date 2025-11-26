@@ -103,8 +103,8 @@ jobs:
 
       - name: Deploy to fe server via Docker Compose
         run: |
-          ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secret.FE_SSH_USER }}@${{ secret.FE_SSH_HOST }} << 'EOF'
-            cd /home/${{ secret.FE_SSH_USER }}/dorandoran-fe
+          ssh -i ~/.ssh/dorandoran-fe.pem -o StrictHostKeyChecking=no ${{ secrets.FE_SSH_USER }}@${{ secrets.FE_SSH_HOST }} << 'EOF'
+            cd /home/${{ secrets.FE_SSH_USER }}/dorandoran-fe
             docker compose pull 
             docker compose up -d
           EOF
