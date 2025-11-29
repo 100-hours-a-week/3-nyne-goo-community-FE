@@ -72,10 +72,10 @@ jobs:
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # create zip (appspec.yml, scripts/)
+      # create zip (appspec.yml, scripts/, docker-compose.yml)
       - name: Zip codeDeploy bundle
         run: |
-          zip -r deploy.zip appspec.yml scripts/
+          zip -r deploy.zip appspec.yml scripts/ docker-compose.yml
 
       # upload to S3
       - name: Upload bundle to S3
