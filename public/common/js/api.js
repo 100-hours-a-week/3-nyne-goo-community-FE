@@ -1,8 +1,8 @@
-export async function apiRequest(endpoint, options = {}) {
-  const url = "/api/" + endpoint;
-  const isFormData = options?.body instanceof FormData;
+const BASE_URL = window.CONFIG.BASE_URL;
 
-  console.log("api request");
+export async function apiRequest(endpoint, options = {}) {
+  const url = `${BASE_URL}${endpoint}`;
+  const isFormData = options?.body instanceof FormData;
 
   try {
     const response = await fetch(url, {
@@ -13,8 +13,6 @@ export async function apiRequest(endpoint, options = {}) {
         ...(!isFormData ? { "Content-Type": "application/json;charset=utf-8" } : {}), // FormData면 생략
       },
     })
-
-    console.log("response status: ", response.status);
 
     // 공통 에러 처리
     if (response.status === 401) {
@@ -61,7 +59,7 @@ export async function upload(file) {
       method: "POST",
       body: formData,
     })
-
+    
     // JSON 파싱
     const data = await response.json();
 
@@ -131,8 +129,7 @@ function sleep(ms) {
 
 // 토큰 재발급
 export async function tokenReissue() {
-  const BASE_URL = window.CONFIG.BASE_URL;
-  const url = `${BASE_URL}/api/auth/refresh`;
+  const url = `${BASE_URL}/auth/refresh`;
 
   try {
     const response = await fetch(url, {

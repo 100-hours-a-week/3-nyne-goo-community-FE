@@ -1,7 +1,10 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
 const path = require('path');
+const dotenv = require('dotenv');
+const ENV = process.env.NODE_ENV || 'development';
+
+dotenv.config({path: `.env.${ENV}` });
 
 // public 폴더 정적 서빙
 app.use(express.static('public'));
@@ -15,6 +18,10 @@ app.get('/config.js', (req, res) => {
         UPLOAD_URL: '${process.env.UPLOAD_URL}',
         IMAGE_BASE_URL: '${process.env.IMAGE_BASE_URL}'
         };`);
+});
+
+app.get('/doran', (req,res)=>{
+    res.send('Test page');
 });
 
 // 클라이언트에서 http 요청 메소드 중 get을 이용해서 host:port로 요청 보내면 실행되는 라우트
