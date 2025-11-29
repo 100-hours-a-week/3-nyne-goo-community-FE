@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+
+files:
+  - source: .
+    destination: /home/ubuntu/dorandoran-fe
+
+hooks:
+  BeforeInstall:
+    - location: scripts/cleanup.sh
+      timeout: 60
+      runas: ubuntu
+    
+  ApplicationStart:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: ubuntu
