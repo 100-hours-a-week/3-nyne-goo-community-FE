@@ -56,5 +56,5 @@ app.get("/my/edit-password", (req, res) => {
 // app.listen() 함수를 사용해서 서버 실행
 // 클라이언트는 'host:port'로 노드 서버에 요청 보낼 수 있음
 app.listen(process.env.PORT, () => {
-    console.log(`start server http://localhost:${process.env.PORT}`);
+    console.log(`start server http://host:${process.env.PORT}`);
 })
