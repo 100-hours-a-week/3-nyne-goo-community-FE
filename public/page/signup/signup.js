@@ -376,9 +376,11 @@ const signup = async (e) => {
         const file = profile.files[0] ?? null;
 
         const uploadResult = file ? await upload(file) : null;
-        const imagePath = uploadResult.data.length > 0
+
+        const imagePath = (uploadResult && uploadResult.data.length > 0)
         ? new URL(uploadResult.data[0].file_url).pathname 
         : null;
+
         const imageName = file ? file.name : null;
 
         if (uploadResult != null && !uploadResult.statusCode === 201) {
