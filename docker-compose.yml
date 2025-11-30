@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: tnald/dorandoran-fe:latest
+    image: tnald/dorandoran-fe:v1.05
     container_name: dorandoran-fe
 
     ports:
