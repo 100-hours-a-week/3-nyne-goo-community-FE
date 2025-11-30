@@ -278,17 +278,22 @@ const writePost = async (postId) => {
         const newList = newImages.map((item) => item.file);
         const uploadedMap = new Map();
 
-        const uploadResult = (newList.length > 0) ? await uploadPost(newList) : null;
-        if (uploadResult != null && uploadResult.statusCode != 201) {
-            throw new Error("이미지 업로드 중 오류가 발생했습니다.");
-        } else {
+        let uploadResult = null;
+
+        if (newList.length > 0) {
+            uploadResult = await uploadPost(newList);
+
+            if (!uploadResult || uploadResult.statusCode !== 201) {
+                throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+            }
+
             // 원래 fileArr 위치에 업로드 결과 매핑
             newImages.forEach((item, idx) => {
                 uploadedMap.set(item.index, uploadResult.data[idx]);
             });
         }
 
-        const imageList = null;
+        const imageList = [];
         for (let i = 0; i < fileArr.length; i++) {
             const image = fileArr[i];
 
@@ -328,9 +333,23 @@ const writePost = async (postId) => {
                 showToast("게시글 저장 실패");
             }
         } catch (error) {
+            console.error("게시글 저장 중 오류 발생:", error);
+
+            // axios 같은거면 응답 정보도 찍어보기
+            if (error.response) {
+                console.error("응답 상태:", error.response.status);
+                console.error("응답 바디:", error.response.data);
+            }
             showToast("게시글 저장 중 오류가 발생했습니다.");
         }
     } catch (error) {
+        console.error("게시글 저장 중 오류 발생:", error);
+
+        // axios 같은거면 응답 정보도 찍어보기
+        if (error.response) {
+            console.error("응답 상태:", error.response.status);
+            console.error("응답 바디:", error.response.data);
+        }
         showToast("게시글 저장 중 오류가 발생했습니다.");
     }
 }

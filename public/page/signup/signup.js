@@ -376,9 +376,11 @@ const signup = async (e) => {
         const file = profile.files[0] ?? null;
 
         const uploadResult = file ? await upload(file) : null;
-        const imagePath = uploadResult.data.length > 0
+
+        const imagePath = (uploadResult && uploadResult.data.length > 0)
         ? new URL(uploadResult.data[0].file_url).pathname 
         : null;
+
         const imageName = file ? file.name : null;
 
         if (uploadResult != null && !uploadResult.statusCode === 201) {
@@ -386,10 +388,10 @@ const signup = async (e) => {
             throw new Error("프로필 이미지 업로드 중 오류가 발생했습니다.");
         }
 
-        const image = JSON.stringify({
+        const image = {
             imagePath,
             imageName
-        })
+        };
 
         const body = JSON.stringify({
             email,

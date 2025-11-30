@@ -1,8 +1,8 @@
-export async function apiRequest(endpoint, options = {}) {
-  const url = endpoint;
-  const isFormData = options?.body instanceof FormData;
+const BASE_URL = window.CONFIG.BASE_URL;
 
-  console.log("api request");
+export async function apiRequest(endpoint, options = {}) {
+  const url = `${BASE_URL}${endpoint}`;
+  const isFormData = options?.body instanceof FormData;
 
   try {
     const response = await fetch(url, {
@@ -13,8 +13,6 @@ export async function apiRequest(endpoint, options = {}) {
         ...(!isFormData ? { "Content-Type": "application/json;charset=utf-8" } : {}), // FormData면 생략
       },
     })
-
-    console.log("response status: ", response.status);
 
     // 공통 에러 처리
     if (response.status === 401) {
@@ -61,7 +59,7 @@ export async function upload(file) {
       method: "POST",
       body: formData,
     })
-
+    
     // JSON 파싱
     const data = await response.json();
 
@@ -82,12 +80,26 @@ export async function uploadPost(files){
   const url = window.CONFIG.UPLOAD_URL + "/upload/post-image";
   const formData = new FormData();
 
-  // files가 배열인지 확인 (단일 파일 넣어도 가능)
-  const fileArray = Array.isArray(files)?files:[files];
+  // files: File[], File, FileList 중 하나 처리
+  let fileArray;
 
-  fileArray.forEach((file)=>{
-    formData.append("postImage", file);
-  });
+  if (Array.isArray(files)) {
+    fileArray = files;
+  } else if (files instanceof FileList) {
+    fileArray = Array.from(files);
+  } else if (files instanceof File) {
+    fileArray = [files];
+  } else {
+    console.error("uploadPost(): 예상치 못한 타입", files);
+    throw new Error("uploadPost(files): need File or File[] or FileList");
+  }
+
+  // 실제 파일만 append
+  fileArray
+    .filter((file) => file) // null/undefined 방지
+    .forEach((file) => {
+      formData.append("postImage", file);
+    });
 
   try {
     const response = await fetch(url, {
@@ -117,7 +129,6 @@ function sleep(ms) {
 
 // 토큰 재발급
 export async function tokenReissue() {
-  const BASE_URL = window.CONFIG.BASE_URL;
   const url = `${BASE_URL}/auth/refresh`;
 
   try {

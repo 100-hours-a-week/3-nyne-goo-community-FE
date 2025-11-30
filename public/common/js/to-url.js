@@ -4,6 +4,6 @@
 const IMAGE_BASE_URL = (window.CONFIG?.IMAGE_BASE_URL) || window.location.origin;
 
 export function toAbsUrl(path){
-  if (!path) return null;
+  if (!path) return "/assets/image/default_profile.png";
   return `${IMAGE_BASE_URL}${path}`;
 }

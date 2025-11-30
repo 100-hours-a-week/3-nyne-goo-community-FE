@@ -1,0 +1,9 @@
+services:
+  frontend:
+    image: tnald/dorandoran-fe:latest
+    container_name: dorandoran-fe
+
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
