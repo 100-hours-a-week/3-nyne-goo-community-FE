@@ -90,3 +90,5 @@ jobs:
             --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP \
             --s3-location bucket=$S3_BUCKET,key=frontend/deploy-${GITHUB_SHA}.zip,bundleType=zip \
             --region $AWS_REGION
+            --ignore-application-stop-failures
+
