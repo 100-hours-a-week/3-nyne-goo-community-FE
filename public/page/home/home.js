@@ -26,17 +26,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 사용자 정보 세션 스토리지에 저장
         window.sessionStorage.setItem("userInfo", JSON.stringify(userProfile));
-    }
-    catch (e) {
-        console.error(e);
-    }
 
-    if (isFirstVisit) {
+        if (isFirstVisit) {
         // 홈에 처음 진입했을 때만 사용자 정보 요청
         // 로그인 성공 시 사용자 정보 요청
         const toastMessage = `${userResponse.data.nickname}님, 환영합니다!`;
         showToast(toastMessage);
         window.sessionStorage.removeItem("firstVisited");
+    }
+    }
+    catch (e) {
+        console.error(e);
     }
 
     loadLayout("home")
