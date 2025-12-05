@@ -203,7 +203,7 @@ const renderPosts = (postListResponse) => {
         footer.className = "post-footer";
 
         // 프로필 이미지 URL (비정상 값이면 기본 이미지로)
-        const imageUrl = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
+        const imageUrl = toAbsUrl(post.author.image.imagePath);
 
         const img = document.createElement("img");
         img.className = "author-img";
