@@ -10,25 +10,31 @@ let isFetching = false;
 let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    const timeTaken = window.sessionStorage.getItem("timeTaken");
+    if(startTime) console.log("사진 올리는데 걸린 시간: ", timeTaken);
+
     const isFirstVisit = window.sessionStorage.getItem("firstVisited");
 
-    const userResponse = await apiRequest("/users", {
-        method: "GET",
-    });
+    try {
+        const userResponse = await apiRequest("/users", {
+            method: "GET",
+        });
 
-    const userData = {
-        profileImageUrl: toAbsUrl(userResponse.data.imagePath),
-        nickname: userResponse.data.nickname,
-        email: userResponse.data.email,
-    };
+        const userProfile = {
+            profileImagePath: toAbsUrl(userResponse.data.imagePath)
+        };
 
-    // 사용자 정보 세션 스토리지에 저장
-    window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
+        // 사용자 정보 세션 스토리지에 저장
+        window.sessionStorage.setItem("userInfo", JSON.stringify(userProfile));
+    }
+    catch (e) {
+        console.error(e);
+    }
 
     if (isFirstVisit) {
         // 홈에 처음 진입했을 때만 사용자 정보 요청
         // 로그인 성공 시 사용자 정보 요청
-        const toastMessage = `${userData.nickname}님, 환영합니다!`;
+        const toastMessage = `${userResponse.data.nickname}님, 환영합니다!`;
         showToast(toastMessage);
         window.sessionStorage.removeItem("firstVisited");
     }
@@ -261,4 +267,3 @@ const writePost = () => {
     const writePostButton = document.getElementById("writePostBtn")
     writePostButton.addEventListener("click", () => window.location.href = "/write");
 }
-
