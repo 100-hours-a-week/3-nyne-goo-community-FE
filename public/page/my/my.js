@@ -1,6 +1,7 @@
 import { apiRequest, upload } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
+import { toAbsUrl } from "/common/js/to-url.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadLayout("my");
@@ -32,16 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
     toTop();
 });
 
-const getMyInfo = async ()  => {
-    const userResponse = await apiRequest("/users", {
-        method: "GET",
-    });
+const getMyInfo = async () => {
+    try {
+        const userResponse = await apiRequest("/users", {
+            method: "GET",
+        });
 
-    const userInfo = userResponse.data
+        const userInfo = userResponse.data
 
-    document.getElementById("profileImage").src = userInfo.imagePath;
-    document.getElementById("emailValue").textContent = userInfo.email;
-    document.getElementById("nicknameValue").textContent = userInfo.nickname;
+        document.getElementById("profileImage").src = toAbsUrl(userInfo.imagePath);
+        document.getElementById("emailValue").textContent = userInfo.email;
+        document.getElementById("nicknameValue").textContent = userInfo.nickname;
+    } catch (e) {
+        console.error(e);
+    }
+
 }
 
 const clickEditInfo = () => {
@@ -94,8 +100,8 @@ const clickEditInfo = () => {
 
             const uploadResult = file ? await upload(file) : null;
             const imagePath = uploadResult.data.length > 0
-            ? new URL(uploadResult.data[0].file_url).pathname 
-            : null;
+                ? new URL(uploadResult.data[0].file_url).pathname
+                : null;
             const imageName = file ? file.name : null;
 
             if (uploadResult != null && !uploadResult.statusCode === 201) {
@@ -105,7 +111,7 @@ const clickEditInfo = () => {
 
             const body = JSON.stringify({
                 nickname: newNickname,
-                image: imagePath && imageName ? {imagePath, imageName} : null
+                image: imagePath && imageName ? { imagePath, imageName } : null
             });
 
             console.log("imageName: ", imageName);
@@ -122,7 +128,7 @@ const clickEditInfo = () => {
                     const updatedInfo = {
                         email: my.email,
                         nickname: newNickname,
-                        profileImageUrl: imageUrl!=null?imageUrl:newProfileUrl,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
+                        profileImageUrl: imageUrl != null ? imageUrl : newProfileUrl,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
                     };
                     sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
                     sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
