@@ -2,8 +2,6 @@ import { apiRequest, upload } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
 
-const my = JSON.parse(sessionStorage.getItem("userInfo"));
-
 document.addEventListener("DOMContentLoaded", () => {
     loadLayout("my");
     getMyInfo();
@@ -34,10 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
     toTop();
 });
 
-const getMyInfo = () => {
-    document.getElementById("profileImage").src = my.profileImageUrl;
-    document.getElementById("emailValue").textContent = my.email;
-    document.getElementById("nicknameValue").textContent = my.nickname;
+const getMyInfo = async ()  => {
+    const userResponse = await apiRequest("/users", {
+        method: "GET",
+    });
+
+    const userInfo = userResponse.data
+
+    document.getElementById("profileImage").src = userInfo.imagePath;
+    document.getElementById("emailValue").textContent = userInfo.email;
+    document.getElementById("nicknameValue").textContent = userInfo.nickname;
 }
 
 const clickEditInfo = () => {

@@ -62,7 +62,7 @@ const setProfile = () => {
 
     const profile = document.getElementById("userProfile");
     if(profile.dataset && profile.dataset.lock==="menu") return;
-    profile.src = userInfo.profileImageUrl || "/assets/image/default_profile.png";
+    profile.src = userInfo.profileImagePath || "/assets/image/default_profile.png";
 
     clickProfile();
 }
