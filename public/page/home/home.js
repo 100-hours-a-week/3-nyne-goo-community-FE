@@ -11,7 +11,7 @@ let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const timeTaken = window.sessionStorage.getItem("timeTaken");
-    if(startTime) console.log("사진 올리는데 걸린 시간: ", timeTaken);
+    if(timeTaken) console.log("사진 올리는데 걸린 시간: ", timeTaken);
 
     const isFirstVisit = window.sessionStorage.getItem("firstVisited");
 
