@@ -287,8 +287,6 @@ const controlNickname = () => {
 
 // 닉네임 유효성 검사
 const validateNicknameConfirm = (e) => {
-    validationState.checkNickname=false;
-
     const nickname = e.target.value;
     const nicknameError = document.getElementById("nicknameMsg");
     const checkNicknameButton = document.getElementById("checkNickname")
