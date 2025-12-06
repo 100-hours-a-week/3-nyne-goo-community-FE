@@ -155,6 +155,13 @@ input.readonly {
   background-color: #7D84C3; /* ✅ hover 시 라벤더 */
 }
 
+.check-btn.disabled {
+  background-color: #d3d3d3; /* 옅은 회색 */
+  cursor: not-allowed;
+  pointer-events: none;
+  color: #888;
+}
+
 /* 비밀번호 눈 아이콘 */
 .input-eye-group {
   position: relative;

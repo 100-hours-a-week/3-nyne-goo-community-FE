@@ -77,16 +77,16 @@ const validateEmail = (e) => {
     // checkEmail이 true 면 false로 바꿈
     // 회원가입 버튼 활성화되어 있으면 비활성화
     if(validationState.checkEmail) {
-        if(validationState.checkNickname && validationState.password && validationState.passwordConfirm) {
-            document.getElementById("signupBtn").classList.remove("active");
-            
-            // 배경색 및 테두리 초록색 제거
-            document.getElementById("email").classList.remove("error");
-            emailMsg.classList.remove("show", "success");
-            document.getElementById("email").classList.remove("success", "readonly");
-
-        }
         validationState.checkEmail=false;
+        changeSignupButton();
+        enableCheckButton(checkEmailButton);
+        
+        // 배경색 및 테두리 초록색 제거
+        document.getElementById("email").classList.remove("error");
+        document.getElementById("email").classList.remove("success", "readonly");        
+
+        emailMsg.classList.remove("show", "success", "error");
+        emailMsg.style.color = "";
     }
 
     if (isValid) {
@@ -94,7 +94,7 @@ const validateEmail = (e) => {
         checkEmailButton.disabled = false;
         checkEmailButton.classList.add("active");
 
-        document.getElementById("checkEmail").addEventListener("click", checkEmail(emailMsg))
+        document.getElementById("checkEmail").addEventListener("click", () => checkEmail(emailMsg))
 
         // 이메일 입력 중 엔터 시 이메일 중복 확인 버튼 클릭
         document.getElementById("email").addEventListener("keydown", (e) => {
@@ -159,16 +159,17 @@ const controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
     else {
         if (type == "email") {
             validationState.checkEmail = true;
+            disableCheckButton(document.getElementById("checkEmail"));
             inputMsg.textContent = "사용 가능한 이메일입니다."
         }
         else if (type == "nickname") {
             validationState.checkNickname = true;
+            disableCheckButton(document.getElementById("checkNickname"));
             inputMsg.textContent = "사용 가능한 닉네임입니다."
         }
 
         // 통과 시 inputBox 밑에 사용가능 함을 초록색으로 표시
         inputMsg.style.color = "green";
-        inputMsg.classList.remove("error");
         inputMsg.classList.add("show", "success");
 
         // 배경색 추가 및 테두리 초록색으로 변경
@@ -299,15 +300,16 @@ const validateNicknameConfirm = (e) => {
     const isValid = lengthValid && !hasSpace;
 
     if(validationState.checkNickname) {
-        if(validationState.checkEmail && validationState.password && validationState.passwordConfirm) {
-            document.getElementById("signupBtn").classList.remove("active");
-            nicknameError.classList.add("show", "success");
-
-            // 배경색 추가 및 테두리 초록색으로 변경
-            document.getElementById("nickname").classList.remove("error");
-            document.getElementById("nickname").classList.remove("success", "readonly");
-        }
         validationState.checkNickname=false;
+        changeSignupButton();
+        enableCheckButton(checkNicknameButton);
+        
+        nicknameError.classList.remove("show", "success", "error");
+        nicknameError.style.color="";
+
+        // 배경색 및 테두리 초록색으로 변경
+        document.getElementById("nickname").classList.remove("error");
+        document.getElementById("nickname").classList.remove("success", "readonly");
     }
 
     if (isValid) {
@@ -315,7 +317,7 @@ const validateNicknameConfirm = (e) => {
         checkNicknameButton.disabled = false;
         checkNicknameButton.classList.add("active");
 
-        document.getElementById("checkNickname").addEventListener("click", checkNickname(nicknameError))
+        document.getElementById("checkNickname").addEventListener("click", () => checkNickname(nicknameError))
 
         // 닉네임 입력 중 엔터 시 닉네임 중복 확인 버튼 클릭
         document.getElementById("nickname").addEventListener("keydown", (e) => {
@@ -361,6 +363,18 @@ const changeSignupButton = () => {
         signupButton.disabled = true;
         signupButton.classList.remove("active");
     }
+}
+
+const disableCheckButton = (button) => {
+    button.disabled = true;
+    button.classList.remove("active");
+    button.classList.add("disabled");
+}
+
+const enableCheckButton = (button)=>{
+     button.disabled = false;
+    button.classList.add("active");
+    button.classList.remove("disabled");
 }
 
 const login = () => {
