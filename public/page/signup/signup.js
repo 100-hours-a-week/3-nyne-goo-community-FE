@@ -60,16 +60,10 @@ const uploadProfile = () => {
 
 const controlEmail = () => {
     document.getElementById("email").addEventListener("input", (e) => { validateEmail(e) });
-    document.getElementById("checkEmail").addEventListener("click", checkEmail)
 }
 
 // 이메일 유효성 검사
 const validateEmail = (e) => {
-    if(validationState.checkEmail) {
-        if(validationState.checkNickname && validationState.password && validationState.passwordConfirm) signupButton.classList.remove("active");
-        validationState.checkEmail=false;
-    }
-
     const email = e.target.value;
     const emailMsg = document.getElementById("emailMsg");
     const checkEmailButton = document.getElementById("checkEmail")
@@ -80,10 +74,27 @@ const validateEmail = (e) => {
 
     const isValid = !invalidChar && containAt && containDot;
 
+    // checkEmail이 true 면 false로 바꿈
+    // 회원가입 버튼 활성화되어 있으면 비활성화
+    if(validationState.checkEmail) {
+        if(validationState.checkNickname && validationState.password && validationState.passwordConfirm) {
+            document.getElementById("signupBtn").classList.remove("active");
+            
+            // 배경색 및 테두리 초록색 제거
+            document.getElementById("email").classList.remove("error");
+            emailMsg.classList.remove("show", "success");
+            document.getElementById("email").classList.remove("success", "readonly");
+
+        }
+        validationState.checkEmail=false;
+    }
+
     if (isValid) {
         emailMsg.classList.remove("show", "error");
         checkEmailButton.disabled = false;
         checkEmailButton.classList.add("active");
+
+        document.getElementById("checkEmail").addEventListener("click", checkEmail(emailMsg))
 
         // 이메일 입력 중 엔터 시 이메일 중복 확인 버튼 클릭
         document.getElementById("email").addEventListener("keydown", (e) => {
@@ -91,7 +102,6 @@ const validateEmail = (e) => {
                 e.preventDefault(); // form 전체 submit 방지
                 const checkEmailButton = document.getElementById("checkEmail");
                 checkEmailButton.click();
-                
             }
         });
     } else {
@@ -104,7 +114,7 @@ const validateEmail = (e) => {
 }
 
 // 이메일 중복 체크 통과 시 이메일 입력 비활성화
-const checkEmail = async () => {
+const checkEmail = async (emailMsg) => {
     const emailInput = document.getElementById("email");
 
     try {
@@ -183,11 +193,6 @@ const controlPassword = () => {
 }
 // 비밀번호 유효성 검사
 const validatePassword = (e) => {
-     if(validationState.checkNickname) {
-        if(validationState.checkEmail && validationState.password && validationState.passwordConfirm) signupButton.classList.remove("active");
-        validationState.checkNickname=false;
-    }
-
     const password = e.target.value;
     const passwordError = document.getElementById("passwordMsg");
 
@@ -277,8 +282,6 @@ const clickEye = (toggle, Input) => {
 
 const controlNickname = () => {
     document.getElementById("nickname").addEventListener("input", (e) => { validateNicknameConfirm(e) });
-    document.getElementById("checkNickname").addEventListener("click", checkNickname)
-
 }
 
 // 닉네임 유효성 검사
@@ -295,10 +298,24 @@ const validateNicknameConfirm = (e) => {
     // 모든 조건 만족하는지
     const isValid = lengthValid && !hasSpace;
 
+    if(validationState.checkNickname) {
+        if(validationState.checkEmail && validationState.password && validationState.passwordConfirm) {
+            document.getElementById("signupBtn").classList.remove("active");
+            nicknameError.classList.add("show", "success");
+
+            // 배경색 추가 및 테두리 초록색으로 변경
+            document.getElementById("nickname").classList.remove("error");
+            document.getElementById("nickname").classList.remove("success", "readonly");
+        }
+        validationState.checkNickname=false;
+    }
+
     if (isValid) {
         nicknameError.classList.remove("show");
         checkNicknameButton.disabled = false;
         checkNicknameButton.classList.add("active");
+
+        document.getElementById("checkNickname").addEventListener("click", checkNickname(nicknameError))
 
         // 닉네임 입력 중 엔터 시 닉네임 중복 확인 버튼 클릭
         document.getElementById("nickname").addEventListener("keydown", (e) => {
@@ -317,7 +334,7 @@ const validateNicknameConfirm = (e) => {
     }
 }
 
-const checkNickname = async () => {
+const checkNickname = async (nicknameMsg) => {
     const nicknameInput = document.getElementById("nickname");
 
     try {
