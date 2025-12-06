@@ -262,7 +262,6 @@ const writeForm = (postId) => {
 
 // 작성 완료 시 이전 화면으로 돌아감
 const writePost = async (postId) => {
-    const startTime = Date.now();
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
@@ -329,7 +328,6 @@ const writePost = async (postId) => {
             if (response.statusCode === 201 || response.statusCode === 200) {
                 window.sessionStorage.setItem("refreshHome", "true");
                 window.sessionStorage.setItem("toastMessage", postId ? "게시글이 수정되었습니다." : "게시글이 등록되었습니다!")
-                window.sessionStorage.setItem("startTime", startTime);
                 history.back();
             } else {
                 showToast("게시글 저장 실패");

@@ -65,6 +65,8 @@ const controlEmail = () => {
 
 // 이메일 유효성 검사
 const validateEmail = (e) => {
+    validationState.checkEmail=false;
+
     const email = e.target.value;
     const emailMsg = document.getElementById("emailMsg");
     const checkEmailButton = document.getElementById("checkEmail")
@@ -85,9 +87,8 @@ const validateEmail = (e) => {
             if (e.key === "Enter") {
                 e.preventDefault(); // form 전체 submit 방지
                 const checkEmailButton = document.getElementById("checkEmail");
-                if (!checkEmailButton.disabled) {
-                    checkEmailButton.click();
-                }
+                checkEmailButton.click();
+                
             }
         });
     } else {
@@ -156,9 +157,6 @@ const controlInputMsg = (exist, type, inputMsg, inputBox, message) => {
         inputMsg.style.color = "green";
         inputMsg.classList.remove("error");
         inputMsg.classList.add("show", "success");
-
-        // 입력 비활성화
-        inputBox.readOnly = true;
 
         // 배경색 추가 및 테두리 초록색으로 변경
         inputBox.classList.remove("error");
@@ -277,6 +275,8 @@ const controlNickname = () => {
 
 // 닉네임 유효성 검사
 const validateNicknameConfirm = (e) => {
+    validationState.checkNickname=false;
+
     const nickname = e.target.value;
     const nicknameError = document.getElementById("nicknameMsg");
     const checkNicknameButton = document.getElementById("checkNickname")
@@ -297,9 +297,7 @@ const validateNicknameConfirm = (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
                 const checkNicknameButton = document.getElementById("checkNickname");
-                if (!checkNicknameButton.disabled) {
-                    checkNicknameButton.click();
-                }
+                checkNicknameButton.click();
             }
         });
     } else {
@@ -311,7 +309,6 @@ const validateNicknameConfirm = (e) => {
     }
 }
 
-// 닉네임 중복 체크 통과 시 닉네임 입력 비활성화
 const checkNickname = async () => {
     const nicknameInput = document.getElementById("nickname");
 
