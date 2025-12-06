@@ -12,25 +12,28 @@ let hasMore = true;
 document.addEventListener("DOMContentLoaded", async () => {
     const isFirstVisit = window.sessionStorage.getItem("firstVisited");
 
-    const userResponse = await apiRequest("/users", {
-        method: "GET",
-    });
+    try {
+        const userResponse = await apiRequest("/users", {
+            method: "GET",
+        });
 
-    const userData = {
-        profileImageUrl: toAbsUrl(userResponse.data.imagePath),
-        nickname: userResponse.data.nickname,
-        email: userResponse.data.email,
-    };
+        const userProfile = {
+            profileImagePath: toAbsUrl(userResponse.data.imagePath)
+        };
 
-    // 사용자 정보 세션 스토리지에 저장
-    window.sessionStorage.setItem("userInfo", JSON.stringify(userData));
+        // 사용자 정보 세션 스토리지에 저장
+        window.sessionStorage.setItem("userInfo", JSON.stringify(userProfile));
 
-    if (isFirstVisit) {
+        if (isFirstVisit) {
         // 홈에 처음 진입했을 때만 사용자 정보 요청
         // 로그인 성공 시 사용자 정보 요청
-        const toastMessage = `${userData.nickname}님, 환영합니다!`;
+        const toastMessage = `${userResponse.data.nickname}님, 환영합니다!`;
         showToast(toastMessage);
         window.sessionStorage.removeItem("firstVisited");
+    }
+    }
+    catch (e) {
+        console.error(e);
     }
 
     loadLayout("home")
@@ -120,7 +123,6 @@ const getList = async () => {
         }
 
         renderPosts(postListResponse);
-        console.log("response:? ", postListResponse);
 
         if (postListResponse.last) hasMore = false;
         else hasMore = true;
@@ -197,7 +199,7 @@ const renderPosts = (postListResponse) => {
         footer.className = "post-footer";
 
         // 프로필 이미지 URL (비정상 값이면 기본 이미지로)
-        const imageUrl = toAbsUrl(post.author.image.imagePath) || "/assets/image/default_profile.png";
+        const imageUrl = toAbsUrl(post.author.image.imagePath);
 
         const img = document.createElement("img");
         img.className = "author-img";
@@ -261,4 +263,3 @@ const writePost = () => {
     const writePostButton = document.getElementById("writePostBtn")
     writePostButton.addEventListener("click", () => window.location.href = "/write");
 }
-

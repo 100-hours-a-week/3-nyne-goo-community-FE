@@ -1,8 +1,7 @@
 import { apiRequest, upload } from "/common/js/api.js";
 import { showToast } from "/common/js/toast.js";
 import { loadLayout } from "/common/js/load-layout.js";
-
-const my = JSON.parse(sessionStorage.getItem("userInfo"));
+import { toAbsUrl } from "/common/js/to-url.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadLayout("my");
@@ -34,10 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
     toTop();
 });
 
-const getMyInfo = () => {
-    document.getElementById("profileImage").src = my.profileImageUrl;
-    document.getElementById("emailValue").textContent = my.email;
-    document.getElementById("nicknameValue").textContent = my.nickname;
+const getMyInfo = async () => {
+    try {
+        const userResponse = await apiRequest("/users", {
+            method: "GET",
+        });
+
+        const userInfo = userResponse.data
+
+        document.getElementById("profileImage").src = toAbsUrl(userInfo.imagePath);
+        document.getElementById("emailValue").textContent = userInfo.email;
+        document.getElementById("nicknameValue").textContent = userInfo.nickname;
+    } catch (e) {
+        console.error(e);
+    }
+
 }
 
 const clickEditInfo = () => {
@@ -89,9 +99,9 @@ const clickEditInfo = () => {
             const file = profile.files[0] ?? null;
 
             const uploadResult = file ? await upload(file) : null;
-            const imagePath = uploadResult.data.length > 0
-            ? new URL(uploadResult.data[0].file_url).pathname 
-            : null;
+            const imagePath = uploadResult
+                ? new URL(uploadResult.data[0].file_url).pathname
+                : null;
             const imageName = file ? file.name : null;
 
             if (uploadResult != null && !uploadResult.statusCode === 201) {
@@ -101,7 +111,7 @@ const clickEditInfo = () => {
 
             const body = JSON.stringify({
                 nickname: newNickname,
-                image: imagePath && imageName ? {imagePath, imageName} : null
+                image: imagePath && imageName ? { imagePath, imageName } : null
             });
 
             console.log("imageName: ", imageName);
@@ -111,20 +121,21 @@ const clickEditInfo = () => {
                 const response = await apiRequest("/users", {
                     method: "PATCH",
                     body: body,
-                    headers: {}, // Content-Type 자동 제거
                 });
+
+                console.log("response: ", response);
+                console.log("response.data: ", response.data);
 
                 if (response != null) {
                     const updatedInfo = {
-                        email: my.email,
-                        nickname: newNickname,
-                        profileImageUrl: imageUrl!=null?imageUrl:newProfileUrl,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
+                        profileImageUrl: imagePath == null ? newProfileUrl : imagePath,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
                     };
                     sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
                     sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
                     window.location.replace("/my");
                 }
             } catch (error) {
+                console.log(error);
                 if (error.status === 409) {
                     newNicknameInput.classList.add("input-error");
                     showToast("이미 사용 중인 닉네임입니다.");
@@ -137,6 +148,7 @@ const clickEditInfo = () => {
                 }
             }
         } catch (error) {
+            console.log(error);
             showToast("프로필 수정 중 오류가 발생했습니다.");
         }
 
