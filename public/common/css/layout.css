@@ -48,6 +48,16 @@ header.scrolled {
   user-select: none;
 }
 
+.site-title-link {
+  text-decoration: none;
+  color: inherit; 
+}
+
+.site-title-link:hover {
+  opacity: 0.85;  
+}
+
+
 /* 뒤로가기 버튼 */
 #backBtn {
   background: url("/assets/image/back.png") no-repeat center center;
