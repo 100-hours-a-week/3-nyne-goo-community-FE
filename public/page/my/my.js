@@ -99,7 +99,7 @@ const clickEditInfo = () => {
             const file = profile.files[0] ?? null;
 
             const uploadResult = file ? await upload(file) : null;
-            const imagePath = uploadResult.data.length > 0
+            const imagePath = uploadResult
                 ? new URL(uploadResult.data[0].file_url).pathname
                 : null;
             const imageName = file ? file.name : null;
@@ -121,20 +121,21 @@ const clickEditInfo = () => {
                 const response = await apiRequest("/users", {
                     method: "PATCH",
                     body: body,
-                    headers: {}, // Content-Type 자동 제거
                 });
+
+                console.log("response: ", response);
+                console.log("response.data: ", response.data);
 
                 if (response != null) {
                     const updatedInfo = {
-                        email: my.email,
-                        nickname: newNickname,
-                        profileImageUrl: imageUrl != null ? imageUrl : newProfileUrl,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
+                        profileImageUrl: imagePath == null ? newProfileUrl : imagePath,     // 새 프로필 이미지면 s3 에서 받은 값을 저장
                     };
                     sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
                     sessionStorage.setItem("toastMessage", "회원정보가 성공적으로 변경되었습니다.");
                     window.location.replace("/my");
                 }
             } catch (error) {
+                console.log(error);
                 if (error.status === 409) {
                     newNicknameInput.classList.add("input-error");
                     showToast("이미 사용 중인 닉네임입니다.");
@@ -147,6 +148,7 @@ const clickEditInfo = () => {
                 }
             }
         } catch (error) {
+            console.log(error);
             showToast("프로필 수정 중 오류가 발생했습니다.");
         }
 

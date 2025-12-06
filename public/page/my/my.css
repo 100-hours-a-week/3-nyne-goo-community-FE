@@ -212,6 +212,31 @@
 
 /* 모드별 */
 
+.nickname-input {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nickname-input.input-error {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 1px rgba(255, 77, 79, 0.25);
+  animation: shake 0.4s ease; /* 0.4초 동안 흔들 */
+}
+
+/* 흔들림 애니메이션 */
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-4px); }
+  40%  { transform: translateX(4px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
 /* view 모드 */
 :root[data-mode="view"] .profile-circle:hover {
   border-color: #cfd3f9;
@@ -266,3 +291,4 @@
     gap: 12px;
   }
 }
+
