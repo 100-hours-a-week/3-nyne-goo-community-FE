@@ -10,9 +10,6 @@ let isFetching = false;
 let hasMore = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const timeTaken = window.sessionStorage.getItem("timeTaken");
-    if(timeTaken) console.log("사진 올리는데 걸린 시간: ", timeTaken);
-
     const isFirstVisit = window.sessionStorage.getItem("firstVisited");
 
     try {
@@ -126,7 +123,6 @@ const getList = async () => {
         }
 
         renderPosts(postListResponse);
-        console.log("response:? ", postListResponse);
 
         if (postListResponse.last) hasMore = false;
         else hasMore = true;
