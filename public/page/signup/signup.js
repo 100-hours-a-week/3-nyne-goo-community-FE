@@ -65,7 +65,10 @@ const controlEmail = () => {
 
 // 이메일 유효성 검사
 const validateEmail = (e) => {
-    validationState.checkEmail=false;
+    if(validationState.checkEmail) {
+        if(validationState.checkNickname && validationState.password && validationState.passwordConfirm) signupButton.classList.remove("active");
+        validationState.checkEmail=false;
+    }
 
     const email = e.target.value;
     const emailMsg = document.getElementById("emailMsg");
@@ -180,6 +183,11 @@ const controlPassword = () => {
 }
 // 비밀번호 유효성 검사
 const validatePassword = (e) => {
+     if(validationState.checkNickname) {
+        if(validationState.checkEmail && validationState.password && validationState.passwordConfirm) signupButton.classList.remove("active");
+        validationState.checkNickname=false;
+    }
+
     const password = e.target.value;
     const passwordError = document.getElementById("passwordMsg");
 
